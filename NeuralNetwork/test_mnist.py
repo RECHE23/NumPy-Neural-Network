@@ -1,7 +1,7 @@
 from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
-from functions import tanh, mean_squared_error
+from functions import tanh, sigmoid, relu, mean_squared_error
 from keras.datasets import mnist
 from keras.utils import to_categorical
 import time
@@ -29,7 +29,7 @@ net = NeuralNetwork()
 net.add(FullyConnectedLayer(28*28, 100))                # input_shape=(1, 28*28)    ;   output_shape=(1, 100)
 net.add(ActivationLayer(tanh))
 net.add(FullyConnectedLayer(100, 50))                   # input_shape=(1, 100)      ;   output_shape=(1, 50)
-net.add(ActivationLayer(tanh))
+net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(50, 10))                    # input_shape=(1, 50)       ;   output_shape=(1, 10)
 net.add(ActivationLayer(tanh))
 
