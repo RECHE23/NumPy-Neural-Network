@@ -41,4 +41,4 @@ class NeuralNetwork:
 
             # Evaluate the average error on all samples:
             err /= samples
-            print(f"epoch {epoch:4d} of {epochs:4d} \t error = {err:.6f}")
+            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {err:.6f}")

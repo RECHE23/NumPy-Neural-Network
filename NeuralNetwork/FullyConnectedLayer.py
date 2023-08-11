@@ -4,8 +4,10 @@ import numpy as np
 
 class FullyConnectedLayer(Layer):
     def __init__(self, input_size, output_size):
-        self.weights = np.random.randn(input_size, output_size)
-        self.bias = np.random.randn(1, output_size)
+        # Xavier initialization:
+        a = np.sqrt(6/(input_size + output_size))
+        self.weights = np.random.uniform(-a, a, (input_size, output_size))
+        self.bias = np.zeros((1, output_size))
         super().__init__()
 
     def forward_propagation(self, input_data):

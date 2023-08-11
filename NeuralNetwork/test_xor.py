@@ -3,11 +3,9 @@ import numpy as np
 from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
-from functions import tanh, mse
+from functions import tanh, mean_squared_error
 import time
 
-# Record start time:
-start = time.time()
 
 # Training data:
 x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
@@ -20,8 +18,11 @@ net.add(ActivationLayer(tanh))
 net.add(FullyConnectedLayer(3, 1))
 net.add(ActivationLayer(tanh))
 
+# Record start time:
+start = time.time()
+
 # Train:
-net.use(mse)
+net.use(mean_squared_error)
 net.fit(x_train, y_train, epochs=1000, learning_rate=0.1)
 
 # Test:
