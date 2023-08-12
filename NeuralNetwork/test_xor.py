@@ -3,7 +3,8 @@ import numpy as np
 from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
-from functions import relu, sigmoid, tanh, mean_squared_error
+from activation_functions import relu, sigmoid, tanh
+from loss_functions import mean_squared_error
 import time
 
 
