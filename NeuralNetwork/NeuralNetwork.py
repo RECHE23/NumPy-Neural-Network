@@ -1,44 +1,50 @@
+import numpy as np
+
+from activation_functions import softmax
+from OutputLayer import OutputLayer
+
+
 class NeuralNetwork:
     def __init__(self):
         self.layers = []
-        self.loss = None
 
     def add(self, layer):
         self.layers.append(layer)
-
-    def use(self, loss):
-        self.loss = loss
+        assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1
 
     def predict(self, samples):
-        predictions = []
+        assert isinstance(self.layers[-1], OutputLayer)
 
-        for sample in samples:
-            output = sample
+        predictions = np.empty((len(samples), self.layers[-1].output.shape[1]))
+
+        for i, propagated_sample in enumerate(samples):
             for layer in self.layers:
-                output = layer.forward_propagation(output)
-            predictions.append(output)
+                propagated_sample = layer.forward_propagation(propagated_sample)
+            predictions[i] = propagated_sample
 
         return predictions
 
-    def fit(self, x_train, y_train, epochs, learning_rate):
-        samples = len(x_train)
+    def predict_proba(self, samples):
+        return softmax(self.predict(samples))
+
+    def fit(self, samples, labels, epochs=100, learning_rate=0.1):
+        assert isinstance(self.layers[-1], OutputLayer)
 
         for epoch in range(1, epochs + 1):
-            err = 0
-            for i in range(samples):
+            error = 0
+            for i, propagated_sample in enumerate(samples):
                 # Forward propagation:
-                output = x_train[i]
                 for layer in self.layers:
-                    output = layer.forward_propagation(output)
+                    propagated_sample = layer.forward_propagation(propagated_sample)
 
                 # Compute the total loss:
-                err += self.loss(y_train[i], output)
+                error += self.layers[-1].loss(labels[i], propagated_sample)
 
                 # Backward propagation:
-                error = self.loss(y_train[i], output, prime=True)
+                error_grad = None
                 for layer in reversed(self.layers):
-                    error = layer.backward_propagation(error, learning_rate)
+                    error_grad = layer.backward_propagation(error_grad, learning_rate, labels[i])
 
             # Evaluate the average error on all samples:
-            err /= samples
-            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {err:.6f}")
+            error /= len(samples)
+            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f}")

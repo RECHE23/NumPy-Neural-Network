@@ -1,9 +1,11 @@
 from Layer import Layer
+import numpy as np
 
 
-class ActivationLayer(Layer):
-    def __init__(self, activation_function):
+class OutputLayer(Layer):
+    def __init__(self, activation_function, loss_function):
         self.activation_function = activation_function
+        self.loss_function = loss_function
         super().__init__()
 
     def forward_propagation(self, input_data):
@@ -12,4 +14,7 @@ class ActivationLayer(Layer):
         return self.output
 
     def backward_propagation(self, output_error, learning_rate, y_true):
-        return self.activation_function(self.input, prime=True) * output_error
+        return self.loss_function(y_true, self.output, prime=True)
+
+    def loss(self, y_true, y_pred, prime=False):
+        return self.loss_function(y_true, y_pred, prime)

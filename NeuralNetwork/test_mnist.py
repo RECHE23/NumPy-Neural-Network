@@ -1,7 +1,8 @@
 from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
-from activation_functions import tanh, sigmoid, relu
+from OutputLayer import OutputLayer
+from activation_functions import tanh, sigmoid, relu, softmax
 from loss_functions import mean_squared_error
 from keras.datasets import mnist
 from keras.utils import to_categorical
@@ -36,20 +37,22 @@ net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(33, 50))                    # input_shape=(1, 33)       ;   output_shape=(1, 50)
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(50, 10))                    # input_shape=(1, 50)       ;   output_shape=(1, 10)
-net.add(ActivationLayer(tanh))
+net.add(OutputLayer(tanh, mean_squared_error))
 
 # Record start time:
 start = time.time()
 
 # Train:
-net.use(mean_squared_error)
 net.fit(x_train[0:1000], y_train[0:1000], epochs=35, learning_rate=0.1)
 
 # Test on 3 samples:
 out = net.predict(x_test[0:3])
+out1 = net.predict_proba(x_test[0:3])
 print("\n")
 print("predicted values : ")
 print(out, end="\n")
+print("predicted probabilities : ")
+print(out1, end="\n")
 print("true values : ")
 print(y_test[0:3])
 

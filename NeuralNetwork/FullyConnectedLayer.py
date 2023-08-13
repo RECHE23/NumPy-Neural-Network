@@ -15,7 +15,7 @@ class FullyConnectedLayer(Layer):
         self.output = np.einsum("ij,jk", self.input, self.weights) + self.bias
         return self.output
 
-    def backward_propagation(self, output_error, learning_rate):
+    def backward_propagation(self, output_error, learning_rate, y_true):
         input_error = np.einsum("ij,kj", output_error, self.weights)
         weights_error = np.einsum("ji,jk", self.input, output_error)
 
