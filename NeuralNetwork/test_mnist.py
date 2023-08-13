@@ -6,6 +6,7 @@ from activation_functions import tanh, sigmoid, relu, softmax
 from loss_functions import mean_squared_error, categorical_cross_entropy
 from keras.datasets import mnist
 from keras.utils import to_categorical
+from sklearn.metrics import accuracy_score
 import time
 
 # load MNIST from server
@@ -24,7 +25,7 @@ y_train = to_categorical(y_train)
 x_test = x_test.reshape(x_test.shape[0], 1, 28*28)
 x_test = x_test.astype('float32')
 x_test /= 255
-y_test = to_categorical(y_test)
+#y_test = to_categorical(y_test)
 
 # Network
 net = NeuralNetwork()
@@ -44,18 +45,23 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=50, learning_rate=0.01)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=40, learning_rate=0.01)
 
-# Test on 3 samples:
-out = net.predict(x_test[0:3])
+# Test on N samples:
+N = 10
+out = net.predict(x_test[0:N], to="labels")
 print("\n")
 print("predicted values : ")
 print(out, end="\n")
 print("true values : ")
-print(y_test[0:3])
+print(y_test[0:N])
 
 # Record end time:
 end = time.time()
 
 # Print the difference between start and end time in milliseconds:
 print("\nThe time of execution of above program is :", (end - start) * 10 ** 3, "ms")
+
+y_predicted = net.predict(x_test, to="labels")
+score = accuracy_score(y_test, y_predicted)
+print(f"Accuracy score: {score:.2%}")

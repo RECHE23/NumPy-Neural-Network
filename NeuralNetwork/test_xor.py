@@ -27,7 +27,7 @@ start = time.time()
 net.fit(x_train, y_train, epochs=1000, learning_rate=0.1)
 
 # Test:
-out = net.predict(x_train)
+out = net.predict(x_train, to="binary")
 print(out)
 
 # Record end time:

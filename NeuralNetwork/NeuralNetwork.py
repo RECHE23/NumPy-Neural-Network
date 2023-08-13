@@ -11,7 +11,7 @@ class NeuralNetwork:
         self.layers.append(layer)
         assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1
 
-    def predict(self, samples):
+    def predict(self, samples, to=None):
         assert isinstance(self.layers[-1], OutputLayer)
 
         predictions = np.empty((len(samples), self.layers[-1].output.shape[1]))
@@ -20,6 +20,15 @@ class NeuralNetwork:
             for layer in self.layers:
                 propagated_sample = layer.forward_propagation(propagated_sample)
             predictions[i] = propagated_sample
+
+        if to == "one_hot":
+            idx = np.argmax(predictions, axis=-1)
+            predictions = np.zeros(predictions.shape)
+            predictions[np.arange(predictions.shape[0]), idx] = 1
+        elif to == "binary":
+            predictions = np.where(predictions >= 0.5, 1, 0)
+        elif to == "labels":
+            predictions = np.argmax(predictions, axis=-1)
 
         return predictions
 
