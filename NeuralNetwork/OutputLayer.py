@@ -1,5 +1,4 @@
 from Layer import Layer
-import numpy as np
 
 
 class OutputLayer(Layer):

@@ -1,6 +1,5 @@
 import numpy as np
 
-from activation_functions import softmax
 from OutputLayer import OutputLayer
 
 
@@ -23,9 +22,6 @@ class NeuralNetwork:
             predictions[i] = propagated_sample
 
         return predictions
-
-    def predict_proba(self, samples):
-        return softmax(self.predict(samples))
 
     def fit(self, samples, labels, epochs=100, learning_rate=0.1):
         assert isinstance(self.layers[-1], OutputLayer)

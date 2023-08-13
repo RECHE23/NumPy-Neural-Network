@@ -3,7 +3,7 @@ from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
 from OutputLayer import OutputLayer
 from activation_functions import tanh, sigmoid, relu, softmax
-from loss_functions import mean_squared_error
+from loss_functions import mean_squared_error, categorical_cross_entropy
 from keras.datasets import mnist
 from keras.utils import to_categorical
 import time
@@ -29,7 +29,7 @@ y_test = to_categorical(y_test)
 # Network
 net = NeuralNetwork()
 net.add(FullyConnectedLayer(28*28, 100))                # input_shape=(1, 28*28)    ;   output_shape=(1, 100)
-net.add(ActivationLayer(tanh))
+net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(100, 50))                   # input_shape=(1, 100)      ;   output_shape=(1, 50)
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(50, 33))                    # input_shape=(1, 50)       ;   output_shape=(1, 33)
@@ -37,22 +37,20 @@ net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(33, 50))                    # input_shape=(1, 33)       ;   output_shape=(1, 50)
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(50, 10))                    # input_shape=(1, 50)       ;   output_shape=(1, 10)
-net.add(OutputLayer(tanh, mean_squared_error))
+#net.add(OutputLayer(tanh, mean_squared_error))
+net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Record start time:
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=35, learning_rate=0.1)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=50, learning_rate=0.01)
 
 # Test on 3 samples:
 out = net.predict(x_test[0:3])
-out1 = net.predict_proba(x_test[0:3])
 print("\n")
 print("predicted values : ")
 print(out, end="\n")
-print("predicted probabilities : ")
-print(out1, end="\n")
 print("true values : ")
 print(y_test[0:3])
 

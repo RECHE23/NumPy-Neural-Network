@@ -4,8 +4,8 @@ from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
 from OutputLayer import OutputLayer
-from activation_functions import relu, sigmoid, tanh
-from loss_functions import mean_squared_error
+from activation_functions import relu, sigmoid, tanh, softmax
+from loss_functions import mean_squared_error, categorical_cross_entropy
 import time
 
 
