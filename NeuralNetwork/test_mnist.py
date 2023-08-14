@@ -45,7 +45,7 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=40, learning_rate=0.01)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=35, learning_rate=0.01)
 
 # Test on N samples:
 N = 10

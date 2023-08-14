@@ -22,7 +22,7 @@ def sigmoid(x, prime=False):
 
 def softmax(x, prime=False):
     e = np.exp(x - np.max(x))
-    s = e / np.sum(e, axis=1, keepdims=True)
+    s = e / np.sum(e, axis=-1, keepdims=True)
     if prime:
         return np.diagflat(s) - np.dot(s, s.T)
     return s
