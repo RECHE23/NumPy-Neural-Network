@@ -1,6 +1,6 @@
 import numpy as np
-
 from OutputLayer import OutputLayer
+from utils import convert_data
 
 
 class NeuralNetwork:
@@ -18,16 +18,7 @@ class NeuralNetwork:
         for layer in self.layers:
             predictions = layer.forward_propagation(predictions)
 
-        if to == "one_hot":
-            idx = np.argmax(predictions, axis=-1).squeeze()
-            predictions = np.zeros(predictions.shape).squeeze()
-            predictions[np.arange(predictions.shape[0]), idx] = 1
-        elif to == "binary":
-            predictions = np.where(predictions >= 0.5, 1, 0).squeeze()
-        elif to == "labels":
-            predictions = np.argmax(predictions, axis=-1).squeeze()
-
-        return predictions
+        return convert_data(predictions, to=to)
 
     def fit(self, samples, labels, epochs=100, learning_rate=0.05):
         assert isinstance(self.layers[-1], OutputLayer)
