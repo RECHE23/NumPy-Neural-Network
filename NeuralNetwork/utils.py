@@ -5,7 +5,7 @@ DEBUG = False
 
 
 def convert_targets(targets, to=None):
-    if to is None and targets.ndim == 1:
+    if (to is None and targets.ndim == 1) or to == "categorical":
         # Equivalent to keras.utils.to_categorical:
         targets = np.eye(len(set(targets)))[targets]
     elif to == "one_hot":
@@ -16,7 +16,7 @@ def convert_targets(targets, to=None):
     elif to == "binary":
         # Converts a probability vector to a binary vector using a threshold of 0.5:
         targets = np.where(targets >= 0.5, 1, 0)
-    elif to == "labels":
+    elif to == "labels" and targets.ndim != 1:
         # Converts targets' vectors to labels:
         targets = np.argmax(targets, axis=-1)
     elif to == "probability":
@@ -38,6 +38,12 @@ def batch_iterator(samples, targets, batch_size, shuffle=False):
         else:
             excerpt = slice(start_idx, end_idx)
         yield samples[excerpt], targets[excerpt]
+
+
+def accuracy_score(y_true, y_predicted):
+    y_true = convert_targets(y_true, to="labels")
+    y_predicted = convert_targets(y_predicted, to="labels")
+    return (y_true == y_predicted).sum() / y_true.shape[0]
 
 
 def trace(debug=DEBUG):

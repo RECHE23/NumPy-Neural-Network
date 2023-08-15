@@ -6,7 +6,7 @@ from OutputLayer import OutputLayer
 from activation_functions import tanh, sigmoid, relu, softmax
 from loss_functions import mean_squared_error, categorical_cross_entropy
 from keras.datasets import mnist
-from sklearn.metrics import accuracy_score
+from utils import accuracy_score
 import time
 
 # load MNIST from server
@@ -49,5 +49,5 @@ end = time.time()
 print("\nThe time of execution of above program is :", (end - start) * 10 ** 3, "ms")
 
 y_predicted = net.predict(x_test, to="labels")
-score = accuracy_score(y_test, y_predicted)
-print(f"Accuracy score: {score:.2%}")
+a_score = accuracy_score(y_test, y_predicted)
+print(f"Accuracy score: {a_score:.2%}")
