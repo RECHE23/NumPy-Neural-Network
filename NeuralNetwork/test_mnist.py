@@ -14,7 +14,7 @@ import time
 
 # training data : 60000 samples
 # reshape and normalize input data
-x_train = x_train.reshape(x_train.shape[0], 1, 28*28)
+x_train = x_train.reshape(x_train.shape[0], 28*28)
 x_train = x_train.astype('float32')
 x_train /= 255
 # encode output which is a number in range [0,9] into a vector of size 10
@@ -22,22 +22,22 @@ x_train /= 255
 y_train = to_categorical(y_train)
 
 # same for test data : 10000 samples
-x_test = x_test.reshape(x_test.shape[0], 1, 28*28)
+x_test = x_test.reshape(x_test.shape[0], 28*28)
 x_test = x_test.astype('float32')
 x_test /= 255
 #y_test = to_categorical(y_test)
 
 # Network
 net = NeuralNetwork()
-net.add(FullyConnectedLayer(28*28, 100))                # input_shape=(1, 28*28)    ;   output_shape=(1, 100)
+net.add(FullyConnectedLayer(28*28, 100))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(100, 50))                   # input_shape=(1, 100)      ;   output_shape=(1, 50)
+net.add(FullyConnectedLayer(100, 50))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(50, 33))                    # input_shape=(1, 50)       ;   output_shape=(1, 33)
+net.add(FullyConnectedLayer(50, 33))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(33, 50))                    # input_shape=(1, 33)       ;   output_shape=(1, 50)
+net.add(FullyConnectedLayer(33, 50))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(50, 10))                    # input_shape=(1, 50)       ;   output_shape=(1, 10)
+net.add(FullyConnectedLayer(50, 10))
 #net.add(OutputLayer(tanh, mean_squared_error))
 net.add(OutputLayer(softmax, categorical_cross_entropy))
 
@@ -45,7 +45,7 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=35, learning_rate=0.01)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=50, learning_rate=0.005, batch_size=5, shuffle=True)
 
 # Test on N samples:
 N = 10

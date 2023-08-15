@@ -1,3 +1,4 @@
+import numpy as np
 from Layer import Layer
 
 
@@ -16,4 +17,4 @@ class OutputLayer(Layer):
         return self.loss_function(y_true, self.output, prime=True)
 
     def loss(self, y_true, y_pred, prime=False):
-        return self.loss_function(y_true, y_pred, prime)
+        return np.sum(self.loss_function(y_true, y_pred, prime))

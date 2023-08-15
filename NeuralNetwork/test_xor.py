@@ -10,8 +10,8 @@ import time
 
 
 # Training data:
-x_train = np.array([[[0, 0]], [[0, 1]], [[1, 0]], [[1, 1]]])
-y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
+x_train = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y_train = np.array([[0], [1], [1], [0]])
 
 # Network:
 net = NeuralNetwork()
@@ -24,7 +24,7 @@ net.add(OutputLayer(tanh, mean_squared_error))
 start = time.time()
 
 # Train:
-net.fit(x_train, y_train, epochs=1000, learning_rate=0.1)
+net.fit(x_train, y_train, epochs=1000, learning_rate=0.01)
 
 # Test:
 out = net.predict(x_train, to="binary")

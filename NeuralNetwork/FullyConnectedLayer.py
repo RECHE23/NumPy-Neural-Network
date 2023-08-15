@@ -7,18 +7,18 @@ class FullyConnectedLayer(Layer):
         # Xavier initialization:
         a = np.sqrt(6/(input_size + output_size))
         self.weights = np.random.uniform(-a, a, (input_size, output_size))
-        self.bias = np.zeros((1, output_size))
+        self.bias = np.zeros((output_size, ))
         super().__init__()
 
     def forward_propagation(self, input_data):
         self.input = input_data
-        self.output = np.einsum("...ij,jk", self.input, self.weights) + self.bias
+        self.output = np.einsum("ij,jk", self.input, self.weights) + self.bias
         return self.output
 
     def backward_propagation(self, output_error, learning_rate, y_true):
-        input_error = np.einsum("...ij,kj", output_error, self.weights)
-        weights_error = np.einsum("...ji,...jk", self.input, output_error)
+        input_error = np.einsum("ij,kj", output_error, self.weights)
+        weights_error = np.einsum("ji,jk", self.input, output_error)
 
         self.weights -= learning_rate * weights_error
-        self.bias -= learning_rate * output_error
+        self.bias -= learning_rate * np.sum(output_error, axis=0)
         return input_error

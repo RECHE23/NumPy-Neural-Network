@@ -1,6 +1,6 @@
 import numpy as np
 from OutputLayer import OutputLayer
-from utils import convert_data
+from utils import convert_data, batch_iterator
 
 
 class NeuralNetwork:
@@ -20,23 +20,23 @@ class NeuralNetwork:
 
         return convert_data(predictions, to=to)
 
-    def fit(self, samples, labels, epochs=100, learning_rate=0.05):
+    def fit(self, samples, labels, epochs=100, learning_rate=0.05, batch_size=1, shuffle=False):
         assert isinstance(self.layers[-1], OutputLayer)
 
         for epoch in range(1, epochs + 1):
             error = 0
-            for i, propagated_samples in enumerate(samples):
+            for batch_samples, batch_labels in batch_iterator(samples, labels, batch_size, shuffle):
                 # Forward propagation:
                 for layer in self.layers:
-                    propagated_samples = layer.forward_propagation(propagated_samples)
+                    batch_samples = layer.forward_propagation(batch_samples)
 
                 # Compute the total loss:
-                error += self.layers[-1].loss(labels[i], propagated_samples)
+                error += self.layers[-1].loss(batch_labels, batch_samples)
 
                 # Backward propagation:
                 error_grad = None
                 for layer in reversed(self.layers):
-                    error_grad = layer.backward_propagation(error_grad, learning_rate, labels[i])
+                    error_grad = layer.backward_propagation(error_grad, learning_rate, batch_labels)
 
             # Evaluate the average error on all samples:
             error /= len(samples)
