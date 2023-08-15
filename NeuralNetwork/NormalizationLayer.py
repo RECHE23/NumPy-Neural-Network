@@ -22,7 +22,6 @@ class NormalizationLayer(Layer):
                 self.norm = np.max(self.output) - np.min(self.output)
             else:
                 self.norm = np.linalg.norm(self.output, ord=self.metric)
-        self.output -= np.min(self.output)
         self.output /= self.norm
         return self.output
 
