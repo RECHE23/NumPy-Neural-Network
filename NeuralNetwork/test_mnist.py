@@ -6,20 +6,11 @@ from OutputLayer import OutputLayer
 from activation_functions import tanh, sigmoid, relu, softmax
 from loss_functions import mean_squared_error, categorical_cross_entropy
 from keras.datasets import mnist
-from keras.utils import to_categorical
 from sklearn.metrics import accuracy_score
 import time
 
 # load MNIST from server
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
-
-# training data : 60000 samples
-# encode output which is a number in range [0,9] into a vector of size 10
-# e.g. number 3 will become [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-y_train = to_categorical(y_train)
-
-# same for test data : 10000 samples
-#y_test = to_categorical(y_test)
 
 # Network
 net = NeuralNetwork()
@@ -40,7 +31,7 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=50, learning_rate=0.005, batch_size=5, shuffle=True)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=35, learning_rate=0.01, batch_size=3, shuffle=True)
 
 # Test on N samples:
 N = 10

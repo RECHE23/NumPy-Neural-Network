@@ -4,8 +4,8 @@ from NeuralNetwork import NeuralNetwork
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
 from OutputLayer import OutputLayer
-from activation_functions import relu, sigmoid, tanh, softmax
-from loss_functions import mean_squared_error, categorical_cross_entropy
+from activation_functions import tanh
+from loss_functions import mean_squared_error
 import time
 
 
@@ -24,7 +24,7 @@ net.add(OutputLayer(tanh, mean_squared_error))
 start = time.time()
 
 # Train:
-net.fit(x_train, y_train, epochs=1000, learning_rate=0.01)
+net.fit(x_train, y_train, epochs=1000, learning_rate=0.011, batch_size=1, shuffle=True)
 
 # Test:
 out = net.predict(x_train, to="binary")

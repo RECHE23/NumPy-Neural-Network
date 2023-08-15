@@ -1,36 +1,43 @@
 import numpy as np
 
-# Activates the trace:
+# Activates the trace for debugging:
 DEBUG = False
 
 
-def convert_data(data, to=None):
-    if to == "one_hot":
-        idx = np.argmax(data, axis=-1)
-        data = np.zeros(data.shape)
-        data[np.arange(data.shape[0]), idx] = 1
+def convert_targets(targets, to=None):
+    if to is None and targets.ndim == 1:
+        # Equivalent to keras.utils.to_categorical:
+        targets = np.eye(len(set(targets)))[targets]
+    elif to == "one_hot":
+        # Converts targets' vectors to one hot vectors:
+        idx = np.argmax(targets, axis=-1)
+        targets = np.zeros(targets.shape)
+        targets[np.arange(targets.shape[0]), idx] = 1
     elif to == "binary":
-        data = np.where(data >= 0.5, 1, 0)
+        # Converts a probability vector to a binary vector using a threshold of 0.5:
+        targets = np.where(targets >= 0.5, 1, 0)
     elif to == "labels":
-        data = np.argmax(data, axis=-1)
+        # Converts targets' vectors to labels:
+        targets = np.argmax(targets, axis=-1)
     elif to == "probability":
+        # Converts targets' vectors to probability distributions:
         from activation_functions import softmax
-        data = softmax(data)
-    return data.squeeze()
+        targets = softmax(targets)
+    return targets
 
 
-def batch_iterator(inputs, targets, batch_size, shuffle=False):
-    assert inputs.shape[0] == targets.shape[0]
+def batch_iterator(samples, targets, batch_size, shuffle=False):
+    assert samples.shape[0] == targets.shape[0]
     if shuffle:
-        indices = np.arange(inputs.shape[0])
+        indices = np.arange(samples.shape[0])
         np.random.shuffle(indices)
-    for start_idx in range(0, inputs.shape[0], batch_size):
-        end_idx = min(start_idx + batch_size, inputs.shape[0])
+    for start_idx in range(0, samples.shape[0], batch_size):
+        end_idx = min(start_idx + batch_size, samples.shape[0])
         if shuffle:
             excerpt = indices[start_idx:end_idx]
         else:
             excerpt = slice(start_idx, end_idx)
-        yield inputs[excerpt], targets[excerpt]
+        yield samples[excerpt], targets[excerpt]
 
 
 def trace(debug=DEBUG):
