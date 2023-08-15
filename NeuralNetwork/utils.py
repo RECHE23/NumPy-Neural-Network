@@ -1,7 +1,7 @@
 import numpy as np
 
 # Activates the trace:
-DEBUG = True
+DEBUG = False
 
 
 def convert_data(data, to=None):
