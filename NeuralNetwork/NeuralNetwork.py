@@ -1,6 +1,5 @@
-import numpy as np
-from OutputLayer import OutputLayer
 from utils import convert_data, batch_iterator
+from OutputLayer import OutputLayer
 
 
 class NeuralNetwork:
