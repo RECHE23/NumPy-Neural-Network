@@ -19,7 +19,7 @@ kernel_depth = 7
 
 # Network
 net = NeuralNetwork()
-net.add(NormalizationLayer())
+net.add(NormalizationLayer(samples=x_train))
 net.add(ReshapeLayer((1, 28, 28)))
 net.add(ConvolutionalLayer((1, 28, 28), kernel_size, kernel_depth))
 net.add(ActivationLayer(relu))

@@ -19,5 +19,6 @@ class OutputLayer(Layer):
     def backward_propagation(self, output_error, learning_rate, y_true):
         return self.loss_function(y_true, self.output, prime=True)
 
+    @trace()
     def loss(self, y_true, y_pred, prime=False):
         return np.sum(self.loss_function(y_true, y_pred, prime))

@@ -1,4 +1,4 @@
-from utils import convert_targets, batch_iterator
+from utils import trace, convert_targets, batch_iterator
 from OutputLayer import OutputLayer
 
 
@@ -6,10 +6,12 @@ class NeuralNetwork:
     def __init__(self):
         self.layers = []
 
+    @trace()
     def add(self, layer):
         self.layers.append(layer)
         assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1
 
+    @trace()
     def predict(self, samples, to=None):
         assert isinstance(self.layers[-1], OutputLayer)
 
@@ -19,6 +21,7 @@ class NeuralNetwork:
 
         return convert_targets(predictions, to=to)
 
+    @trace()
     def fit(self, samples, targets, epochs=100, learning_rate=0.05, batch_size=1, shuffle=False):
         assert isinstance(self.layers[-1], OutputLayer)
 
