@@ -4,9 +4,8 @@ from Layer import Layer
 
 
 class NormalizationLayer(Layer):
-    def __init__(self, dtype='float32', norm='minmax'):
+    def __init__(self, norm='minmax', dtype='float32'):
         self.dtype = dtype
-        self.shape = None
         self.metric = norm
         self.norm = None
         super().__init__()
@@ -14,10 +13,8 @@ class NormalizationLayer(Layer):
     @trace()
     def forward_propagation(self, input_data):
         self.input = input_data
-        self.output = input_data.reshape(input_data.shape[0], -1)
-        self.output = self.output.astype(self.dtype)
-        if not (self.shape and self.norm):
-            self.shape = input_data.shape[1:]
+        self.output = input_data.astype(self.dtype)
+        if not self.norm:
             if self.metric == 'minmax':
                 self.norm = np.max(self.output) - np.min(self.output)
             else:

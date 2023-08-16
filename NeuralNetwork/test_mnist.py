@@ -1,5 +1,6 @@
 from NeuralNetwork import NeuralNetwork
 from NormalizationLayer import NormalizationLayer
+from ReshapeLayer import ReshapeLayer
 from FullyConnectedLayer import FullyConnectedLayer
 from ActivationLayer import ActivationLayer
 from OutputLayer import OutputLayer
@@ -15,6 +16,7 @@ import time
 # Network
 net = NeuralNetwork()
 net.add(NormalizationLayer())
+net.add(ReshapeLayer((28*28,)))
 net.add(FullyConnectedLayer(28*28, 100))
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(100, 50))
