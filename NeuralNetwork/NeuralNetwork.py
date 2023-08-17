@@ -1,4 +1,4 @@
-from utils import trace, convert_targets, batch_iterator
+from utils import trace, convert_targets, batch_iterator, accuracy_score
 from OutputLayer import OutputLayer
 
 
@@ -45,4 +45,5 @@ class NeuralNetwork:
 
             # Evaluate the average error on all samples:
             error /= len(samples)
-            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f}")
+            accuracy = accuracy_score(self.predict(samples), targets)
+            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t Train set accuracy = {accuracy:.2%}")

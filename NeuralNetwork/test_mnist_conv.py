@@ -34,7 +34,7 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 start = time.time()
 
 # Train:
-net.fit(x_train[0:1000], y_train[0:1000], epochs=20, learning_rate=0.01, batch_size=5, shuffle=True)
+net.fit(x_train[0:1000], y_train[0:1000], epochs=10, learning_rate=0.01, batch_size=5, shuffle=True)
 
 # Test on N samples:
 N = 10
@@ -53,4 +53,4 @@ print("\nThe time of execution of above program is :", (end - start) * 10 ** 3, 
 
 y_predicted = net.predict(x_test, to="labels")
 a_score = accuracy_score(y_test, y_predicted)
-print(f"Accuracy score: {a_score:.2%}")
+print(f"Accuracy score on the test set: {a_score:.2%}")
