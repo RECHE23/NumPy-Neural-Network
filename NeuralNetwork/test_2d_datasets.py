@@ -21,7 +21,7 @@ X, y = make_classification(
         # random_state=2,
         n_clusters_per_class=1,
     )
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Network:
 net = NeuralNetwork()
@@ -38,13 +38,13 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Train:
 start = time.time()
-net.fit(x_train, y_train, epochs=15, learning_rate=0.005, batch_size=5, shuffle=True)
+net.fit(X_train, y_train, epochs=15, learning_rate=0.005, batch_size=5, shuffle=True)
 end = time.time()
 print("\nTraining time :", (end - start) * 10 ** 3, "ms")
 
 # Test on N samples:
 N = 10
-out = net.predict(x_test[0:N], to="labels")
+out = net.predict(X_test[0:N], to="labels")
 print("\n")
 print("predicted values : ")
 print(out, end="\n")
@@ -53,12 +53,12 @@ print(y_test[0:N])
 
 # Test on the whole test set:
 start = time.time()
-y_predicted = net.predict(x_test, to="labels")
+y_predicted = net.predict(X_test, to="labels")
 end = time.time()
 print("\nTest time :", (end - start) * 10 ** 3, "ms")
 a_score = accuracy_score(y_test, y_predicted)
 print(f"Accuracy score on the test set: {a_score:.2%}")
-y_predicted = net.predict(x_test, to="labels")
+y_predicted = net.predict(X_test, to="labels")
 
 # Displays the decision boundary:
 x_min, x_max = X[:, 0].min() - 0.1, X[:, 0].max() + 0.1

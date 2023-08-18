@@ -38,13 +38,13 @@ class NeuralNetwork:
                 for layer in self.layers:
                     batch_samples = layer.forward_propagation(batch_samples)
 
-                # Compute the total loss:
-                error += self.layers[-1].loss(batch_labels, batch_samples)
-
                 # Backward propagation:
                 error_grad = None
                 for layer in reversed(self.layers):
                     error_grad = layer.backward_propagation(error_grad, learning_rate, batch_labels)
+
+                # Compute the total loss:
+                error += self.layers[-1].loss(batch_labels, batch_samples)
 
             # Evaluate the average error on all samples:
             error /= len(samples)

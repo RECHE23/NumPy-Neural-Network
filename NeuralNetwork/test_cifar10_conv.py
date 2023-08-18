@@ -1,32 +1,47 @@
 import time
-from keras.datasets import mnist
+import numpy as np
+from keras.datasets import cifar10
 
 from neural_network import NeuralNetwork
 from layers import *
 from functions import *
 
 # Load the MNIST dataset:
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+
+# Selects only two classes:
+y_train = y_train.squeeze()
+indices = np.where(y_train <= 4)
+X_train = X_train[indices]
+y_train = y_train[indices]
+
+y_test = y_test.squeeze()
+indices = np.where(y_test <= 4)
+X_test = X_test[indices]
+y_test = y_test[indices]
 
 # Parameters:
+channels = 3
+dimension = 32
 kernel_size = 5
-kernel_depth = 5
+kernel_depth = 10
+classes = 5
 
 # Network:
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
-net.add(ReshapeLayer((1, 28, 28)))
-net.add(ConvolutionalLayer((1, 28, 28), kernel_size, kernel_depth))
+net.add(ReshapeLayer((channels, dimension, dimension)))
+net.add(ConvolutionalLayer((channels, dimension, dimension), kernel_size, kernel_depth))
 net.add(ActivationLayer(relu))
-net.add(ReshapeLayer((kernel_depth * (28 - kernel_size + 1)**2, )))
-net.add(FullyConnectedLayer(kernel_depth * (28 - kernel_size + 1)**2, 25))
+net.add(ReshapeLayer((kernel_depth * (dimension - kernel_size + 1)**2, )))
+net.add(FullyConnectedLayer(kernel_depth * (dimension - kernel_size + 1)**2, 128))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(25, 10))
+net.add(FullyConnectedLayer(128, classes))
 net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Train:
 start = time.time()
-net.fit(X_train, y_train, epochs=5, learning_rate=0.01, batch_size=64, shuffle=True)
+net.fit(X_train, y_train, epochs=10, learning_rate=0.01, batch_size=64, shuffle=True)
 end = time.time()
 print("\nTraining time :", (end - start) * 10 ** 3, "ms")
 

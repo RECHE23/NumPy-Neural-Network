@@ -7,7 +7,7 @@ from functions import *
 
 
 # Training data:
-x_train = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+X_train = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 y_train = np.array([[0], [1], [1], [0]])
 
 # Network:
@@ -19,10 +19,10 @@ net.add(OutputLayer(tanh, mean_squared_error))
 
 # Train:
 start = time.time()
-net.fit(x_train, y_train, epochs=100, learning_rate=0.1, batch_size=1, shuffle=True)
+net.fit(X_train, y_train, epochs=100, learning_rate=0.1, batch_size=1, shuffle=True)
 end = time.time()
 print("\nTraining time :", (end - start) * 10 ** 3, "ms")
 
 # Test:
-out = net.predict(x_train, to="binary")
+out = net.predict(X_train, to="binary")
 print("Result:", out.squeeze())

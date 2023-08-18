@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 # Activates the trace for debugging:
-DEBUG = True
+DEBUG = False
 
 
 def trace(debug=DEBUG):

@@ -1,5 +1,5 @@
 from .utils import convert_targets
-from NeuralNetwork import trace
+from NeuralNetwork.tools import trace
 
 
 @trace()
