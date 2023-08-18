@@ -1,6 +1,6 @@
 import numpy as np
-from utils import trace
-from Layer import Layer
+from . import Layer
+from NeuralNetwork.tools import trace
 
 
 class NormalizationLayer(Layer):
@@ -10,7 +10,7 @@ class NormalizationLayer(Layer):
         self.samples = samples
         self.norm = None
         if samples is not None:
-            self.evaluate_norm(samples)
+            self._evaluate_norm(samples)
         super().__init__()
 
     @trace()
@@ -18,7 +18,7 @@ class NormalizationLayer(Layer):
         self.input = input_data
         self.output = input_data.astype(self.dtype)
         if not self.norm:
-            self.evaluate_norm(self.output)
+            self._evaluate_norm(self.output)
         self.output /= self.norm
         return self.output
 
@@ -26,8 +26,7 @@ class NormalizationLayer(Layer):
     def backward_propagation(self, output_error, learning_rate, y_true):
         return output_error * self.norm
 
-    @trace()
-    def evaluate_norm(self, samples):
+    def _evaluate_norm(self, samples):
         samples = samples.astype(self.dtype)
         if self.metric == 'minmax':
             self.norm = np.max(samples) - np.min(samples)

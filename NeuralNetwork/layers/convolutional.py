@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import signal
-from utils import trace
-from Layer import Layer
+from . import Layer
+from NeuralNetwork.tools import trace
 
 
 class ConvolutionalLayer(Layer):

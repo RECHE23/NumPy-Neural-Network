@@ -1,5 +1,7 @@
-from utils import trace, convert_targets, batch_iterator, accuracy_score
-from OutputLayer import OutputLayer
+import numpy as np
+from tools import trace
+from functions import convert_targets, accuracy_score
+from layers import OutputLayer
 
 
 class NeuralNetwork:
@@ -23,6 +25,7 @@ class NeuralNetwork:
 
     @trace()
     def fit(self, samples, targets, epochs=100, learning_rate=0.05, batch_size=1, shuffle=False):
+        assert samples.shape[0] == targets.shape[0]
         assert isinstance(self.layers[-1], OutputLayer)
 
         # Converts targets to a one hot encoding if necessary:
@@ -30,7 +33,7 @@ class NeuralNetwork:
 
         for epoch in range(1, epochs + 1):
             error = 0
-            for batch_samples, batch_labels in batch_iterator(samples, targets, batch_size, shuffle):
+            for batch_samples, batch_labels in self._batch_iterator(samples, targets, batch_size, shuffle):
                 # Forward propagation:
                 for layer in self.layers:
                     batch_samples = layer.forward_propagation(batch_samples)
@@ -47,3 +50,16 @@ class NeuralNetwork:
             error /= len(samples)
             accuracy = accuracy_score(self.predict(samples), targets)
             print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t Train set accuracy = {accuracy:.2%}")
+
+    @staticmethod
+    def _batch_iterator(samples, targets, batch_size, shuffle=False):
+        if shuffle:
+            indices = np.arange(samples.shape[0])
+            np.random.shuffle(indices)
+        for start_idx in range(0, samples.shape[0], batch_size):
+            end_idx = min(start_idx + batch_size, samples.shape[0])
+            if shuffle:
+                excerpt = indices[start_idx:end_idx]
+            else:
+                excerpt = slice(start_idx, end_idx)
+            yield samples[excerpt], targets[excerpt]

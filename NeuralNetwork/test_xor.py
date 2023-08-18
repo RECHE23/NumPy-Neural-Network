@@ -1,12 +1,9 @@
+import time
 import numpy as np
 
-from NeuralNetwork import NeuralNetwork
-from FullyConnectedLayer import FullyConnectedLayer
-from ActivationLayer import ActivationLayer
-from OutputLayer import OutputLayer
-from activation_functions import tanh
-from loss_functions import mean_squared_error
-import time
+from neural_network import NeuralNetwork
+from layers import *
+from functions import *
 
 
 # Training data:
@@ -20,18 +17,12 @@ net.add(ActivationLayer(tanh))
 net.add(FullyConnectedLayer(3, 1))
 net.add(OutputLayer(tanh, mean_squared_error))
 
-# Record start time:
-start = time.time()
-
 # Train:
-net.fit(x_train, y_train, epochs=1000, learning_rate=0.011, batch_size=1, shuffle=True)
+start = time.time()
+net.fit(x_train, y_train, epochs=100, learning_rate=0.1, batch_size=1, shuffle=True)
+end = time.time()
+print("\nTraining time :", (end - start) * 10 ** 3, "ms")
 
 # Test:
 out = net.predict(x_train, to="binary")
-print(out)
-
-# Record end time:
-end = time.time()
-
-# Print the difference between start and end time in milliseconds:
-print("\nThe time of execution of above program is :", (end - start) * 10 ** 3, "ms")
+print("Result:", out.squeeze())

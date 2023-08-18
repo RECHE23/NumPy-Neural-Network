@@ -1,5 +1,5 @@
 import numpy as np
-from utils import trace
+from NeuralNetwork import trace
 
 
 @trace()

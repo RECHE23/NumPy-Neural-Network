@@ -1,6 +1,6 @@
 import numpy as np
-from utils import trace
-from Layer import Layer
+from . import Layer
+from NeuralNetwork.tools import trace
 
 
 class OutputLayer(Layer):
