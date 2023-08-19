@@ -24,7 +24,7 @@ y_test = y_test[indices]
 channels = 3
 dimension = 32
 kernel_size = 5
-kernel_depth = 10
+kernel_depth = 12
 classes = 5
 
 # Network:
@@ -41,9 +41,9 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Train:
 start = time.time()
-net.fit(X_train, y_train, epochs=10, learning_rate=0.01, batch_size=64, shuffle=True)
+net.fit(X_train, y_train, epochs=5, learning_rate=0.001, batch_size=64, shuffle=True)
 end = time.time()
-print("\nTraining time :", (end - start) * 10 ** 3, "ms")
+print("\nTraining time :", (end - start) * 10 ** 3, "ms, on ", y_train.shape[0], "samples.")
 
 # Test on N samples:
 N = 10
@@ -58,6 +58,6 @@ print(y_test[0:N])
 start = time.time()
 y_predicted = net.predict(X_test, to="labels")
 end = time.time()
-print("\nTest time :", (end - start) * 10 ** 3, "ms")
+print("\nTest time :", (end - start) * 10 ** 3, "ms, on ", y_test.shape[0], "samples.")
 a_score = accuracy_score(y_test, y_predicted)
 print(f"Accuracy score on the test set: {a_score:.2%}")

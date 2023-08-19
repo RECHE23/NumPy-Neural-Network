@@ -14,13 +14,13 @@ class FullyConnectedLayer(Layer):
     @trace()
     def forward_propagation(self, input_data):
         self.input = input_data
-        self.output = np.einsum("ij,jk", self.input, self.weights) + self.bias
+        self.output = np.einsum("ij,jk", self.input, self.weights, optimize=True) + self.bias
         return self.output
 
     @trace()
     def backward_propagation(self, output_error, learning_rate, y_true):
-        input_error = np.einsum("ij,kj", output_error, self.weights)
-        weights_error = np.einsum("ji,jk", self.input, output_error)
+        input_error = np.einsum("ij,kj", output_error, self.weights, optimize=True)
+        weights_error = np.einsum("ji,jk", self.input, output_error, optimize=True)
 
         self.weights -= learning_rate * weights_error
         self.bias -= learning_rate * np.sum(output_error, axis=0)
