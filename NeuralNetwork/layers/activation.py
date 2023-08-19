@@ -14,5 +14,6 @@ class ActivationLayer(Layer):
         return self.output
 
     @trace()
-    def backward_propagation(self, output_error, learning_rate, y_true):
-        return self.activation_function(self.input, prime=True) * output_error
+    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+        self.retrograde = self.activation_function(self.input, prime=True) * upstream_gradients
+        return self.retrograde

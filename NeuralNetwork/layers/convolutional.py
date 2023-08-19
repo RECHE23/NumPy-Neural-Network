@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import signal
+from scipy.signal import correlate2d, convolve2d
 from itertools import product
 from concurrent.futures import ThreadPoolExecutor
 from . import Layer
@@ -8,20 +8,13 @@ from NeuralNetwork.tools import trace
 
 class ConvolutionalLayer(Layer):
     def __init__(self, input_shape, kernel_size, depth):
-        self._kernels_gradients = None
-        self._input_gradients = None
-        self._output_gradients = None
-
-        input_depth, input_height, input_width = input_shape
-        self.depth = depth
-        self.input_shape = input_shape
-        self.input_depth = input_depth
-        self.output_shape = (depth, input_height - kernel_size + 1, input_width - kernel_size + 1)
-        self.kernels_shape = (depth, input_depth, kernel_size, kernel_size)
+        self.kernels_gradients = None
+        self.upstream_gradients = None
+        self.input_shape = input_depth, input_height, input_width = input_shape
         # Xavier initialization:
         a = np.sqrt(6 / (input_height * input_width + kernel_size * kernel_size))
-        self.kernels = np.random.uniform(-a, a, self.kernels_shape)
-        self.biases = np.zeros(self.output_shape)
+        self.kernels = np.random.uniform(-a, a, (depth, input_depth, kernel_size, kernel_size))
+        self.biases = np.zeros((depth, input_height - kernel_size + 1, input_width - kernel_size + 1))
         super().__init__()
 
     @trace()
@@ -31,30 +24,34 @@ class ConvolutionalLayer(Layer):
         self.output = np.repeat(np.expand_dims(self.biases, axis=0), n_samples, axis=0)
 
         with ThreadPoolExecutor() as executor:
-            executor.map(self._forward_propagation_helper, product(range(n_samples), range(self.depth), range(self.input_depth)))
+            executor.map(self._forward_propagation_helper,
+                         product(range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0])))
 
         return self.output
 
     def _forward_propagation_helper(self, args):
-        i, j, k = args
-        self.output[i, j] += signal.correlate2d(self.input[i, k], self.kernels[j, k], "valid")
+        sample, kernel_layer, input_layer = args
+        self.output[sample, kernel_layer] += \
+            correlate2d(self.input[sample, input_layer], self.kernels[kernel_layer, input_layer], "valid")
 
     @trace()
-    def backward_propagation(self, output_gradients, learning_rate, y_true):
-        n_samples = output_gradients.shape[0]
-        self._kernels_gradients = np.zeros((n_samples,) + self.kernels_shape)
-        self._input_gradients = np.zeros((n_samples,) + self.input_shape)
-        self._output_gradients = output_gradients
+    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+        n_samples = upstream_gradients.shape[0]
+        self.upstream_gradients = upstream_gradients
+        self.kernels_gradients = np.empty((n_samples,) + self.kernels.shape)
+        self.retrograde = np.zeros((n_samples,) + self.input_shape)
 
         with ThreadPoolExecutor() as executor:
-            executor.map(self._backward_propagation_helper, product(range(n_samples), range(self.depth), range(self.input_depth)))
+            executor.map(self._backward_propagation_helper,
+                         product(range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0])))
 
-        self.kernels -= learning_rate * np.sum(self._kernels_gradients, axis=0)
-        self.biases -= learning_rate * np.sum(self._output_gradients, axis=0)
-
-        return self._input_gradients
+        self.kernels -= learning_rate * np.sum(self.kernels_gradients, axis=0)
+        self.biases -= learning_rate * np.sum(upstream_gradients, axis=0)
+        return self.retrograde
 
     def _backward_propagation_helper(self, args):
-        i, j, k = args
-        self._kernels_gradients[i, j, k] = signal.correlate2d(self.input[i, k], self._output_gradients[i, j], "valid")
-        self._input_gradients[i, k] += signal.convolve2d(self._output_gradients[i, j], self.kernels[j, k], "full")
+        sample, kernel_layer, input_layer = args
+        self.kernels_gradients[sample, kernel_layer, input_layer] = \
+            correlate2d(self.input[sample, input_layer], self.upstream_gradients[sample, kernel_layer], "valid")
+        self.retrograde[sample, input_layer] += \
+            convolve2d(self.upstream_gradients[sample, kernel_layer], self.kernels[kernel_layer, input_layer], "full")

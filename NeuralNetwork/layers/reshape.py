@@ -19,5 +19,6 @@ class ReshapeLayer(Layer):
         return self.output
 
     @trace()
-    def backward_propagation(self, output_gradient, learning_rate, y_true):
-        return np.reshape(output_gradient, (-1, ) + self.input_shape)
+    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+        self.retrograde = np.reshape(upstream_gradients, (-1,) + self.input_shape)
+        return self.retrograde

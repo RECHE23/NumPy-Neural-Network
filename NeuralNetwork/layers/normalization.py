@@ -23,8 +23,9 @@ class NormalizationLayer(Layer):
         return self.output
 
     @trace()
-    def backward_propagation(self, output_error, learning_rate, y_true):
-        return output_error * self.norm
+    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+        self.retrograde = upstream_gradients * self.norm
+        return self.retrograde
 
     def _evaluate_norm(self, samples):
         samples = samples.astype(self.dtype)
