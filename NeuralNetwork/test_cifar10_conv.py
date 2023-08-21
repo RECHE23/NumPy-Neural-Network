@@ -21,20 +21,20 @@ X_test = X_test[indices]
 y_test = y_test[indices]
 
 # Parameters:
-channels = 3
-dimension = 32
-kernel_size = 5
-kernel_depth = 12
+kernel_size = (5, 5)
+kernel_depth = 5
+image_channels = 3
+image_shape = (32, 32)
 classes = 5
 
 # Network:
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
-net.add(ReshapeLayer((channels, dimension, dimension)))
-net.add(Convolutional2DLayer((channels, dimension, dimension), kernel_size, kernel_depth))
+net.add(ReshapeLayer((image_channels, *image_shape)))
+net.add(Convolutional2DLayer(image_channels, kernel_depth, kernel_size, image_shape))
 net.add(ActivationLayer(relu))
-net.add(ReshapeLayer((kernel_depth * (dimension - kernel_size + 1)**2, )))
-net.add(FullyConnectedLayer(kernel_depth * (dimension - kernel_size + 1)**2, 128))
+net.add(ReshapeLayer((kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), )))
+net.add(FullyConnectedLayer(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), 128))
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(128, classes))
 net.add(OutputLayer(softmax, categorical_cross_entropy))

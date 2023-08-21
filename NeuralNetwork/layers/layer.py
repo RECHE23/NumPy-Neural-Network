@@ -12,6 +12,7 @@ class Layer:
         self.output = None
         self.retrograde = None
         self.upstream_gradients = None
+        self.n_samples = None
 
     def __call__(self, *args, **kwargs):
         return self.forward_propagation(*args, **kwargs)
@@ -25,7 +26,9 @@ class Layer:
     @trace()
     def forward_propagation(self, input_data):
         self.input = input_data
+        self.n_samples = input_data.shape[0]
         self._forward_propagation(input_data)
+        self.n_samples = None
         return self.output
 
     @abstractmethod
@@ -35,7 +38,9 @@ class Layer:
     @trace()
     def backward_propagation(self, upstream_gradients, learning_rate, y_true):
         self.upstream_gradients = upstream_gradients
+        self.n_samples = None if upstream_gradients is None else upstream_gradients.shape[0]
         self._backward_propagation(upstream_gradients, learning_rate, y_true)
+        self.n_samples = None
         return self.retrograde
 
     @abstractmethod

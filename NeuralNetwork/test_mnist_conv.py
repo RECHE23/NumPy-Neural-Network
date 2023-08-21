@@ -9,17 +9,19 @@ from functions import *
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
 # Parameters:
-kernel_size = 5
+kernel_size = (5, 5)
 kernel_depth = 5
+image_channels = 1
+image_shape = (28, 28)
 
 # Network:
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
-net.add(ReshapeLayer((1, 28, 28)))
-net.add(Convolutional2DLayer((1, 28, 28), kernel_size, kernel_depth))
+net.add(ReshapeLayer((image_channels, *image_shape)))
+net.add(Convolutional2DLayer(image_channels, kernel_depth, kernel_size, image_shape))
 net.add(ActivationLayer(relu))
-net.add(ReshapeLayer((kernel_depth * (28 - kernel_size + 1)**2, )))
-net.add(FullyConnectedLayer(kernel_depth * (28 - kernel_size + 1)**2, 25))
+net.add(ReshapeLayer((kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), )))
+net.add(FullyConnectedLayer(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), 25))
 net.add(ActivationLayer(relu))
 net.add(FullyConnectedLayer(25, 10))
 net.add(OutputLayer(softmax, categorical_cross_entropy))

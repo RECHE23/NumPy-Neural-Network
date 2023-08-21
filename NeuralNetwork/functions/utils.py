@@ -23,3 +23,12 @@ def convert_targets(targets, to=None):
         from NeuralNetwork.functions.activation import softmax
         targets = softmax(targets)
     return targets
+
+
+def pair(args):
+    assert isinstance(args, tuple) or isinstance(args, int)
+    if isinstance(args, tuple):
+        assert len(args) == 2
+    else:
+        args = (args, args)
+    return args
