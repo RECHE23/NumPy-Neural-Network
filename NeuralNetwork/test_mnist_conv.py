@@ -16,7 +16,7 @@ kernel_depth = 5
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
 net.add(ReshapeLayer((1, 28, 28)))
-net.add(ConvolutionalLayer((1, 28, 28), kernel_size, kernel_depth))
+net.add(Convolutional2DLayer((1, 28, 28), kernel_size, kernel_depth))
 net.add(ActivationLayer(relu))
 net.add(ReshapeLayer((kernel_depth * (28 - kernel_size + 1)**2, )))
 net.add(FullyConnectedLayer(kernel_depth * (28 - kernel_size + 1)**2, 25))

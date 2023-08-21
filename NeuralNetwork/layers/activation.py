@@ -8,12 +8,9 @@ class ActivationLayer(Layer):
         super().__init__()
 
     @trace()
-    def forward_propagation(self, input_data):
-        self.input = input_data
+    def _forward_propagation(self, input_data):
         self.output = self.activation_function(self.input)
-        return self.output
 
     @trace()
-    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         self.retrograde = self.activation_function(self.input, prime=True) * upstream_gradients
-        return self.retrograde

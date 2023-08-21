@@ -14,18 +14,15 @@ class NormalizationLayer(Layer):
         super().__init__()
 
     @trace()
-    def forward_propagation(self, input_data):
-        self.input = input_data
+    def _forward_propagation(self, input_data):
         self.output = input_data.astype(self.dtype)
         if not self.norm:
             self._evaluate_norm(self.output)
         self.output /= self.norm
-        return self.output
 
     @trace()
-    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         self.retrograde = upstream_gradients * self.norm
-        return self.retrograde
 
     def _evaluate_norm(self, samples):
         samples = samples.astype(self.dtype)

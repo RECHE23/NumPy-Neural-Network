@@ -31,7 +31,7 @@ classes = 5
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
 net.add(ReshapeLayer((channels, dimension, dimension)))
-net.add(ConvolutionalLayer((channels, dimension, dimension), kernel_size, kernel_depth))
+net.add(Convolutional2DLayer((channels, dimension, dimension), kernel_size, kernel_depth))
 net.add(ActivationLayer(relu))
 net.add(ReshapeLayer((kernel_depth * (dimension - kernel_size + 1)**2, )))
 net.add(FullyConnectedLayer(kernel_depth * (dimension - kernel_size + 1)**2, 128))

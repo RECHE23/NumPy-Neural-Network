@@ -4,10 +4,9 @@ from NeuralNetwork.functions import correlate2d, convolve2d, parallel_iterator
 from NeuralNetwork.tools import trace
 
 
-class ConvolutionalLayer(Layer):
+class Convolutional2DLayer(Layer):
     def __init__(self, input_shape, kernel_size, depth):
         self.kernels_gradients = None
-        self.upstream_gradients = None
         self.input_shape = input_depth, input_height, input_width = input_shape
         # Xavier initialization:
         a = np.sqrt(6 / (input_height * input_width + kernel_size * kernel_size))
@@ -16,15 +15,12 @@ class ConvolutionalLayer(Layer):
         super().__init__()
 
     @trace()
-    def forward_propagation(self, input_data):
+    def _forward_propagation(self, input_data):
         n_samples = input_data.shape[0]
-        self.input = input_data
         self.output = np.repeat(np.expand_dims(self.biases, axis=0), n_samples, axis=0)
 
         parallel_iterator(self._forward_propagation_helper,
                           range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0]))
-
-        return self.output
 
     def _forward_propagation_helper(self, args):
         sample, kernel_layer, input_layer = args
@@ -32,9 +28,8 @@ class ConvolutionalLayer(Layer):
             correlate2d(self.input[sample, input_layer], self.kernels[kernel_layer, input_layer], "valid")
 
     @trace()
-    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         n_samples = upstream_gradients.shape[0]
-        self.upstream_gradients = upstream_gradients
         self.kernels_gradients = np.empty((n_samples,) + self.kernels.shape)
         self.retrograde = np.zeros((n_samples,) + self.input_shape)
 
@@ -43,7 +38,6 @@ class ConvolutionalLayer(Layer):
 
         self.kernels -= learning_rate * np.sum(self.kernels_gradients, axis=0)
         self.biases -= learning_rate * np.sum(upstream_gradients, axis=0)
-        return self.retrograde
 
     def _backward_propagation_helper(self, args):
         sample, kernel_layer, input_layer = args

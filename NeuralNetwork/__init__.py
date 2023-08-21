@@ -17,5 +17,5 @@ __all__ = ["relu",
            "ReshapeLayer",
            "FullyConnectedLayer",
            "ActivationLayer",
-           "ConvolutionalLayer",
+           "Convolutional2DLayer",
            "OutputLayer"]
