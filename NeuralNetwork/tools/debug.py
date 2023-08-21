@@ -16,20 +16,23 @@ def trace(debug=DEBUG):
     END = "\x1b[0m"
 
     def parameterized(func):
-        NAME = func.__qualname__ if func.__name__ != func.__qualname__ else f"{func.__module__}.{func.__name__}"
-
         def wrap(*args, **kwargs):
-            wrap.calls += 1
+            NAME = func.__qualname__ if func.__name__ != func.__qualname__ else f"{func.__module__}.{func.__name__}"
             if debug:
                 # Log the function name and arguments:
                 argsname_ = func.__code__.co_varnames
+                if argsname_[0] == 'self':
+                    NAME = f"{args[0].__class__.__name__}.{func.__name__}"
+                if NAME not in wrap.calls:
+                    wrap.calls[NAME] = 0
+                wrap.calls[NAME] += 1
                 args_ = ", ".join([f"{k}={VIOLET}Array{v.shape}{END}" if isinstance(v, np.ndarray) else f"{k}={YELLOW}{v}{END}" \
                                    for k, v in zip(argsname_, args) if k != 'self'])
                 kwargs_ = ", ".join([f"{k}={VIOLET}Array{v.shape}{END}" if isinstance(v, np.ndarray) else f"{k}={YELLOW}{v}{END}" \
                                      for k, v in kwargs.items()])
                 sep_ = ", " if args_ and kwargs_ else ""
                 params_ = f"{args_}{sep_}{kwargs_}"
-                print(f"{GREEN}{NAME}{END}({params_}) called.  {BLUE}(Call #{wrap.calls}){END}")
+                print(f"{GREEN}{NAME}{END}({params_}) called.  {BLUE}(Call #{wrap.calls[NAME]}){END}")
                 start = time.time()
 
             # Call the original function:
@@ -51,7 +54,7 @@ def trace(debug=DEBUG):
             # Return the result:
             return result
 
-        wrap.calls = 0
+        wrap.calls = dict()
         return wrap
 
     return parameterized

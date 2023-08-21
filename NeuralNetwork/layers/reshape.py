@@ -1,6 +1,5 @@
 import numpy as np
 from . import Layer
-from NeuralNetwork.tools import trace
 
 
 class ReshapeLayer(Layer):
@@ -10,12 +9,10 @@ class ReshapeLayer(Layer):
         self.output_shape = output_shape
         super().__init__()
 
-    @trace()
     def _forward_propagation(self, input_data):
         if not self.input_shape:
             self.input_shape = input_data.shape[1:]
         self.output = np.reshape(input_data.astype(self.dtype), (-1, ) + self.output_shape)
 
-    @trace()
     def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         self.retrograde = np.reshape(upstream_gradients, (-1,) + self.input_shape)

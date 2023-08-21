@@ -1,7 +1,6 @@
 import numpy as np
 from . import Layer
 from NeuralNetwork.functions import correlate2d, convolve2d, parallel_iterator
-from NeuralNetwork.tools import trace
 
 
 class Convolutional2DLayer(Layer):
@@ -14,7 +13,6 @@ class Convolutional2DLayer(Layer):
         self.biases = np.zeros((depth, input_height - kernel_size + 1, input_width - kernel_size + 1))
         super().__init__()
 
-    @trace()
     def _forward_propagation(self, input_data):
         n_samples = input_data.shape[0]
         self.output = np.repeat(np.expand_dims(self.biases, axis=0), n_samples, axis=0)
@@ -27,7 +25,6 @@ class Convolutional2DLayer(Layer):
         self.output[sample, kernel_layer] += \
             correlate2d(self.input[sample, input_layer], self.kernels[kernel_layer, input_layer], "valid")
 
-    @trace()
     def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         n_samples = upstream_gradients.shape[0]
         self.kernels_gradients = np.empty((n_samples,) + self.kernels.shape)

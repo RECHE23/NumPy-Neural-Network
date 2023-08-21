@@ -1,6 +1,5 @@
 import numpy as np
 from . import Layer
-from NeuralNetwork.tools import trace
 
 
 class NormalizationLayer(Layer):
@@ -13,14 +12,12 @@ class NormalizationLayer(Layer):
             self._evaluate_norm(samples)
         super().__init__()
 
-    @trace()
     def _forward_propagation(self, input_data):
         self.output = input_data.astype(self.dtype)
         if not self.norm:
             self._evaluate_norm(self.output)
         self.output /= self.norm
 
-    @trace()
     def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
         self.retrograde = upstream_gradients * self.norm
 
