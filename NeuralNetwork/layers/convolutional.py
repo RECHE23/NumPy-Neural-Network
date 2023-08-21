@@ -1,8 +1,6 @@
 import numpy as np
-from scipy.signal import correlate2d, convolve2d
-from itertools import product
-from concurrent.futures import ThreadPoolExecutor
 from . import Layer
+from NeuralNetwork.functions import correlate2d, convolve2d, parallel_iterator
 from NeuralNetwork.tools import trace
 
 
@@ -23,9 +21,8 @@ class ConvolutionalLayer(Layer):
         self.input = input_data
         self.output = np.repeat(np.expand_dims(self.biases, axis=0), n_samples, axis=0)
 
-        with ThreadPoolExecutor() as executor:
-            executor.map(self._forward_propagation_helper,
-                         product(range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0])))
+        parallel_iterator(self._forward_propagation_helper,
+                          range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0]))
 
         return self.output
 
@@ -41,9 +38,8 @@ class ConvolutionalLayer(Layer):
         self.kernels_gradients = np.empty((n_samples,) + self.kernels.shape)
         self.retrograde = np.zeros((n_samples,) + self.input_shape)
 
-        with ThreadPoolExecutor() as executor:
-            executor.map(self._backward_propagation_helper,
-                         product(range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0])))
+        parallel_iterator(self._backward_propagation_helper,
+                          range(n_samples), range(self.kernels.shape[0]), range(self.input_shape[0]))
 
         self.kernels -= learning_rate * np.sum(self.kernels_gradients, axis=0)
         self.biases -= learning_rate * np.sum(upstream_gradients, axis=0)
