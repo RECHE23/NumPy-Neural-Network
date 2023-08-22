@@ -13,11 +13,13 @@ class Convolutional2DLayer(Layer):
         # Xavier initialization:
         a = np.sqrt(6 / (np.prod(self.input_shape) + np.prod(self.kernel_shape)))
         self.kernels = np.random.uniform(-a, a, (output_channels, input_channels, *self.kernel_shape))
-        self.biases = np.zeros((output_channels, input_width - self.kernel_shape[0] + 1, input_height - self.kernel_shape[1] + 1))
+        self.output_shape = (input_height - self.kernel_shape[0] + 1, input_width - self.kernel_shape[1] + 1)
+        self.biases = np.zeros((output_channels, ))
         super().__init__(*args, **kwargs)
 
     def _forward_propagation(self, input_data):
-        self.output = np.repeat(np.expand_dims(self.biases, axis=0), self.n_samples, axis=0)
+        biases_tiled = np.tile(self.biases[:, np.newaxis, np.newaxis], (1, *self.output_shape))
+        self.output = np.repeat(np.expand_dims(biases_tiled, axis=0), self.n_samples, axis=0)
 
         parallel_iterator(self._forward_propagation_helper,
                           range(self.n_samples), range(self.output_channels), range(self.input_channels))
@@ -34,7 +36,7 @@ class Convolutional2DLayer(Layer):
         parallel_iterator(self._backward_propagation_helper,
                           range(self.n_samples), range(self.output_channels), range(self.input_channels))
 
-        self.optimizer.update([self.kernels, self.biases], [np.sum(self.kernels_gradients, axis=0), np.sum(upstream_gradients, axis=0)])
+        self.optimizer.update([self.kernels, self.biases], [np.sum(self.kernels_gradients, axis=0), np.sum(upstream_gradients, axis=(0, 2, 3))])
 
     def _backward_propagation_helper(self, args):
         sample, kernel_layer, input_layer = args
