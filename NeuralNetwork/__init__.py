@@ -26,4 +26,6 @@ __all__ = ["relu",
            "NesterovMomentum",
            "Adagrad",
            "RMSprop",
-           "Adadelta"]
+           "Adadelta",
+           "Adam",
+           "Adamax"]

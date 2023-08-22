@@ -1,7 +1,7 @@
 from abc import abstractmethod
 import itertools
 from NeuralNetwork.tools import trace
-from NeuralNetwork.optimizers import SGD, Momentum, NesterovMomentum, Adagrad, RMSprop, Adadelta
+from NeuralNetwork.optimizers import *
 
 
 class Layer:
@@ -14,7 +14,7 @@ class Layer:
         self.retrograde = None
         self.upstream_gradients = None
         self.n_samples = None
-        self.optimizer = optimizer if optimizer is not None else NesterovMomentum(learning_rate=1e-3, decay=1e-4)
+        self.optimizer = optimizer if optimizer is not None else Adam(learning_rate=1e-3, decay=1e-4)
 
     def __call__(self, *args, **kwargs):
         return self.forward_propagation(*args, **kwargs)
