@@ -26,8 +26,10 @@ class Convolutional2DLayer(Layer):
 
     def _forward_propagation_helper(self, args):
         sample, kernel_layer, input_layer = args
-        self.output[sample, kernel_layer] += \
-            correlate2d(self.input[sample, input_layer], self.kernels[kernel_layer, input_layer], "valid")
+        input_data = self.input[sample, input_layer]
+        kernel = self.kernels[kernel_layer, input_layer]
+
+        self.output[sample, kernel_layer] += correlate2d(input_data, kernel, "valid")
 
     def _backward_propagation(self, upstream_gradients, y_true):
         self.kernels_gradients = np.empty((self.n_samples, *self.kernels.shape))
@@ -40,7 +42,9 @@ class Convolutional2DLayer(Layer):
 
     def _backward_propagation_helper(self, args):
         sample, kernel_layer, input_layer = args
-        self.kernels_gradients[sample, kernel_layer, input_layer] = \
-            correlate2d(self.input[sample, input_layer], self.upstream_gradients[sample, kernel_layer], "valid")
-        self.retrograde[sample, input_layer] += \
-            convolve2d(self.upstream_gradients[sample, kernel_layer], self.kernels[kernel_layer, input_layer], "full")
+        input_data = self.input[sample, input_layer]
+        upstream_gradient = self.upstream_gradients[sample, kernel_layer]
+        kernel = self.kernels[kernel_layer, input_layer]
+
+        self.kernels_gradients[sample, kernel_layer, input_layer] = correlate2d(input_data, upstream_gradient, "valid")
+        self.retrograde[sample, input_layer] += convolve2d(upstream_gradient, kernel, "full")

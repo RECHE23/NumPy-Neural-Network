@@ -1,3 +1,4 @@
+from .optimizer import Optimizer
 from .sgd import SGD
 from .momentum import Momentum
 from .nesterov_momentum import NesterovMomentum
@@ -7,7 +8,8 @@ from .adadelta import Adadelta
 from .adam import Adam
 from .adamax import Adamax
 
-__all__ = ["SGD",
+__all__ = ["Optimizer",
+           "SGD",
            "Momentum",
            "NesterovMomentum",
            "Adagrad",
