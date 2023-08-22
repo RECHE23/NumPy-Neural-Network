@@ -3,15 +3,15 @@ from . import Layer
 
 
 class OutputLayer(Layer):
-    def __init__(self, activation_function, loss_function):
+    def __init__(self, activation_function, loss_function, *args, **kwargs):
         self.activation_function = activation_function
         self.loss_function = loss_function
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def _forward_propagation(self, input_data):
         self.output = self.activation_function(self.input)
 
-    def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def _backward_propagation(self, upstream_gradients, y_true):
         self.retrograde = self.loss_function(y_true, self.output, prime=True)
 
     def loss(self, y_true, y_pred, prime=False):

@@ -1,5 +1,6 @@
 from functions import *
 from layers import *
+from optimizers import *
 from tools import *
 
 __all__ = ["relu",
@@ -19,4 +20,10 @@ __all__ = ["relu",
            "FullyConnectedLayer",
            "ActivationLayer",
            "Convolutional2DLayer",
-           "OutputLayer"]
+           "OutputLayer",
+           "SGD",
+           "Momentum",
+           "NesterovMomentum",
+           "Adagrad",
+           "RMSprop",
+           "Adadelta"]

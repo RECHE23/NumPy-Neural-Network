@@ -24,7 +24,7 @@ class NeuralNetwork:
         return convert_targets(predictions, to=to)
 
     @trace()
-    def fit(self, samples, targets, epochs=100, learning_rate=0.05, batch_size=1, shuffle=False):
+    def fit(self, samples, targets, epochs=100, batch_size=1, shuffle=False):
         assert samples.shape[0] == targets.shape[0]
         assert isinstance(self.layers[-1], OutputLayer)
 
@@ -41,7 +41,8 @@ class NeuralNetwork:
                 # Backward propagation:
                 error_grad = None
                 for layer in reversed(self.layers):
-                    error_grad = layer.backward_propagation(error_grad, learning_rate, batch_labels)
+                    error_grad = layer.backward_propagation(error_grad, batch_labels)
+                    layer.optimizer.next_epoch()
 
                 # Compute the total loss:
                 error += self.layers[-1].loss(batch_labels, batch_samples)

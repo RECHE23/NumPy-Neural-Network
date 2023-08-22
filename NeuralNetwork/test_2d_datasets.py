@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from neural_network import NeuralNetwork
 from layers import *
 from functions import *
+from optimizers import NesterovMomentum
 
 # Load the dataset:
 n_samples = 1000
@@ -26,19 +27,19 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 # Network:
 net = NeuralNetwork()
 net.add(NormalizationLayer())
-net.add(FullyConnectedLayer(2, 50))
+net.add(FullyConnectedLayer(2, 50, optimizer=NesterovMomentum(learning_rate=0.01)))
 net.add(ActivationLayer(tanh))
-net.add(FullyConnectedLayer(50, 33))
+net.add(FullyConnectedLayer(50, 33, optimizer=NesterovMomentum(learning_rate=0.01)))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(33, 50))
+net.add(FullyConnectedLayer(33, 50, optimizer=NesterovMomentum(learning_rate=0.01)))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(50, 4))
+net.add(FullyConnectedLayer(50, 4, optimizer=NesterovMomentum(learning_rate=0.01)))
 # net.add(OutputLayer(tanh, mean_squared_error))
 net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Train:
 start = time.time()
-net.fit(X_train, y_train, epochs=15, learning_rate=0.005, batch_size=5, shuffle=True)
+net.fit(X_train, y_train, epochs=15, batch_size=5, shuffle=True)
 end = time.time()
 print("\nTraining time :", (end - start) * 10 ** 3, "ms")
 

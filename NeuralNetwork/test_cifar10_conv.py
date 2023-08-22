@@ -41,7 +41,7 @@ net.add(OutputLayer(softmax, categorical_cross_entropy))
 
 # Train:
 start = time.time()
-net.fit(X_train, y_train, epochs=5, learning_rate=0.001, batch_size=64, shuffle=True)
+net.fit(X_train, y_train, epochs=5, batch_size=64, shuffle=True)
 end = time.time()
 print("\nTraining time :", (end - start) * 10 ** 3, "ms, on ", y_train.shape[0], "samples.")
 

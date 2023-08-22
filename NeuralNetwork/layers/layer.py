@@ -1,18 +1,20 @@
 from abc import abstractmethod
-from NeuralNetwork.tools import trace
 import itertools
+from NeuralNetwork.tools import trace
+from NeuralNetwork.optimizers import SGD, Momentum, NesterovMomentum, Adagrad, RMSprop, Adadelta
 
 
 class Layer:
     id_iter = itertools.count()
 
-    def __init__(self):
+    def __init__(self, optimizer=None):
         self.id = next(self.id_iter)
         self.input = None
         self.output = None
         self.retrograde = None
         self.upstream_gradients = None
         self.n_samples = None
+        self.optimizer = optimizer if optimizer is not None else NesterovMomentum(learning_rate=1e-3, decay=1e-4)
 
     def __call__(self, *args, **kwargs):
         return self.forward_propagation(*args, **kwargs)
@@ -36,13 +38,13 @@ class Layer:
         raise NotImplementedError
 
     @trace()
-    def backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def backward_propagation(self, upstream_gradients, y_true):
         self.upstream_gradients = upstream_gradients
         self.n_samples = None if upstream_gradients is None else upstream_gradients.shape[0]
-        self._backward_propagation(upstream_gradients, learning_rate, y_true)
+        self._backward_propagation(upstream_gradients, y_true)
         self.n_samples = None
         return self.retrograde
 
     @abstractmethod
-    def _backward_propagation(self, upstream_gradients, learning_rate, y_true):
+    def _backward_propagation(self, upstream_gradients, y_true):
         raise NotImplementedError
