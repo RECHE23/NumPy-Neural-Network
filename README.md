@@ -68,10 +68,10 @@ model.add(OutputLayer(softmax, categorical_cross_entropy))
 model.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)
 
 # Make predictions:
-predictions = model.predict(X_test)
+y_pred = model.predict(X_test)
 
 # Evaluate the model:
-score = accuracy_score(y_test, predictions)
+score = accuracy_score(y_test, y_pred)
 print(f"Accuracy score on the test set: {score:.2%}")
 ```
 

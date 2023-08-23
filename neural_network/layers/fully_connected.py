@@ -71,7 +71,7 @@ class FullyConnectedLayer(Layer):
         input_data : array-like, shape (n_samples, input_size)
             The input data to propagate through the layer.
         """
-        self.output = np.einsum("ij,jk", self.input, self.weights, optimize=True) + self.bias
+        self.output = np.einsum("ij,jk", self.input, self.weights, optimize='greedy') + self.bias
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
         """
@@ -84,8 +84,8 @@ class FullyConnectedLayer(Layer):
         y_true : array-like, shape (n_samples, ...)
             The true target values corresponding to the input data.
         """
-        self.retrograde = np.einsum("ij,kj", upstream_gradients, self.weights, optimize=True)
-        weights_error = np.einsum("ji,jk", self.input, upstream_gradients, optimize=True)
+        self.retrograde = np.einsum("ij,kj", upstream_gradients, self.weights, optimize='greedy')
+        weights_error = np.einsum("ji,jk", self.input, upstream_gradients, optimize='greedy')
 
         self.optimizer.update([self.weights, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
 

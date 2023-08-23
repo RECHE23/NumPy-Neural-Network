@@ -1,4 +1,4 @@
-from typing import Callable, Tuple, Union
+from typing import Callable, Tuple, Union, Iterable
 from itertools import product
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
@@ -120,7 +120,7 @@ def apply_padding(array: np.ndarray, kernel: np.ndarray, mode: str, boundary: st
     return array
 
 
-def parallel_iterator(function: Callable, *iterables: Tuple) -> None:
+def parallel_iterator(function: Callable, *iterables: Iterable) -> None:
     """
     Apply a given function to each combination of elements from input iterables in parallel.
 
@@ -128,8 +128,8 @@ def parallel_iterator(function: Callable, *iterables: Tuple) -> None:
     -----------
     function : callable
         The function to be applied.
-    *iterables : tuple of iterable
-        The input iterables.
+    *iterables : iterable
+        The arguments provided to the function.
 
     Returns:
     --------
