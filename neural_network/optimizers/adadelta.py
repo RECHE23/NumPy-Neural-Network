@@ -63,6 +63,12 @@ class Adadelta(Optimizer):
         self.delta: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
 
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the optimizer with its hyperparameters.
+        """
+        return super().__repr__()[:-1] + f", rho={self.rho}, epsilon={self.epsilon})"
+
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
         """
         Update the parameters using the Adadelta algorithm.

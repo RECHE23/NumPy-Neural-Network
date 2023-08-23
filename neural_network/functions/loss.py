@@ -50,3 +50,9 @@ def categorical_cross_entropy(y_true: np.ndarray, y_pred: np.ndarray, prime: boo
     if prime:
         return y_pred_clipped - y_true
     return -np.sum(y_true * np.log(y_pred_clipped), axis=-1)
+
+
+loss_functions = {
+    "mean_squared_error": mean_squared_error,
+    "categorical_cross_entropy": categorical_cross_entropy
+}

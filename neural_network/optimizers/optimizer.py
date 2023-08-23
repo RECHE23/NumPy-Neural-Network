@@ -58,7 +58,7 @@ class Optimizer:
         """
         Return a string representation of the optimizer's class name.
         """
-        return f"{self.__class__.__name__}"
+        return repr(self)
 
     def __repr__(self) -> str:
         """

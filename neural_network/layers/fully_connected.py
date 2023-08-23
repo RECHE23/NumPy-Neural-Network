@@ -20,6 +20,10 @@ class FullyConnectedLayer(Layer):
 
     Attributes:
     -----------
+    input_size : int
+            Number of input features or neurons from the previous layer.
+    output_size : int
+        Number of neurons in this layer.
     weights : array-like, shape (input_size, output_size)
         Learnable weights for the connections between input and output neurons.
     bias : array-like, shape (output_size,)
@@ -31,9 +35,9 @@ class FullyConnectedLayer(Layer):
         Perform forward propagation through the fully connected layer.
     _backward_propagation(upstream_gradients, y_true)
         Perform backward propagation through the fully connected layer.
-    _initialize_parameters_xavier(input_size, output_size)
+    _initialize_parameters_xavier()
         Initialize layer parameters using Xavier initialization.
-    _initialize_parameters_he(input_size, output_size)
+    _initialize_parameters_he()
         Initialize layer parameters using He initialization.
 
     """
@@ -55,12 +59,19 @@ class FullyConnectedLayer(Layer):
         """
         super().__init__(*args, **kwargs)
 
+        self.input_size: int = input_size
+        self.output_size: int = output_size
+        self.initialization: str = initialization
+
         if initialization == "xavier":
-            self._initialize_parameters_xavier(input_size, output_size)
+            self._initialize_parameters_xavier()
         elif initialization == "he":
-            self._initialize_parameters_he(input_size, output_size)
+            self._initialize_parameters_he()
         else:
             raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(input_size={self.input_size}, output_size={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -89,34 +100,18 @@ class FullyConnectedLayer(Layer):
 
         self.optimizer.update([self.weights, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
 
-    def _initialize_parameters_xavier(self, input_size: int, output_size: int) -> None:
+    def _initialize_parameters_xavier(self) -> None:
         """
         Initialize layer parameters using Xavier initialization.
-
-        Parameters:
-        -----------
-        input_size : int
-            Number of input features or neurons from the previous layer.
-        output_size : int
-            Number of neurons in this layer.
-
         """
-        a = np.sqrt(6 / (input_size + output_size))
-        self.weights = np.random.uniform(-a, a, (input_size, output_size))
-        self.bias = np.zeros((output_size,))
+        a = np.sqrt(6 / (self.input_size + self.output_size))
+        self.weights = np.random.uniform(-a, a, (self.input_size, self.output_size))
+        self.bias = np.zeros((self.output_size,))
 
-    def _initialize_parameters_he(self, input_size: int, output_size: int) -> None:
+    def _initialize_parameters_he(self) -> None:
         """
         Initialize layer parameters using He initialization.
-
-        Parameters:
-        -----------
-        input_size : int
-            Number of input features or neurons from the previous layer.
-        output_size : int
-            Number of neurons in this layer.
-
         """
-        a = np.sqrt(2 / input_size)
-        self.weights = np.random.normal(0, a, (input_size, output_size))
-        self.bias = np.zeros((output_size,))
+        a = np.sqrt(2 / self.input_size)
+        self.weights = np.random.normal(0, a, (self.input_size, self.output_size))
+        self.bias = np.zeros((self.output_size,))

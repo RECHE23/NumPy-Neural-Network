@@ -25,8 +25,6 @@ class Layer:
 
     Attributes:
     -----------
-    id : int
-        An identifier for the layer instance.
     input : array-like
         The input data passed to the layer during forward propagation.
     output : array-like
@@ -46,10 +44,8 @@ class Layer:
         Perform backward propagation through the layer.
 
     """
-    id_iter = itertools.count()
 
     def __init__(self, optimizer: Optional[Optimizer] = None):
-        self.id = next(self.id_iter)
         self.input: Optional[np.ndarray] = None
         self.output: Optional[np.ndarray] = None
         self.retrograde: Optional[np.ndarray] = None
@@ -61,11 +57,10 @@ class Layer:
         return self.forward_propagation(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}"
+        return repr(self)
 
     def __repr__(self) -> str:
-        optimizer_info = f", optimizer={self.optimizer.__repr__()}" if self.optimizer else ""
-        return f"{self.__class__.__name__}(Layer #{self.id}{optimizer_info})"
+        return f"{self.__class__.__name__}()"
 
     @trace()
     def forward_propagation(self, input_data: np.ndarray) -> np.ndarray:

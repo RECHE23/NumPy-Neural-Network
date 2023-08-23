@@ -17,6 +17,47 @@ class NeuralNetwork:
         """
         self.layers = []
 
+    def __str__(self):
+        """
+        Return a string representation of the neural network.
+
+        Returns:
+        --------
+        str_representation : str
+            String representation of the neural network.
+        """
+        layers_info = "\n".join([f"Layer {i}: {repr(layer)}" for i, layer in enumerate(self.layers)])
+        return f"NeuralNetwork:\n{layers_info}"
+
+    def __repr__(self):
+        """
+        Return a detailed string representation of the neural network.
+
+        Returns:
+        --------
+        str_representation : str
+            Detailed string representation of the neural network.
+        """
+        return f"NeuralNetwork(layers={self.layers})"
+
+    def __call__(self, samples: np.ndarray, to: str = None) -> np.ndarray:
+        """
+        Make predictions using the neural network by calling it as a function.
+
+        Parameters:
+        -----------
+        samples : np.ndarray
+            Input samples for prediction.
+        to : str or None, optional
+            Target format to convert predictions to. Default is None.
+
+        Returns:
+        --------
+        predictions : np.ndarray
+            Predictions made by the neural network.
+        """
+        return self.predict(samples, to=to)
+
     @trace()
     def add(self, layer: Layer) -> None:
         """

@@ -57,12 +57,12 @@ model = NeuralNetwork()
 
 # Add layers to the network:
 model.add(FullyConnectedLayer(input_size=20, output_size=64))
-model.add(ActivationLayer(relu))
+model.add(ActivationLayer("relu"))
 model.add(FullyConnectedLayer(input_size=64, output_size=32))
-model.add(ActivationLayer(relu))
+model.add(ActivationLayer("relu"))
 model.add(FullyConnectedLayer(input_size=32, output_size=2))
-model.add(ActivationLayer(relu))
-model.add(OutputLayer(softmax, categorical_cross_entropy))
+model.add(ActivationLayer("relu"))
+model.add(OutputLayer("softmax", "categorical_cross_entropy"))
 
 # Train the model:
 model.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)

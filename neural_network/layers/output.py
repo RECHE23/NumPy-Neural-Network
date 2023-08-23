@@ -1,6 +1,8 @@
 from typing import Union, Callable
 import numpy as np
 from . import Layer
+from neural_network.functions.activation import activation_functions
+from neural_network.functions.loss import loss_functions
 
 
 class OutputLayer(Layer):
@@ -9,6 +11,10 @@ class OutputLayer(Layer):
 
     Parameters:
     -----------
+    activation_function_name: str
+        The name of the activation function. Default is "relu".
+    loss_function_name: str
+        The name of the loss function. Default is "categorical_cross_entropy".
     activation_function : callable
         Activation function applied to the layer's output.
     loss_function : callable
@@ -33,22 +39,27 @@ class OutputLayer(Layer):
         Loss function to calculate the loss between predicted and true values.
     """
 
-    def __init__(self, activation_function: Callable, loss_function: Callable, *args, **kwargs):
+    def __init__(self, activation_function: str = "relu", loss_function: str = "categorical_cross_entropy", *args, **kwargs):
         """
         Initialize the OutputLayer with the given activation and loss functions.
 
         Parameters:
         -----------
-        activation_function : callable
-            Activation function applied to the layer's output.
-        loss_function : callable
-            Loss function to calculate the loss between predicted and true values.
+        activation_function : str
+            Activation function applied to the layer's output. Default is "relu".
+        loss_function : str
+            Loss function to calculate the loss between predicted and true values. Default is "categorical_cross_entropy".
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self.activation_function: Callable = activation_function
-        self.loss_function: Callable = loss_function
+        self.activation_function_name: str = activation_function.lower().strip()
+        self.loss_function_name: str = loss_function.lower().strip()
+        self.activation_function: Callable = activation_functions[activation_function]
+        self.loss_function: Callable = loss_functions[loss_function]
         super().__init__(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(activation_function={self.activation_function_name}, loss_function={self.loss_function_name})"
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

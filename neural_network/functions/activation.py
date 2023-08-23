@@ -1,4 +1,3 @@
-from typing import Union, Callable
 import numpy as np
 from neural_network.tools import trace
 
@@ -96,3 +95,11 @@ def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
     if prime:
         return np.diagflat(s) - np.dot(s, s.T)
     return s
+
+
+activation_functions = {
+        "relu": relu,
+        "tanh": tanh,
+        "sigmoid": sigmoid,
+        "softmax": softmax
+    }

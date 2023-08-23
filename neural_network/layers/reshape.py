@@ -51,6 +51,10 @@ class ReshapeLayer(Layer):
         self.output_shape: Tuple[int, ...] = output_shape
         super().__init__(*args, **kwargs)
 
+    def __repr__(self) -> str:
+        input_shape = f"input_shape={self.input_shape}, " if self.input_shape else ""
+        return f"{self.__class__.__name__}({input_shape}output_shape={self.output_shape}, dtype={self.dtype})"
+
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Reshape the input data to the specified output shape.

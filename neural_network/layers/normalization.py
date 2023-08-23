@@ -62,6 +62,10 @@ class NormalizationLayer(Layer):
             self._evaluate_norm(samples)
         super().__init__(*args, **kwargs)
 
+    def __repr__(self) -> str:
+        norm = f"norm={self.norm}, " if self.norm else ""
+        return f"{self.__class__.__name__}({norm}dtype={self.dtype})"
+
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Compute the normalized output of the normalization layer using the given input data.
