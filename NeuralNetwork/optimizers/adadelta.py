@@ -32,7 +32,7 @@ class Adadelta(Optimizer):
         The decay rate for the moving average of squared gradients.
     epsilon : float
         A small constant added to prevent division by zero.
-    cache : list of arrays or None
+    avg_sq_gradients : list of arrays or None
         The moving average of squared gradients, initialized to None.
     delta : list of arrays or None
         The moving average of squared parameter updates, initialized to None.
@@ -59,7 +59,7 @@ class Adadelta(Optimizer):
         """
         self.rho: float = rho
         self.epsilon: float = epsilon
-        self.cache: Optional[List[np.ndarray]] = None
+        self.avg_sq_gradients: Optional[List[np.ndarray]] = None
         self.delta: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
 
@@ -80,19 +80,19 @@ class Adadelta(Optimizer):
             List of updated parameter arrays.
 
         """
-        if self.cache is None:
-            self.cache = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
+        if self.avg_sq_gradients is None:
+            self.avg_sq_gradients = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
         if self.delta is None:
             self.delta = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
         updated_parameters = []
-        for i, (cached, delta, parameter, gradient) in enumerate(zip(self.cache, self.delta, parameters, gradients)):
-            # Update cached gradient: E[g^2] = rho * E[g^2] + (1 - rho) * gradient^2
-            cached = self.rho * cached + (1 - self.rho) * gradient * gradient
+        for i, (avg_sq_gradient, delta, parameter, gradient) in enumerate(zip(self.avg_sq_gradients, self.delta, parameters, gradients)):
+            # Update avg_sq_gradient gradient: E[g^2] = rho * E[g^2] + (1 - rho) * gradient^2
+            avg_sq_gradient = self.rho * avg_sq_gradient + (1 - self.rho) * gradient * gradient
 
-            # Calculate update: update = gradient * sqrt(delta + epsilon) / sqrt(cached + epsilon)
-            update = gradient * np.sqrt(delta + self.epsilon) / np.sqrt(cached + self.epsilon)
+            # Calculate update: update = gradient * sqrt(delta + epsilon) / sqrt(avg_sq_gradient + epsilon)
+            update = gradient * np.sqrt(delta + self.epsilon) / np.sqrt(avg_sq_gradient + self.epsilon)
 
             # Update parameter: parameter -= learning_rate * update
             parameter -= self.learning_rate * update
@@ -101,7 +101,7 @@ class Adadelta(Optimizer):
             delta = self.rho * delta + (1 - self.rho) * update * update
 
             # Update attributes
-            self.cache[i] = cached
+            self.avg_sq_gradients[i] = avg_sq_gradient
             self.delta[i] = delta
             updated_parameters.append(parameter)
 

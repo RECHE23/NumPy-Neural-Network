@@ -29,7 +29,7 @@ def correlate2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full",
         Correlation result.
 
     """
-    padded_array = padding(input_array, kernel, mode, boundary, fillvalue)
+    padded_array = apply_padding(input_array, kernel, mode, boundary, fillvalue)
     sliding_view = np.lib.stride_tricks.sliding_window_view(padded_array, kernel.shape)
 
     return np.einsum('ijkl,kl->ij', sliding_view, kernel)
@@ -60,13 +60,13 @@ def convolve2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full", 
         Convolution result.
 
     """
-    padded_array = padding(input_array, kernel, mode, boundary, fillvalue, pad_after=True)
+    padded_array = apply_padding(input_array, kernel, mode, boundary, fillvalue, pad_after=True)
     sliding_view = np.lib.stride_tricks.sliding_window_view(padded_array, kernel.shape)
 
     return np.einsum('ijkl,kl->ij', sliding_view, np.flip(kernel))
 
 
-def padding(array: np.ndarray, kernel: np.ndarray, mode: str, boundary: str = "constant", fillvalue: int = 0, pad_after: bool = False) -> np.ndarray:
+def apply_padding(array: np.ndarray, kernel: np.ndarray, mode: str, boundary: str = "constant", fillvalue: int = 0, pad_after: bool = False) -> np.ndarray:
     """
     Apply padding to an array based on the kernel shape and padding mode.
 

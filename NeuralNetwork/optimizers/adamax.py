@@ -36,11 +36,11 @@ class Adamax(Optimizer):
         Exponential decay rate for the infinite norm estimates.
     epsilon : float
         A small constant added to prevent division by zero.
-    ms : list of arrays or None
+    first_moments : list of arrays or None
         First moment estimates, initialized to None.
-    vs : list of arrays or None
+    second_moments : list of arrays or None
         Second moment estimates, initialized to None.
-    t : int
+    time_step : int
         Time step.
 
     Methods:
@@ -68,9 +68,9 @@ class Adamax(Optimizer):
         self.beta1: float = beta1
         self.beta2: float = beta2
         self.epsilon: float = epsilon
-        self.ms: Optional[List[np.ndarray]] = None  # First moment estimates
-        self.vs: Optional[List[np.ndarray]] = None  # Second moment estimates
-        self.t: int = 0                             # Time step
+        self.first_moments: Optional[List[np.ndarray]] = None
+        self.second_moments: Optional[List[np.ndarray]] = None
+        self.time_step: int = 0
         super().__init__(*args, **kwargs)
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
@@ -90,29 +90,31 @@ class Adamax(Optimizer):
             List of updated parameter arrays.
 
         """
-        self.t += 1
-        a_t = self.learning_rate / (1 - self.beta1 ** self.t)
+        self.time_step += 1
 
-        if self.ms is None:
-            self.ms = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
+        # Compute the bias-corrected learning rate
+        adjusted_learning_rate = self.learning_rate / (1 - self.beta1 ** self.time_step)
 
-        if self.vs is None:
-            self.vs = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
+        if self.first_moments is None:
+            self.first_moments = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
+
+        if self.second_moments is None:
+            self.second_moments = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
         updated_parameters = []
-        for i, (m, v, parameter, gradient) in enumerate(zip(self.ms, self.vs, parameters, gradients)):
-            # Update first moment estimate: m = beta1 * m + (1 - beta1) * gradient
-            m = self.beta1 * m + (1 - self.beta1) * gradient
+        for i, (first_moment, second_moment, parameter, gradient) in enumerate(zip(self.first_moments, self.second_moments, parameters, gradients)):
+            # Update first moment estimate: first_moment = beta1 * first_moment + (1 - beta1) * gradient
+            first_moment = self.beta1 * first_moment + (1 - self.beta1) * gradient
 
-            # Update second moment estimate: v = max(beta2 * v, abs(gradient))
-            v = np.maximum(self.beta2 * v, np.abs(gradient))
+            # Update second moment estimate: second_moment = max(beta2 * second_moment, abs(gradient))
+            second_moment = np.maximum(self.beta2 * second_moment, np.abs(gradient))
 
-            # Update parameter: parameter -= a_t * m / (v + epsilon)
-            parameter -= a_t * m / (v + self.epsilon)
+            # Update parameter: parameter -= adjusted_learning_rate * first_moment / (second_moment + epsilon)
+            parameter -= adjusted_learning_rate * first_moment / (second_moment + self.epsilon)
 
             # Update attributes
-            self.ms[i] = m
-            self.vs[i] = v
+            self.first_moments[i] = first_moment
+            self.second_moments[i] = second_moment
             updated_parameters.append(parameter)
 
         return updated_parameters

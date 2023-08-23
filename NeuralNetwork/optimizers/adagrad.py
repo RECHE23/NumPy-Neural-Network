@@ -28,7 +28,7 @@ class Adagrad(Optimizer):
     -----------
     epsilon : float
         A small constant added to prevent division by zero.
-    cache : list of arrays or None
+    sum_sq_gradients : list of arrays or None
         The cumulative sum of squared gradients, initialized to None.
 
     Methods:
@@ -50,7 +50,7 @@ class Adagrad(Optimizer):
 
         """
         self.epsilon: float = epsilon
-        self.cache: Optional[List[np.ndarray]] = None
+        self.sum_sq_gradients: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
@@ -70,19 +70,19 @@ class Adagrad(Optimizer):
             List of updated parameter arrays.
 
         """
-        if self.cache is None:
-            self.cache = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
+        if self.sum_sq_gradients is None:
+            self.sum_sq_gradients = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
         updated_parameters = []
-        for i, (cached, parameter, gradient) in enumerate(zip(self.cache, parameters, gradients)):
-            # Update cached gradient: cache += gradient^2
-            cached += gradient * gradient
+        for i, (sum_sq_gradient, parameter, gradient) in enumerate(zip(self.sum_sq_gradients, parameters, gradients)):
+            # Update sum_sq_gradient gradient: sum_sq_gradient += gradient^2
+            sum_sq_gradient += gradient * gradient
 
-            # Update parameter: parameter -= learning_rate * gradient / (sqrt(cache) + epsilon)
-            parameter -= self.learning_rate * gradient / (np.sqrt(cached) + self.epsilon)
+            # Update parameter: parameter -= learning_rate * gradient / (sqrt(sum_sq_gradient) + epsilon)
+            parameter -= self.learning_rate * gradient / (np.sqrt(sum_sq_gradient) + self.epsilon)
 
             # Update attributes
-            self.cache[i] = cached
+            self.sum_sq_gradients[i] = sum_sq_gradient
             updated_parameters.append(parameter)
 
         return updated_parameters
