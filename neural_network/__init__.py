@@ -1,7 +1,8 @@
-from functions import *
-from layers import *
-from optimizers import *
-from tools import *
+from .functions import *
+from .layers import *
+from .optimizers import *
+from .tools import *
+from .neural_network import NeuralNetwork
 
 __all__ = ["relu",
            "tanh",
@@ -20,6 +21,8 @@ __all__ = ["relu",
            "classification_report",
            "convert_targets",
            "pair",
+           "parallel_iterator",
+           "apply_padding",
            "NormalizationLayer",
            "ReshapeLayer",
            "FullyConnectedLayer",
@@ -34,4 +37,5 @@ __all__ = ["relu",
            "RMSprop",
            "Adadelta",
            "Adam",
-           "Adamax"]
+           "Adamax",
+           "NeuralNetwork"]

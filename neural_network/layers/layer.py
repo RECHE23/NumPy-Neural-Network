@@ -4,8 +4,8 @@ import itertools
 
 import numpy as np
 
-from NeuralNetwork.tools import trace
-from NeuralNetwork.optimizers import *
+from neural_network.tools import trace
+from neural_network.optimizers import *
 
 
 class Layer:

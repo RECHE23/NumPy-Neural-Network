@@ -3,11 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
-
-from neural_network import NeuralNetwork
-from layers import *
-from functions import *
-from optimizers import NesterovMomentum
+from neural_network import *
 
 # Load the dataset:
 n_samples = 1000
@@ -27,13 +23,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 # Network:
 net = NeuralNetwork()
 net.add(NormalizationLayer())
-net.add(FullyConnectedLayer(2, 50, optimizer=NesterovMomentum(learning_rate=0.01)))
+net.add(FullyConnectedLayer(2, 50, optimizer=Adam(learning_rate=1e-3)))
 net.add(ActivationLayer(tanh))
-net.add(FullyConnectedLayer(50, 33, optimizer=NesterovMomentum(learning_rate=0.01)))
+net.add(FullyConnectedLayer(50, 33, optimizer=Adam(learning_rate=1e-3)))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(33, 50, optimizer=NesterovMomentum(learning_rate=0.01)))
+net.add(FullyConnectedLayer(33, 50, optimizer=Adam(learning_rate=1e-3)))
 net.add(ActivationLayer(relu))
-net.add(FullyConnectedLayer(50, 4, optimizer=NesterovMomentum(learning_rate=0.01)))
+net.add(FullyConnectedLayer(50, 4, optimizer=Adam(learning_rate=1e-3)))
 # net.add(OutputLayer(tanh, mean_squared_error))
 net.add(OutputLayer(softmax, categorical_cross_entropy))
 

@@ -1,6 +1,6 @@
 from typing import Union, Callable
 import numpy as np
-from NeuralNetwork.tools import trace
+from neural_network.tools import trace
 
 
 @trace()

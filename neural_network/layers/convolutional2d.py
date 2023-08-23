@@ -1,6 +1,6 @@
 import numpy as np
 from . import Layer
-from NeuralNetwork.functions import correlate2d, convolve2d, parallel_iterator, pair
+from neural_network.functions import correlate2d, convolve2d, parallel_iterator, pair
 
 
 class Convolutional2DLayer(Layer):

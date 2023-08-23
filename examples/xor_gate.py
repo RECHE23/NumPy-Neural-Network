@@ -1,10 +1,6 @@
 import time
 import numpy as np
-
-from neural_network import NeuralNetwork
-from layers import *
-from functions import *
-from optimizers import NesterovMomentum
+from neural_network import *
 
 
 # Training data:

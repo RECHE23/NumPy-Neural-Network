@@ -1,10 +1,7 @@
 import time
 import numpy as np
 from keras.datasets import cifar10
-
-from neural_network import NeuralNetwork
-from layers import *
-from functions import *
+from neural_network import *
 
 # Load the MNIST dataset:
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()

@@ -1,7 +1,7 @@
 from typing import Union
 import numpy as np
 from .utils import convert_targets
-from NeuralNetwork.tools import trace
+from neural_network.tools import trace
 
 
 @trace()
