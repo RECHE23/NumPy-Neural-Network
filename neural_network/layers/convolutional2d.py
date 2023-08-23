@@ -18,6 +18,8 @@ class Convolutional2DLayer(Layer):
         Size of the convolutional kernels.
     input_shape : tuple of int
         Input shape (height, width) of the data.
+    initialization : str, optional
+        Weight initialization method: "xavier" or "he" (default is "xavier").
     *args, **kwargs:
         Additional arguments to pass to the base class.
 
@@ -50,10 +52,14 @@ class Convolutional2DLayer(Layer):
         Compute the retrograde gradients for the convolutional layer.
     _backward_propagation_helper(args: tuple) -> None:
         Helper function for parallel backward propagation computation.
+    _initialize_parameters_xavier()
+        Initialize layer parameters using Xavier initialization.
+    _initialize_parameters_he()
+        Initialize layer parameters using He initialization.
     """
 
     def __init__(self, input_channels: int, output_channels: int, kernel_size: Union[int, Tuple[int, int]],
-                 input_shape: Tuple[int, int], *args, **kwargs):
+                 input_shape: Tuple[int, int], initialization: str = "xavier", *args, **kwargs):
         """
         Initialize the Convolutional2DLayer with the given parameters.
 
@@ -67,20 +73,26 @@ class Convolutional2DLayer(Layer):
             Size of the convolutional kernels.
         input_shape : tuple of int
             Input shape (height, width) of the data.
+        initialization : str, optional
+            Weight initialization method: "xavier" or "he" (default is "xavier").
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
+        super().__init__(*args, **kwargs)
+
         self.kernels_gradients: Optional[np.ndarray] = None
         self.input_channels: int = input_channels
         self.output_channels: int = output_channels
         self.kernel_shape: Tuple[int, int] = pair(kernel_size)
         self.input_shape: Tuple[int, int] = input_shape
-        # Xavier initialization:
-        a = np.sqrt(6 / (np.prod(self.input_shape) + np.prod(self.kernel_shape)))
-        self.kernels: np.ndarray = np.random.uniform(-a, a, (output_channels, input_channels, *self.kernel_shape))
         self.output_shape: Tuple[int, int] = (self.input_shape[0] - self.kernel_shape[0] + 1, self.input_shape[1] - self.kernel_shape[1] + 1)
-        self.biases: np.ndarray = np.zeros((output_channels, ))
-        super().__init__(*args, **kwargs)
+
+        if initialization == "xavier":
+            self._initialize_parameters_xavier()
+        elif initialization == "he":
+            self._initialize_parameters_he()
+        else:
+            raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -148,3 +160,19 @@ class Convolutional2DLayer(Layer):
 
         self.kernels_gradients[sample, kernel_layer, input_layer] = correlate2d(input_data, upstream_gradient, "valid")
         self.retrograde[sample, input_layer] += convolve2d(upstream_gradient, kernel, "full")
+
+    def _initialize_parameters_xavier(self) -> None:
+        """
+        Initialize the convolutional kernels using the Xavier initialization method.
+        """
+        a = np.sqrt(6 / (np.prod(self.input_shape) + np.prod(self.kernel_shape)))
+        self.kernels = np.random.uniform(-a, a, (self.output_channels, self.input_channels, *self.kernel_shape))
+        self.biases = np.zeros((self.output_channels,))
+
+    def _initialize_parameters_he(self) -> None:
+        """
+        Initialize the convolutional kernels using the He initialization method.
+        """
+        a = np.sqrt(2 / self.input_channels)
+        self.kernels = np.random.normal(0, a, (self.output_channels, self.input_channels, *self.kernel_shape))
+        self.biases = np.zeros((self.output_channels,))
