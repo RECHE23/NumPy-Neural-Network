@@ -1,11 +1,50 @@
 import numpy as np
-from typing import Tuple, Generator
+from typing import Tuple, Generator, List
 from .tools import trace
 from .functions import convert_targets, accuracy_score, f1_score
 from .layers import OutputLayer, Layer
 
 
 class NeuralNetwork:
+    """
+    A customizable neural network model.
+
+    Attributes:
+    -----------
+    layers : list
+        A list to store the layers of the neural network.
+
+    Methods:
+    --------
+    add(layer: Layer) -> None:
+        Add a layer to the neural network.
+
+    predict(samples: np.ndarray, to: str = None) -> np.ndarray:
+        Make predictions using the neural network.
+
+    fit(samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1, shuffle: bool = False) -> None:
+        Train the neural network.
+
+    Attributes (private):
+    ---------------------
+    _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
+        Generate batches of samples and targets.
+
+    Special Methods:
+    ----------------
+    __init__():
+        Initialize a neural network model.
+
+    __str__():
+        Return a string representation of the neural network.
+
+    __repr__():
+        Return a detailed string representation of the neural network.
+
+    __call__(samples: np.ndarray, to: str = None) -> np.ndarray:
+        Make predictions using the neural network by calling it as a function.
+    """
+
     def __init__(self):
         """
         Initialize a neural network model.
@@ -15,7 +54,7 @@ class NeuralNetwork:
         layers : list
             List to store the layers of the neural network.
         """
-        self.layers = []
+        self.layers: List[Layer] = []
 
     def __str__(self):
         """
