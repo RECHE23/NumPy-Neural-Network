@@ -59,7 +59,7 @@ class Momentum(Optimizer):
         """
         return super().__repr__()[:-1] + f", momentum={self.momentum})"
 
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using the momentum-based gradient descent algorithm.
 
@@ -70,20 +70,11 @@ class Momentum(Optimizer):
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
 
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
-
         """
         if self.velocity is None:
             self.velocity = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
-        updated_parameters = []
         for i, (velocity, parameter, gradient) in enumerate(zip(self.velocity, parameters, gradients)):
             velocity = self.momentum * velocity - self.learning_rate * gradient
             parameter += velocity
             self.velocity[i] = velocity
-            updated_parameters.append(parameter)
-
-        return updated_parameters

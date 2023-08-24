@@ -6,7 +6,7 @@ from neural_network import *
 # Load the MNIST dataset:
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
 
-# Selects only two classes:
+# Selects only five classes:
 y_train = y_train.squeeze()
 indices = np.where(y_train <= 4)
 X_train = X_train[indices]
@@ -19,7 +19,7 @@ y_test = y_test[indices]
 
 # Parameters:
 kernel_size = (5, 5)
-kernel_depth = 5
+kernel_depth = 10
 image_channels = 3
 image_shape = (32, 32)
 classes = 5
@@ -28,10 +28,10 @@ classes = 5
 net = NeuralNetwork()
 net.add(NormalizationLayer(samples=X_train))
 net.add(ReshapeLayer((image_channels, *image_shape)))
-net.add(Convolutional2DLayer(image_channels, kernel_depth, kernel_size, image_shape))
+net.add(Convolutional2DLayer(image_channels, kernel_depth, kernel_size, padding=2))
 net.add(ActivationLayer("relu"))
-net.add(ReshapeLayer((kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), )))
-net.add(FullyConnectedLayer(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), 128))
+net.add(ReshapeLayer((kernel_depth * image_shape[0] * image_shape[1], )))
+net.add(FullyConnectedLayer(kernel_depth * image_shape[0] * image_shape[1], 128))
 net.add(ActivationLayer("relu"))
 net.add(FullyConnectedLayer(128, classes))
 net.add(OutputLayer("softmax", "categorical_cross_entropy"))
@@ -39,10 +39,11 @@ net.add(OutputLayer("softmax", "categorical_cross_entropy"))
 print(net, end="\n\n\n")
 
 # Train:
-start = time.time()
-net.fit(X_train, y_train, epochs=5, batch_size=64, shuffle=True)
-end = time.time()
-print("\nTraining time :", (end - start) * 10 ** 3, "ms, on ", y_train.shape[0], "samples.")
+start_time = time.time()
+net.fit(X_train, y_train, epochs=10, batch_size=64, shuffle=True)
+end_time = time.time()
+formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
+print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")
 
 # Test on N samples:
 N = 10
@@ -54,10 +55,12 @@ print("true values : ")
 print(y_test[0:N])
 
 # Test on the whole test set:
-start = time.time()
+start_time = time.time()
 y_predicted = net.predict(X_test, to="labels")
-end = time.time()
-print("\nTest time :", (end - start) * 10 ** 3, "ms, on ", y_test.shape[0], "samples.")
+end_time = time.time()
+formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
+print(f"\nTest time : {formatted_time}, on {y_test.shape[0]} samples.")
+
 a_score = accuracy_score(y_test, y_predicted)
 print(f"Accuracy score on the test set: {a_score:.2%}")
 y_predicted = convert_targets(y_predicted, to="categorical")

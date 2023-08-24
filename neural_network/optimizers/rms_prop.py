@@ -67,7 +67,7 @@ class RMSprop(Optimizer):
         """
         return super().__repr__()[:-1] + f", rho={self.rho}, epsilon={self.epsilon})"
 
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using RMSprop optimization.
 
@@ -78,16 +78,10 @@ class RMSprop(Optimizer):
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
 
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
-
         """
         if self.squared_gradient_accumulations is None:
             self.squared_gradient_accumulations = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
-        updated_parameters = []
         for i, (sq_grad_accum, parameter, gradient) in enumerate(zip(self.squared_gradient_accumulations, parameters, gradients)):
             # Update sq_grad_accum: sq_grad_accum = rho * sq_grad_accum + (1 - rho) * gradient * gradient
             sq_grad_accum = self.rho * sq_grad_accum + (1 - self.rho) * gradient * gradient
@@ -97,6 +91,3 @@ class RMSprop(Optimizer):
 
             # Update attribute
             self.squared_gradient_accumulations[i] = sq_grad_accum
-            updated_parameters.append(parameter)
-
-        return updated_parameters

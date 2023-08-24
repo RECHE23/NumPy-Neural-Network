@@ -1,9 +1,6 @@
 from typing import Optional
 from abc import abstractmethod
-import itertools
-
 import numpy as np
-
 from neural_network.tools import trace
 from neural_network.optimizers import *
 

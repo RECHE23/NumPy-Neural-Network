@@ -59,7 +59,7 @@ class Adagrad(Optimizer):
         """
         return super().__repr__()[:-1] + f", epsilon={self.epsilon})"
 
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using the Adagrad algorithm.
 
@@ -70,16 +70,10 @@ class Adagrad(Optimizer):
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
 
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
-
         """
         if self.sum_sq_gradients is None:
             self.sum_sq_gradients = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
-        updated_parameters = []
         for i, (sum_sq_gradient, parameter, gradient) in enumerate(zip(self.sum_sq_gradients, parameters, gradients)):
             # Update sum_sq_gradient gradient: sum_sq_gradient += gradient^2
             sum_sq_gradient += gradient * gradient
@@ -89,6 +83,3 @@ class Adagrad(Optimizer):
 
             # Update attributes
             self.sum_sq_gradients[i] = sum_sq_gradient
-            updated_parameters.append(parameter)
-
-        return updated_parameters

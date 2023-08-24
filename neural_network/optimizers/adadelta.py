@@ -69,7 +69,7 @@ class Adadelta(Optimizer):
         """
         return super().__repr__()[:-1] + f", rho={self.rho}, epsilon={self.epsilon})"
 
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using the Adadelta algorithm.
 
@@ -80,11 +80,6 @@ class Adadelta(Optimizer):
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
 
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
-
         """
         if self.avg_sq_gradients is None:
             self.avg_sq_gradients = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
@@ -92,7 +87,6 @@ class Adadelta(Optimizer):
         if self.delta is None:
             self.delta = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
-        updated_parameters = []
         for i, (avg_sq_gradient, delta, parameter, gradient) in enumerate(zip(self.avg_sq_gradients, self.delta, parameters, gradients)):
             # Update avg_sq_gradient gradient: E[g^2] = rho * E[g^2] + (1 - rho) * gradient^2
             avg_sq_gradient = self.rho * avg_sq_gradient + (1 - self.rho) * gradient * gradient
@@ -109,6 +103,3 @@ class Adadelta(Optimizer):
             # Update attributes
             self.avg_sq_gradients[i] = avg_sq_gradient
             self.delta[i] = delta
-            updated_parameters.append(parameter)
-
-        return updated_parameters

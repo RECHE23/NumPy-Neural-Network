@@ -22,7 +22,7 @@ def relu(x: np.ndarray, prime: bool = False) -> np.ndarray:
     """
     if prime:
         return 1. * (x > 0)
-    return x * (x > 0)
+    return np.maximum(x, 0, x)
 
 
 @trace()

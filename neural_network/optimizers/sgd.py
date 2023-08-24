@@ -28,7 +28,7 @@ class SGD(Optimizer):
         Update the parameters using the stochastic gradient descent algorithm.
 
     """
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using the stochastic gradient descent algorithm.
 
@@ -39,16 +39,7 @@ class SGD(Optimizer):
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
 
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
-
         """
-        updated_parameters = []
 
         for parameter, gradient in zip(parameters, gradients):
             parameter -= self.learning_rate * gradient
-            updated_parameters.append(parameter)
-
-        return updated_parameters

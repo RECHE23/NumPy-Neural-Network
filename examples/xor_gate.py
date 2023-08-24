@@ -15,10 +15,11 @@ net.add(FullyConnectedLayer(3, 1, optimizer=NesterovMomentum(learning_rate=0.01)
 net.add(OutputLayer("tanh", "mean_squared_error"))
 
 # Train:
-start = time.time()
+start_time = time.time()
 net.fit(X_train, y_train, epochs=100, batch_size=1, shuffle=True)
-end = time.time()
-print("\nTraining time :", (end - start) * 10 ** 3, "ms")
+end_time = time.time()
+formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
+print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")
 
 # Test:
 out = net.predict(X_train, to="binary")

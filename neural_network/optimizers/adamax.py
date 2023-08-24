@@ -79,7 +79,7 @@ class Adamax(Optimizer):
         """
         return super().__repr__()[:-1] + f", beta1={self.beta1}, beta2={self.beta2}, epsilon={self.epsilon})"
 
-    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> List[np.ndarray]:
+    def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
         Update the parameters using the Adamax algorithm.
 
@@ -89,11 +89,6 @@ class Adamax(Optimizer):
             List of parameter arrays to be updated.
         gradients : list of arrays
             List of gradient arrays corresponding to the parameters.
-
-        Returns:
-        --------
-        updated_parameters : list of arrays
-            List of updated parameter arrays.
 
         """
         self.time_step += 1
@@ -107,7 +102,6 @@ class Adamax(Optimizer):
         if self.second_moments is None:
             self.second_moments = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
-        updated_parameters = []
         for i, (first_moment, second_moment, parameter, gradient) in enumerate(zip(self.first_moments, self.second_moments, parameters, gradients)):
             # Update first moment estimate: first_moment = beta1 * first_moment + (1 - beta1) * gradient
             first_moment = self.beta1 * first_moment + (1 - self.beta1) * gradient
@@ -121,6 +115,3 @@ class Adamax(Optimizer):
             # Update attributes
             self.first_moments[i] = first_moment
             self.second_moments[i] = second_moment
-            updated_parameters.append(parameter)
-
-        return updated_parameters

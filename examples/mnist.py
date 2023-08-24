@@ -23,10 +23,11 @@ net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cr
 print(net, end="\n\n\n")
 
 # Train:
-start = time.time()
+start_time = time.time()
 net.fit(X_train, y_train, epochs=5, batch_size=64, shuffle=True)
-end = time.time()
-print("\nTraining time :", (end - start) * 10 ** 3, "ms, on ", y_train.shape[0], "samples.")
+end_time = time.time()
+formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
+print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")
 
 # Test on N samples:
 N = 10
@@ -38,10 +39,12 @@ print("true values : ")
 print(y_test[0:N])
 
 # Test on the whole test set:
-start = time.time()
+start_time = time.time()
 y_predicted = net.predict(X_test, to="labels")
-end = time.time()
-print("\nTest time :", (end - start) * 10 ** 3, "ms, on ", y_test.shape[0], "samples.")
+end_time = time.time()
+formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
+print(f"\nTest time : {formatted_time}, on {y_test.shape[0]} samples.")
+
 a_score = accuracy_score(y_test, y_predicted)
 print(f"Accuracy score on the test set: {a_score:.2%}")
 y_predicted = convert_targets(y_predicted, to="categorical")

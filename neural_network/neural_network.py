@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple, Generator, List
 from .tools import trace
-from .functions import convert_targets, accuracy_score, f1_score
+from .functions import convert_targets
 from .layers import OutputLayer, Layer
 
 
@@ -161,6 +161,7 @@ class NeuralNetwork:
 
         for epoch in range(1, epochs + 1):
             error = 0
+            accuracy = 0
             for batch_samples, batch_labels in self._batch_iterator(samples, targets, batch_size, shuffle):
                 # Forward propagation:
                 for layer in self.layers:
@@ -174,13 +175,12 @@ class NeuralNetwork:
 
                 # Compute the total loss:
                 error += self.layers[-1].loss(batch_labels, batch_samples)
+                accuracy += np.sum(np.argmax(batch_samples, axis=-1) == convert_targets(batch_labels, to="labels"))
 
             # Evaluate the average error on all samples:
             error /= len(samples)
-            predictions = self.predict(samples)
-            accuracy = accuracy_score(predictions, targets)
-            f1 = f1_score(predictions, targets)
-            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t Train set accuracy = {accuracy:.2%} \t F1 Score = {f1:.2%}")
+            accuracy /= len(samples)
+            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t On training accuracy = {accuracy:.2%}")
 
     @staticmethod
     def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
