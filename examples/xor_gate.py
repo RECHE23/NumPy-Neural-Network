@@ -10,7 +10,7 @@ y_train = np.array([[0], [1], [1], [0]])
 # Network:
 net = NeuralNetwork()
 net.add(FullyConnectedLayer(2, 3, optimizer=NesterovMomentum(learning_rate=0.05)))
-net.add(ActivationLayer("tanh"))
+net.add(Tanh())
 net.add(FullyConnectedLayer(3, 1, optimizer=NesterovMomentum(learning_rate=0.01)))
 net.add(OutputLayer("tanh", "mean_squared_error"))
 

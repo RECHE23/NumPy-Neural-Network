@@ -46,7 +46,8 @@ class ActivationLayer(Layer):
         super().__init__(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(activation_function={self.activation_function_name})"
+        activation_function = f"activation_function={self.activation_function_name}" if self.__class__.__name__ == "ActivationLayer" else ""
+        return f"{self.__class__.__name__}({activation_function})"
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -71,3 +72,23 @@ class ActivationLayer(Layer):
             The true labels used for calculating the retrograde gradient.
         """
         self.retrograde = self.activation_function(self.input, prime=True) * upstream_gradients
+
+
+class ReLU(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="relu", *args, **kwargs)
+
+
+class Tanh(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="tanh", *args, **kwargs)
+
+
+class Sigmoid(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="sigmoid", *args, **kwargs)
+
+
+class Softmax(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="softmax", *args, **kwargs)
