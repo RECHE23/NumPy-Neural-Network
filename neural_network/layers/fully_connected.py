@@ -1,3 +1,4 @@
+from typing import Tuple
 import numpy as np
 from . import Layer
 
@@ -28,6 +29,10 @@ class FullyConnectedLayer(Layer):
         Learnable weights for the connections between input and output neurons.
     bias : array-like, shape (output_size,)
         Learnable biases added to each neuron's weighted sum during forward propagation.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
 
     Methods:
     --------
@@ -72,6 +77,13 @@ class FullyConnectedLayer(Layer):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(input_size={self.input_size}, output_size={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
+
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, output_size) of the data.
+        """
+        return self.input.shape[0], self.output_size
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

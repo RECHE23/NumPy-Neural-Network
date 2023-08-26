@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from abc import abstractmethod
 import numpy as np
 from neural_network.tools import trace
@@ -32,6 +32,12 @@ class Layer:
         The gradients received from the subsequent layer during backward propagation.
     n_samples : int or None
         The number of samples in the input data. Used for handling batch operations.
+    output_shape : tuple
+        Shape of the input data.
+    output_shape : tuple
+        Shape of the output data.
+    optimizer : Optimizer
+        The optimizer to use for gradient descent.
 
     Methods:
     --------
@@ -48,7 +54,7 @@ class Layer:
         self.retrograde: Optional[np.ndarray] = None
         self.upstream_gradients: Optional[np.ndarray] = None
         self.n_samples: Optional[int] = None
-        self.optimizer = optimizer if optimizer is not None else Adam(learning_rate=1e-3, decay=1e-4)
+        self.optimizer: Optimizer = optimizer if optimizer is not None else Adam(learning_rate=1e-3, decay=1e-4)
 
     def __call__(self, *args, **kwargs) -> np.ndarray:
         return self.forward_propagation(*args, **kwargs)
@@ -58,6 +64,20 @@ class Layer:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
+
+    @property
+    def input_shape(self) -> Tuple[int, ...]:
+        """
+        Get the input shape (batch_size, ...) of the data.
+        """
+        return self.input.shape
+
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, ...) of the data.
+        """
+        raise NotImplementedError
 
     @trace()
     def forward_propagation(self, input_data: np.ndarray) -> np.ndarray:

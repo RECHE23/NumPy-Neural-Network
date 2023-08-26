@@ -47,12 +47,18 @@ class ReshapeLayer(Layer):
             Additional arguments to pass to the base class.
         """
         self.dtype: str = dtype
-        self.input_shape: Optional[Tuple[int, ...]] = None
-        self.output_shape: Tuple[int, ...] = output_shape
+        self._output_shape: Tuple[int, ...] = output_shape
         super().__init__(*args, **kwargs)
 
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, output_shape) of the data.
+        """
+        return self._output_shape
+
     def __repr__(self) -> str:
-        input_shape = f"input_shape={self.input_shape}, " if self.input_shape else ""
+        input_shape = f"input_shape={self.input_shape}, " if self.input else ""
         return f"{self.__class__.__name__}({input_shape}output_shape={self.output_shape}, dtype={self.dtype})"
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
@@ -64,8 +70,6 @@ class ReshapeLayer(Layer):
         input_data : np.ndarray
             The input data to be reshaped.
         """
-        if not self.input_shape:
-            self.input_shape = input_data.shape[1:]
         self.output = np.reshape(input_data.astype(self.dtype), (-1, *self.output_shape))
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
@@ -79,4 +83,4 @@ class ReshapeLayer(Layer):
         y_true : np.ndarray
             The true labels (not used in this layer).
         """
-        self.retrograde = np.reshape(upstream_gradients, (-1, *self.input_shape))
+        self.retrograde = np.reshape(upstream_gradients, (-1, *self.input_shape[1:]))

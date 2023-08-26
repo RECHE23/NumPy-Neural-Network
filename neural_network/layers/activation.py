@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Tuple
 import numpy as np
 from . import Layer
 from neural_network.functions.activation import activation_functions
@@ -23,6 +23,10 @@ class ActivationLayer(Layer):
         The output of the activation layer after forward propagation.
     retrograde : np.ndarray
         The gradient used for backward propagation.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
 
     Methods:
     --------
@@ -48,6 +52,13 @@ class ActivationLayer(Layer):
     def __repr__(self) -> str:
         activation_function = f"activation_function={self.activation_function_name}" if self.__class__.__name__ == "ActivationLayer" else ""
         return f"{self.__class__.__name__}({activation_function})"
+
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, ...) of the data.
+        """
+        return self.input.shape
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

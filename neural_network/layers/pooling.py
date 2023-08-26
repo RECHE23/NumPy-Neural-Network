@@ -70,13 +70,6 @@ class Pooling2DLayer(Layer):
         return f"{self.__class__.__name__}(pool_size={self.pool_size}, stride={self.stride})"
 
     @property
-    def input_shape(self) -> Tuple[int, ...]:
-        """
-        Get the input shape (batch_size, input_channels, input_height, input_width) of the data.
-        """
-        return self.input.shape
-
-    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, output_channels, output_height, output_width) of the data.

@@ -1,4 +1,4 @@
-from typing import Union, Callable
+from typing import Union, Callable, Tuple
 import numpy as np
 from . import Layer
 from neural_network.functions.activation import activation_functions
@@ -37,6 +37,10 @@ class OutputLayer(Layer):
         Activation function applied to the layer's output.
     loss_function : callable
         Loss function to calculate the loss between predicted and true values.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
     """
 
     def __init__(self, activation_function: str = "relu", loss_function: str = "categorical_cross_entropy", *args, **kwargs):
@@ -60,6 +64,13 @@ class OutputLayer(Layer):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(activation_function={self.activation_function_name}, loss_function={self.loss_function_name})"
+
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, ...) of the data.
+        """
+        return self.input.shape
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

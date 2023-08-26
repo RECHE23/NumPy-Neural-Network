@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 import numpy as np
 from . import Layer
 
@@ -28,6 +28,10 @@ class NormalizationLayer(Layer):
         The samples used for precomputing normalization parameters.
     norm : float or None
         The normalization parameter.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
 
     Methods:
     --------
@@ -65,6 +69,13 @@ class NormalizationLayer(Layer):
     def __repr__(self) -> str:
         norm = f"norm={self.norm}, " if self.norm else ""
         return f"{self.__class__.__name__}({norm}dtype={self.dtype})"
+
+    @property
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, ...) of the data.
+        """
+        return self.input.shape
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

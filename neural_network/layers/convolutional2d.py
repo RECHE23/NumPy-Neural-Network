@@ -31,10 +31,14 @@ class Convolutional2DLayer(Layer):
         Number of input channels.
     output_channels : int
         Number of output channels.
-    input_shape : tuple of int
+    input_dimensions : tuple of int
         Input shape (height, width) of the data.
-    output_shape : tuple of int
+    output_dimensions : tuple of int
         Output shape (height, width) after convolution and pooling.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
     kernel_size : tuple of int
         Shape of the convolutional kernels.
     stride : tuple of int
@@ -47,8 +51,6 @@ class Convolutional2DLayer(Layer):
         Biases for each output channel.
     initialization : str
         Weight initialization method.
-    input_shape : tuple of int
-        Input shape (height, width) of the data.
     windows : np.ndarray
         Memorized convolution windows from the forward propagation.
     """
@@ -104,20 +106,27 @@ class Convolutional2DLayer(Layer):
         )
 
     @property
-    def input_shape(self) -> Tuple[int, int]:
+    def output_shape(self) -> Tuple[int, ...]:
+        """
+        Get the output shape (batch_size, output_channels, output_height, output_width) of the data.
+        """
+        return self.input.shape[0], self.output_channels, self.output_dimensions[0], self.output_dimensions[1]
+
+    @property
+    def input_dimensions(self) -> Tuple[int, int]:
         """
         Get the input shape (height, width) of the data.
         """
         return self.input.shape[2], self.input.shape[3]
 
     @property
-    def output_shape(self) -> Tuple[int, int]:
+    def output_dimensions(self) -> Tuple[int, int]:
         """
         Calculate and get the output shape (height, width) after convolution and pooling.
         """
-        out_h = (self.input_shape[0] - self.kernel_size[0] + 2 * self.padding[0]) // self.stride[0] + 1
-        out_w = (self.input_shape[1] - self.kernel_size[1] + 2 * self.padding[1]) // self.stride[1] + 1
-        return out_h, out_w
+        output_height = (self.input_dimensions[0] - self.kernel_size[0] + 2 * self.padding[0]) // self.stride[0] + 1
+        output_width = (self.input_dimensions[1] - self.kernel_size[1] + 2 * self.padding[1]) // self.stride[1] + 1
+        return output_height, output_width
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -129,7 +138,7 @@ class Convolutional2DLayer(Layer):
             The input data for the convolutional layer.
         """
         # Generate windows:
-        self.windows = self._get_windows(input_data, self.output_shape, self.kernel_size,
+        self.windows = self._get_windows(input_data, self.output_dimensions, self.kernel_size,
                                          padding=self.padding, stride=self.stride)
 
         # Perform convolution and add bias:
@@ -152,7 +161,7 @@ class Convolutional2DLayer(Layer):
         h_padding = self.kernel_size[1] - 1 if self.padding[1] == 0 else self.padding[1]
 
         # Generate windows for upstream gradients:
-        out_windows = self._get_windows(upstream_gradients, self.input_shape, self.kernel_size,
+        out_windows = self._get_windows(upstream_gradients, self.input_dimensions, self.kernel_size,
                                         padding=(v_padding, h_padding),
                                         dilation=(self.stride[0] - 1, self.stride[1] - 1))
 
