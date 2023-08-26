@@ -1,6 +1,6 @@
 # NeuralNetwork Project
 
-Welcome to the NeuralNetwork project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at refreshing machine learning concepts. It offers a modular architecture that can be easily customized for testing new solutions and structures.
+Welcome to the NeuralNetwork project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at revisiting machine learning concepts and practicing coding skills. It offers a modular architecture that can be easily customized for testing new solutions and structures.
 
 ## Table of Contents
 
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-The framework allows you to build, train, and evaluate neural network models using basic Python and NumPy libraries. The `NeuralNetwork` class provides an intuitive interface for constructing models and training them on your data.
+The framework allows you to build, train, and evaluate neural network models using basic [Python](https://www.python.org/) and [NumPy](https://numpy.org/) libraries. The `NeuralNetwork` class provides an intuitive interface for constructing models and training them on your data.
 
 Here's a basic example of how to use the framework:
 
@@ -78,11 +78,62 @@ print(f"Accuracy score on the test set: {score:.2%}")
 
 ## Features
 
-- Personal initiative to refresh machine learning concepts.
-- Implementation using basic Python and NumPy libraries.
-- Modular architecture for building and experimenting with neural networks.
-- Support for various activation functions, loss functions, and optimizers.
-- Easy-to-understand interface for compiling, training, and evaluating models.
+The NeuralNetwork project provides a range of features to help you build, train, and experiment with neural network models. These features include:
+
+### Layer Types
+
+The framework supports various types of layers that can be combined to create complex neural network architectures:
+
+- **Linear Layer (Fully Connected):** Create dense layers with adjustable input and output dimensions for constructing multi-layer perceptrons.
+
+- **Convolutional2D Layer:** Implement 2D convolutional layers with customizable filter sizes, strides, and padding for image and spatial data analysis.
+
+- **BatchNorm2D Layer:** Apply 2D batch normalization to improve training stability and convergence by normalizing activations across the batch dimension.
+
+- **MaxPool2D and AvgPool2D Layer:** Incorporate 2D max pooling and average pooling layers to downsample feature maps while preserving important information.
+
+- **Activation Layers:** Integrate various activation functions, including ReLU (Rectified Linear Unit), sigmoid, and tanh, to introduce non-linearity to the network.
+
+- **Dropout Layer:** Implement dropout regularization to prevent overfitting by randomly deactivating a fraction of neurons during training.
+
+### Optimization Methods
+
+The framework provides a collection of optimization methods to fine-tune neural network parameters:
+
+- **Stochastic Gradient Descent (SGD):** Apply the classic SGD optimizer with customizable learning rate and momentum for gradient descent.
+
+- **Momentum:** Utilize momentum optimization to accelerate convergence by incorporating a moving average of past gradients.
+
+- **Nesterov Momentum:** Improve upon standard momentum optimization with Nesterov accelerated gradient (NAG) for smoother convergence.
+
+- **Adagrad:** Implement adaptive gradient optimization with Adagrad, which adjusts learning rates for individual parameters.
+
+- **RMSprop:** Incorporate RMSprop optimization to adaptively adjust learning rates based on accumulated gradient magnitudes.
+
+- **Adadelta:** Utilize the Adadelta optimizer, which adapts learning rates based on moving average gradients and squared gradients.
+
+- **Adam and Adamax:** Apply the Adam and Adamax optimizers, which combine features of both momentum optimization and RMSprop for faster convergence.
+
+### Additional Features
+
+- **Modular Architecture:** Design your own custom neural network architectures by combining different layers and activation functions.
+
+- **Easy-to-Use Interface:** Utilize the intuitive `NeuralNetwork` class for creating, training, and evaluating models with minimal coding effort.
+
+- **Activation Functions:** Choose from a variety of activation functions like ReLU, sigmoid, tanh, and softmax to introduce non-linearity into the network.
+
+- **Loss Functions:** Select from commonly used loss functions such as mean squared error and categorical cross-entropy for training neural networks.
+
+- **Performance Metrics:** Evaluate model performance using metrics like accuracy, precision, recall, F1-score, and confusion matrices.
+
+- **Batch Training:** Train models using mini-batch gradient descent for improved convergence and memory efficiency.
+
+- **Customizable Parameters:** Customize various hyperparameters, such as learning rates and batch sizes, to fine-tune the training process.
+
+- **Example Projects:** Explore the `examples` directory for detailed usage examples, including image classification, XOR gate learning, and more.
+
+These features collectively enable you to construct, train, and evaluate neural network models across various domains while gaining insights into machine learning concepts and techniques.
+
 
 ## Contributing
 
