@@ -49,12 +49,22 @@ class Layer:
     """
 
     def __init__(self, optimizer: Optional[Optimizer] = None):
+        """
+        Initialize a neural network layer.
+
+        Parameters:
+        -----------
+        optimizer : Optimizer, optional
+            The optimizer to use for updating the layer's parameters during training.
+            If not provided, the default optimizer Adam with learning rate 1e-3 and
+            decay 1e-4 will be used.
+        """
         self.input: Optional[np.ndarray] = None
         self.output: Optional[np.ndarray] = None
         self.retrograde: Optional[np.ndarray] = None
         self.upstream_gradients: Optional[np.ndarray] = None
         self.n_samples: Optional[int] = None
-        self.optimizer: Optimizer = optimizer if optimizer is not None else Adam(learning_rate=1e-3, decay=1e-4)
+        self._optimizer_instance: Optional[Optimizer] = optimizer
         self._is_training: bool = False
 
     def __call__(self, *args, **kwargs) -> np.ndarray:
@@ -81,9 +91,40 @@ class Layer:
         raise NotImplementedError
 
     def is_training(self, value: Optional[bool] = None) -> bool:
+        """
+        Get or set the training mode of the layer.
+
+        When called without any arguments, this method returns the current training mode of the layer.
+        When called with a boolean argument, it sets the training mode of the layer accordingly.
+
+        Parameters:
+        -----------
+        value : bool, optional
+            If provided, sets the training mode of the layer.
+            If not provided, returns the current training mode.
+
+        Returns:
+        --------
+        bool
+            The current training mode of the layer. If 'value' is provided, the updated training mode.
+        """
         if value is not None:
             self._is_training = value
         return self._is_training
+
+    @property
+    def optimizer(self):
+        """
+        Get the optimizer instance for updating the layer's parameters during training.
+
+        Returns:
+        --------
+        Optimizer
+            The optimizer instance.
+        """
+        if self._optimizer_instance is None:
+            self._optimizer_instance = Adam(learning_rate=1e-3, decay=1e-4)
+        return self._optimizer_instance
 
     @trace()
     def forward_propagation(self, input_data: np.ndarray) -> np.ndarray:
