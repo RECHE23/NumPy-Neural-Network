@@ -7,6 +7,7 @@ from .convolutional2d import Convolutional2DLayer
 from .output import OutputLayer
 from .pooling import Pooling2DLayer, MaxPooling2DLayer, AveragePooling2DLayer
 from .dropout import DropoutLayer
+from .batch_normalization2d import BatchNorm2DLayer
 
 __all__ = ["Layer",
            "NormalizationLayer",
@@ -22,4 +23,5 @@ __all__ = ["Layer",
            "Pooling2DLayer",
            "MaxPooling2DLayer",
            "AveragePooling2DLayer",
-           "DropoutLayer"]
+           "DropoutLayer",
+           "BatchNorm2DLayer"]
