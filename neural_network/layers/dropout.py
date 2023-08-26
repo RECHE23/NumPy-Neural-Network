@@ -3,30 +3,30 @@ import numpy as np
 from . import Layer
 
 
-class DropoutLayer(Layer):
-    def __init__(self, dropout_rate: float, *args, **kwargs):
+class Dropout(Layer):
+    def __init__(self, p: float = 0.5, *args, **kwargs):
         """
         Create a dropout layer.
 
         Parameters:
         ----------
-        dropout_rate : float
+        p : float
             The probability of dropping out a neuron's output. Must be in the range [0, 1).
 
         *args, **kwargs : Additional arguments
             Additional arguments to be passed to the parent class constructor.
         """
-        assert 0 <= dropout_rate < 1, "Dropout rate must be in the range [0, 1)"
+        assert 0 <= p < 1, "Dropout rate must be in the range [0, 1)"
         super().__init__(*args, **kwargs)
-        self.dropout_rate = dropout_rate
-        self.scaling = 1.0 / (1.0 - dropout_rate)
+        self.dropout_rate = p
+        self.scaling = 1.0 / (1.0 - p)
         self.dropout_mask = None
 
     def __repr__(self) -> str:
         """
         Return a string representation of the dropout layer.
         """
-        return f"{self.__class__.__name__}(dropout_rate={self.dropout_rate})"
+        return f"{self.__class__.__name__}(p={self.dropout_rate})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:

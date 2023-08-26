@@ -26,14 +26,14 @@ classes = 5
 
 # Network:
 net = NeuralNetwork()
-net.add(NormalizationLayer(samples=X_train))
-net.add(ReshapeLayer((image_channels, *image_shape)))
-net.add(Convolutional2DLayer(image_channels, kernel_depth, kernel_size, padding=2))
+net.add(Normalization(samples=X_train))
+net.add(Reshape((image_channels, *image_shape)))
+net.add(Conv2d(image_channels, kernel_depth, kernel_size, padding=2))
 net.add(ReLU())
-net.add(ReshapeLayer((kernel_depth * image_shape[0] * image_shape[1], )))
-net.add(FullyConnectedLayer(kernel_depth * image_shape[0] * image_shape[1], 128))
+net.add(Reshape((kernel_depth * image_shape[0] * image_shape[1],)))
+net.add(Linear(kernel_depth * image_shape[0] * image_shape[1], 128))
 net.add(ReLU())
-net.add(FullyConnectedLayer(128, classes))
+net.add(Linear(128, classes))
 net.add(OutputLayer("softmax", "categorical_cross_entropy"))
 
 print(net, end="\n\n\n")

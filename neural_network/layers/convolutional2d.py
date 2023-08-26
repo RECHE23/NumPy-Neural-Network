@@ -4,15 +4,15 @@ from . import Layer
 from neural_network.functions import pair
 
 
-class Convolutional2DLayer(Layer):
+class Conv2d(Layer):
     """
     A 2D convolutional layer for neural network architectures.
 
     Parameters:
     -----------
-    input_channels : int
+    in_channels : int
         Number of input channels.
-    output_channels : int
+    out_channels : int
         Number of output channels (number of kernels).
     kernel_size : int or tuple of int
         Size of the convolutional kernels.
@@ -27,9 +27,9 @@ class Convolutional2DLayer(Layer):
 
     Attributes:
     -----------
-    input_channels : int
+    in_channels : int
         Number of input channels.
-    output_channels : int
+    out_channels : int
         Number of output channels.
     input_dimensions : tuple of int
         Input shape (height, width) of the data.
@@ -55,17 +55,17 @@ class Convolutional2DLayer(Layer):
         Memorized convolution windows from the forward propagation.
     """
 
-    def __init__(self, input_channels: int, output_channels: int, kernel_size: Union[int, Tuple[int, int]],
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: Union[int, Tuple[int, int]],
                  stride: Union[int, Tuple[int, int]] = 1, padding: Union[int, Tuple[int, int]] = 0,
                  initialization: str = "xavier", *args, **kwargs):
         """
-        Initialize a Convolutional2DLayer.
+        Initialize a Conv2d layer.
 
         Parameters
         ----------
-        input_channels : int
+        in_channels : int
             Number of input channels.
-        output_channels : int
+        out_channels : int
             Number of output channels (number of kernels).
         kernel_size : int or tuple of int
             Size of the convolutional kernels.
@@ -80,8 +80,8 @@ class Convolutional2DLayer(Layer):
         """
         super().__init__(*args, **kwargs)
 
-        self.input_channels: int = input_channels
-        self.output_channels: int = output_channels
+        self.input_channels: int = in_channels
+        self.output_channels: int = out_channels
         self.kernel_size: Tuple[int, int] = pair(kernel_size)
         self.stride: Tuple[int, int] = pair(stride)
         self.padding: Tuple[int, int] = pair(padding)
@@ -97,10 +97,10 @@ class Convolutional2DLayer(Layer):
 
     def __repr__(self) -> str:
         """
-        Return a string representation of the Convolutional2DLayer.
+        Return a string representation of the Conv2d.
         """
         return (
-            f"{self.__class__.__name__}(input_channels={self.input_channels}, output_channels="
+            f"{self.__class__.__name__}(in_channels={self.input_channels}, out_channels="
             f"{self.output_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding="
             f"{self.padding}, optimizer={self.optimizer}, initialization={self.initialization})"
         )
@@ -108,7 +108,7 @@ class Convolutional2DLayer(Layer):
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, output_channels, output_height, output_width) of the data.
+        Get the output shape (batch_size, out_channels, output_height, output_width) of the data.
         """
         return self.input.shape[0], self.output_channels, self.output_dimensions[0], self.output_dimensions[1]
 

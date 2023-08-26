@@ -3,7 +3,7 @@ import numpy as np
 from . import Layer
 
 
-class FullyConnectedLayer(Layer):
+class Linear(Layer):
     """
     Fully Connected (Dense) Layer for a neural network.
 
@@ -12,22 +12,22 @@ class FullyConnectedLayer(Layer):
 
     Parameters:
     -----------
-    input_size : int
+    in_features : int
         Number of input features or neurons from the previous layer.
-    output_size : int
+    out_features : int
         Number of neurons in this layer.
     *args, **kwargs
         Additional arguments passed to the base class Layer.
 
     Attributes:
     -----------
-    input_size : int
+    in_features : int
             Number of input features or neurons from the previous layer.
-    output_size : int
+    out_features : int
         Number of neurons in this layer.
-    weights : array-like, shape (input_size, output_size)
+    weights : array-like, shape (in_features, out_features)
         Learnable weights for the connections between input and output neurons.
-    bias : array-like, shape (output_size,)
+    bias : array-like, shape (out_features,)
         Learnable biases added to each neuron's weighted sum during forward propagation.
     input_shape : tuple of int
         The shape of the input to the layer.
@@ -46,15 +46,15 @@ class FullyConnectedLayer(Layer):
         Initialize layer parameters using He initialization.
 
     """
-    def __init__(self, input_size: int, output_size: int, initialization: str = "xavier", *args, **kwargs):
+    def __init__(self, in_features: int, out_features: int, initialization: str = "xavier", *args, **kwargs):
         """
-        Initialize the FullyConnectedLayer with chosen initialization.
+        Initialize the Linear with chosen initialization.
 
         Parameters:
         -----------
-        input_size : int
+        in_features : int
             Number of input features or neurons from the previous layer.
-        output_size : int
+        out_features : int
             Number of neurons in this layer.
         initialization : str, optional
             Initialization method to use ("xavier" or "he"). Default is "xavier".
@@ -64,8 +64,8 @@ class FullyConnectedLayer(Layer):
         """
         super().__init__(*args, **kwargs)
 
-        self.input_size: int = input_size
-        self.output_size: int = output_size
+        self.input_size: int = in_features
+        self.output_size: int = out_features
         self.initialization: str = initialization
 
         if initialization == "xavier":
@@ -76,12 +76,12 @@ class FullyConnectedLayer(Layer):
             raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(input_size={self.input_size}, output_size={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
+        return f"{self.__class__.__name__}(in_features={self.input_size}, out_features={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, output_size) of the data.
+        Get the output shape (batch_size, out_features) of the data.
         """
         return self.input.shape[0], self.output_size
 
@@ -91,7 +91,7 @@ class FullyConnectedLayer(Layer):
 
         Parameters:
         -----------
-        input_data : array-like, shape (n_samples, input_size)
+        input_data : array-like, shape (n_samples, in_features)
             The input data to propagate through the layer.
         """
         self.output = np.einsum("ij,jk", self.input, self.weights, optimize='greedy') + self.bias
@@ -102,7 +102,7 @@ class FullyConnectedLayer(Layer):
 
         Parameters:
         -----------
-        upstream_gradients : array-like, shape (n_samples, output_size)
+        upstream_gradients : array-like, shape (n_samples, out_features)
             Gradients received from the subsequent layer during backward propagation.
         y_true : array-like, shape (n_samples, ...)
             The true target values corresponding to the input data.

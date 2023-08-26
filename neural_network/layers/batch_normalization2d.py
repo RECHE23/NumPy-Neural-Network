@@ -3,13 +3,13 @@ import numpy as np
 from . import Layer
 
 
-class BatchNorm2DLayer(Layer):
+class BatchNorm2d(Layer):
     """
     A 2D Batch Normalization layer for neural networks.
 
     Parameters:
     ----------
-    input_channels : int
+    in_channels : int
         Number of input channels.
 
     epsilon : float, optional
@@ -23,7 +23,7 @@ class BatchNorm2DLayer(Layer):
 
     Attributes:
     ----------
-    input_channels : int
+    in_channels : int
         Number of input channels.
 
     epsilon : float
@@ -75,7 +75,7 @@ class BatchNorm2DLayer(Layer):
         """
         Return a string representation of the batch normalization layer.
         """
-        return f"{self.__class__.__name__}(input_channels={self.input_channels})"
+        return f"{self.__class__.__name__}(in_channels={self.input_channels})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:

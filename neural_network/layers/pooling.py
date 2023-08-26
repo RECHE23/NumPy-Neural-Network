@@ -12,7 +12,7 @@ class Pooling2DLayer(Layer):
 
     Parameters
     ----------
-    pool_size : tuple of int, (default=(2, 2))
+    kernel_size : tuple of int, (default=(2, 2))
         The size of the pooling window in the (height, width) dimensions.
     stride : tuple of int, (default=(1, 1))
         The stride for the pooling operation in the (height, width) dimensions.
@@ -46,13 +46,13 @@ class Pooling2DLayer(Layer):
         Get the windows for the pooling operation.
     """
 
-    def __init__(self, pool_size: Tuple[int, int], stride: Tuple[int, int], *args, **kwargs):
+    def __init__(self, kernel_size: Tuple[int, int], stride: Tuple[int, int], *args, **kwargs):
         """
         Initialize the 2D pooling layer.
 
         Parameters
         ----------
-        pool_size : tuple of int, (default=(2, 2))
+        kernel_size : tuple of int, (default=(2, 2))
             The size of the pooling window in the (height, width) dimensions.
         stride : tuple of int, (default=(1, 1))
             The stride for the pooling operation in the (height, width) dimensions.
@@ -60,19 +60,19 @@ class Pooling2DLayer(Layer):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-        self.pool_size: Tuple[int, int] = pair(pool_size)
+        self.pool_size: Tuple[int, int] = pair(kernel_size)
         self.stride: Tuple[int, int] = pair(stride)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the pooling layer.
         """
-        return f"{self.__class__.__name__}(pool_size={self.pool_size}, stride={self.stride})"
+        return f"{self.__class__.__name__}(kernel_size={self.pool_size}, stride={self.stride})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, output_channels, output_height, output_width) of the data.
+        Get the output shape (batch_size, out_channels, output_height, output_width) of the data.
         """
         return self.input.shape[0], self.input.shape[1], self.output_dimensions[0], self.output_dimensions[1]
 
@@ -145,7 +145,7 @@ class Pooling2DLayer(Layer):
         return np.lib.stride_tricks.as_strided(input_data, shape=pool_windows_shape, strides=strides)
 
 
-class MaxPooling2DLayer(Pooling2DLayer):
+class MaxPool2d(Pooling2DLayer):
     """
     Max pooling layer for 2D data in neural network architectures.
 
@@ -215,7 +215,7 @@ class MaxPooling2DLayer(Pooling2DLayer):
                             self.retrograde[b, c, start_i:end_i, start_j:end_j][max_indices_i[b, c], max_indices_j[b, c]] = upstream_gradients[b, c, i, j]
 
 
-class AveragePooling2DLayer(Pooling2DLayer):
+class AvgPool2d(Pooling2DLayer):
     """
     Average pooling layer for 2D data in neural network architectures.
 

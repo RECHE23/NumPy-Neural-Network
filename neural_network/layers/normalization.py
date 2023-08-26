@@ -3,7 +3,7 @@ import numpy as np
 from . import Layer
 
 
-class NormalizationLayer(Layer):
+class Normalization(Layer):
     """
     A normalization layer for neural network architectures.
 
@@ -45,7 +45,7 @@ class NormalizationLayer(Layer):
 
     def __init__(self, norm: str = 'minmax', dtype: str = 'float32', samples: Optional[np.ndarray] = None, *args, **kwargs):
         """
-        Initialize the NormalizationLayer with the given parameters.
+        Initialize the Normalization with the given parameters.
 
         Parameters:
         -----------

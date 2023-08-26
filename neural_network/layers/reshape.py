@@ -3,7 +3,7 @@ import numpy as np
 from . import Layer
 
 
-class ReshapeLayer(Layer):
+class Reshape(Layer):
     """
     A layer for reshaping the input data to a specified shape.
 
@@ -35,7 +35,7 @@ class ReshapeLayer(Layer):
 
     def __init__(self, output_shape: Tuple[int, ...], dtype: str = 'float32', *args, **kwargs):
         """
-        Initialize the ReshapeLayer with the desired output shape and data type.
+        Initialize the Reshape with the desired output shape and data type.
 
         Parameters:
         -----------

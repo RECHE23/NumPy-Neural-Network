@@ -43,6 +43,7 @@ pip install -r requirements.txt
 The framework allows you to build, train, and evaluate neural network models using basic Python and NumPy libraries. The `NeuralNetwork` class provides an intuitive interface for constructing models and training them on your data.
 
 Here's a basic example of how to use the framework:
+
 ```python
 from neural_network import *
 from sklearn.datasets import make_classification
@@ -53,24 +54,24 @@ X, y = make_classification()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create a neural network:
-model = NeuralNetwork()
+nn = NeuralNetwork()
 
 # Add layers to the network:
-model.add(FullyConnectedLayer(input_size=20, output_size=64))
-model.add(ActivationLayer("relu"))
-model.add(FullyConnectedLayer(input_size=64, output_size=32))
-model.add(ActivationLayer("relu"))
-model.add(FullyConnectedLayer(input_size=32, output_size=2))
-model.add(ActivationLayer("relu"))
-model.add(OutputLayer("softmax", "categorical_cross_entropy"))
+nn.add(Linear(in_features=20, out_features=64))
+nn.add(ReLU())
+nn.add(Linear(in_features=64, out_features=32))
+nn.add(ReLU())
+nn.add(Linear(in_features=32, out_features=2))
+nn.add(ReLU())
+nn.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
 
-# Train the model:
-model.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)
+# Train the nn:
+nn.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)
 
 # Make predictions:
-y_pred = model.predict(X_test)
+y_pred = nn.predict(X_test)
 
-# Evaluate the model:
+# Evaluate the nn:
 score = accuracy_score(y_test, y_pred)
 print(f"Accuracy score on the test set: {score:.2%}")
 ```
