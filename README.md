@@ -1,6 +1,6 @@
-# NeuralNetwork Project
+# NumPy Neural Network Project
 
-Welcome to the NeuralNetwork project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at revisiting machine learning concepts and practicing coding skills. It offers a modular architecture that can be easily customized for testing new solutions and structures.
+Welcome to the NumPy Neural Network project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at revisiting machine learning concepts and practicing coding skills. It offers a modular architecture that can be easily customized for testing new solutions and structures.
 
 ## Table of Contents
 
@@ -14,21 +14,21 @@ Welcome to the NeuralNetwork project! This repository contains a Python implemen
 
 ## Introduction
 
-The NeuralNetwork project is a personal initiative to dive back into machine learning concepts. The goal is to create a flexible and user-friendly neural network framework that serves as a hands-on learning experience. The framework is designed to be modular and easily adaptable for experimenting with new ideas and approaches.
+The NumPy Neural Network project is a personal initiative to dive back into machine learning concepts. The goal is to create a flexible and user-friendly neural network framework that serves as a hands-on learning experience. The framework is designed to be modular and easily adaptable for experimenting with new ideas and approaches.
 
 ## Installation
 
-To explore and experiment with the NeuralNetwork framework, follow these steps:
+To explore and experiment with the NumPy Neural Network framework, follow these steps:
 
 1. Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/RECHE23/NeuralNetwork.git
+git clone https://github.com/RECHE23/NumPy-Neural-Network.git
 ```
 
 2. Navigate to the project directory:
 ```bash
-cd NeuralNetwork
+cd NumPy-Neural-Network
 ```
 
 3. Set up a virtual environment and install the required packages:
@@ -78,7 +78,7 @@ print(f"Accuracy score on the test set: {score:.2%}")
 
 ## Features
 
-The NeuralNetwork project provides a range of features to help you build, train, and experiment with neural network models. These features include:
+The NumPy Neural Network project provides a range of features to help you build, train, and experiment with neural network models. These features include:
 
 ### Layer Types
 
