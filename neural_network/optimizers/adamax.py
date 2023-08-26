@@ -17,9 +17,9 @@ class Adamax(Optimizer):
         Exponential decay rate for the infinite norm estimates. Default is 0.999.
     epsilon : float, optional
         A small constant added to prevent division by zero. Default is 1e-8.
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -94,7 +94,7 @@ class Adamax(Optimizer):
         self.time_step += 1
 
         # Compute the bias-corrected learning rate
-        adjusted_learning_rate = self.learning_rate / (1 - self.beta1 ** self.time_step)
+        adjusted_learning_rate = self.lr / (1 - self.beta1 ** self.time_step)
 
         if self.first_moments is None:
             self.first_moments = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]

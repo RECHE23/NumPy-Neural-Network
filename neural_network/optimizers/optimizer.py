@@ -11,9 +11,9 @@ class Optimizer:
 
     Parameters:
     -----------
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -30,16 +30,16 @@ class Optimizer:
         Update the learning rate for the next epoch based on decay and clipping.
 
     """
-    def __init__(self, learning_rate: float = 1e-3, decay: float = 0, lr_min: float = 0, lr_max: float = np.inf,
+    def __init__(self, lr: float = 1e-3, lr_decay: float = 0, lr_min: float = 0, lr_max: float = np.inf,
                  *args, **kwargs):
         """
         Initialize the Optimizer with hyperparameters.
 
         Parameters:
         -----------
-        learning_rate : float, optional
+        lr : float, optional
             The learning rate controlling the step size of parameter updates. Default is 1e-3.
-        decay : float, optional
+        lr_decay : float, optional
             The learning rate decay factor applied at the end of each epoch. Default is 0.
         lr_min : float, optional
             The minimum allowed learning rate after decay. Default is 0.
@@ -49,8 +49,8 @@ class Optimizer:
             Additional arguments passed to the optimizer.
 
         """
-        self.learning_rate: float = learning_rate
-        self.decay: float = decay
+        self.lr: float = lr
+        self.lr_decay: float = lr_decay
         self.lr_min: float = lr_min
         self.lr_max: float = lr_max
 
@@ -64,7 +64,7 @@ class Optimizer:
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
-        return f"{self.__class__.__name__}(learning_rate={self.learning_rate}, decay={self.decay})"
+        return f"{self.__class__.__name__}(lr={self.lr}, lr_decay={self.lr_decay})"
 
     @abstractmethod
     def update(self, parameters: list, gradients: list) -> None:
@@ -85,5 +85,5 @@ class Optimizer:
         """
         Update the learning rate for the next epoch based on decay and clipping.
         """
-        self.learning_rate *= 1 - self.decay
-        self.learning_rate = np.clip(self.learning_rate, self.lr_min, self.lr_max)
+        self.lr *= 1 - self.lr_decay
+        self.lr = np.clip(self.lr, self.lr_min, self.lr_max)

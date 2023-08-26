@@ -13,9 +13,9 @@ class Adagrad(Optimizer):
     -----------
     epsilon : float, optional
         A small constant added to prevent division by zero. Default is 1e-7.
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -78,8 +78,8 @@ class Adagrad(Optimizer):
             # Update sum_sq_gradient gradient: sum_sq_gradient += gradient^2
             sum_sq_gradient += gradient * gradient
 
-            # Update parameter: parameter -= learning_rate * gradient / (sqrt(sum_sq_gradient) + epsilon)
-            parameter -= self.learning_rate * gradient / (np.sqrt(sum_sq_gradient) + self.epsilon)
+            # Update parameter: parameter -= lr * gradient / (sqrt(sum_sq_gradient) + epsilon)
+            parameter -= self.lr * gradient / (np.sqrt(sum_sq_gradient) + self.epsilon)
 
             # Update attributes
             self.sum_sq_gradients[i] = sum_sq_gradient

@@ -14,9 +14,9 @@ class NesterovMomentum(Optimizer):
     -----------
     momentum : float, optional
         The momentum coefficient. Default is 0.9.
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -76,8 +76,8 @@ class NesterovMomentum(Optimizer):
             self.velocity = [np.zeros(shape=parameter.shape, dtype=float) for parameter in parameters]
 
         for i, (velocity, parameter, gradient) in enumerate(zip(self.velocity, parameters, gradients)):
-            # Update velocity: velocity = momentum * velocity - learning_rate * gradient
-            velocity = self.momentum * velocity - self.learning_rate * gradient
+            # Update velocity: velocity = momentum * velocity - lr * gradient
+            velocity = self.momentum * velocity - self.lr * gradient
 
             # Update parameter using Nesterov update: parameter += velocity
             parameter += velocity

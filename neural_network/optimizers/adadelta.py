@@ -15,9 +15,9 @@ class Adadelta(Optimizer):
         The decay rate for the moving average of squared gradients. Default is 0.9.
     epsilon : float, optional
         A small constant added to prevent division by zero. Default is 1e-7.
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -94,8 +94,8 @@ class Adadelta(Optimizer):
             # Calculate update: update = gradient * sqrt(delta + epsilon) / sqrt(avg_sq_gradient + epsilon)
             update = gradient * np.sqrt(delta + self.epsilon) / np.sqrt(avg_sq_gradient + self.epsilon)
 
-            # Update parameter: parameter -= learning_rate * update
-            parameter -= self.learning_rate * update
+            # Update parameter: parameter -= lr * update
+            parameter -= self.lr * update
 
             # Update delta: delta = rho * delta + (1 - rho) * update^2
             delta = self.rho * delta + (1 - self.rho) * update * update

@@ -11,9 +11,9 @@ class SGD(Optimizer):
 
     Parameters:
     -----------
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -42,4 +42,4 @@ class SGD(Optimizer):
         """
 
         for parameter, gradient in zip(parameters, gradients):
-            parameter -= self.learning_rate * gradient
+            parameter -= self.lr * gradient

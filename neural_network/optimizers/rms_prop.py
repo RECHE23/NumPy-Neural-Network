@@ -16,9 +16,9 @@ class RMSprop(Optimizer):
         The decay factor for the moving average. Default is 0.9.
     epsilon : float, optional
         A small value added to the denominator for numerical stability. Default is 1e-7.
-    learning_rate : float, optional
+    lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
-    decay : float, optional
+    lr_decay : float, optional
         The learning rate decay factor applied at the end of each epoch. Default is 0.
     lr_min : float, optional
         The minimum allowed learning rate after decay. Default is 0.
@@ -86,8 +86,8 @@ class RMSprop(Optimizer):
             # Update sq_grad_accum: sq_grad_accum = rho * sq_grad_accum + (1 - rho) * gradient * gradient
             sq_grad_accum = self.rho * sq_grad_accum + (1 - self.rho) * gradient * gradient
 
-            # Update parameter using RMSprop update: parameter -= learning_rate * gradient / (sqrt(sq_grad_accum) + epsilon)
-            parameter -= self.learning_rate * gradient / (np.sqrt(sq_grad_accum) + self.epsilon)
+            # Update parameter using RMSprop update: parameter -= lr * gradient / (sqrt(sq_grad_accum) + epsilon)
+            parameter -= self.lr * gradient / (np.sqrt(sq_grad_accum) + self.epsilon)
 
             # Update attribute
             self.squared_gradient_accumulations[i] = sq_grad_accum
