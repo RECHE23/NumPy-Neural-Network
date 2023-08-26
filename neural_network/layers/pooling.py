@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 from abc import abstractmethod
 import numpy as np
 from . import Layer
@@ -46,7 +46,7 @@ class Pooling2DLayer(Layer):
         Get the windows for the pooling operation.
     """
 
-    def __init__(self, kernel_size: Tuple[int, int], stride: Tuple[int, int], *args, **kwargs):
+    def __init__(self, kernel_size: Union[int, Tuple[int, int]], stride: Union[int, Tuple[int, int]], *args, **kwargs):
         """
         Initialize the 2D pooling layer.
 
