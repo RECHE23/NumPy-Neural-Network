@@ -1,34 +1,44 @@
 import time
-from keras.datasets import mnist
+import numpy as np
+from keras.datasets import cifar10
 from neural_network import *
 
 # Load the MNIST dataset:
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+y_train = y_train.squeeze()
+y_test = y_test.squeeze()
 
-# Deep fully connected network:
+# Selects only some classes:
+classes = 5
+indices = np.where(y_train < classes)
+X_train, y_train = X_train[indices], y_train[indices]
+indices = np.where(y_test < classes)
+X_test, y_test = X_test[indices], y_test[indices]
+
+# Network:
 net = NeuralNetwork()
 net.add(Normalization(samples=X_train))
-net.add(Reshape((28 * 28,)))
-net.add(Linear(28 * 28, 100))
-net.add(Dropout(p=0.1))
-net.add(Swish())
-net.add(Linear(100, 50))
-net.add(Dropout(p=0.5))
-net.add(Swish())
-net.add(Linear(50, 33))
-net.add(Dropout(p=0.4))
-net.add(Swish())
-net.add(Linear(33, 50))
-net.add(Dropout(p=0.1))
-net.add(Gaussian())
-net.add(Linear(50, 10))
+net.add(Reshape(output_shape=(3, 32, 32)))
+net.add(Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1))
+net.add(ReLU())
+net.add(MaxPool2d(kernel_size=2, stride=2))
+net.add(Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1))
+net.add(ReLU())
+net.add(MaxPool2d(kernel_size=2, stride=2))
+net.add(Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1))
+net.add(ReLU())
+net.add(MaxPool2d(kernel_size=2, stride=2))
+net.add(Reshape(output_shape=(128 * 4 * 4,)))
+net.add(Linear(in_features=128 * 4 * 4, out_features=512))
+net.add(ReLU())
+net.add(Linear(in_features=512, out_features=classes))
 net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
 
 print(net, end="\n\n\n")
 
 # Train:
 start_time = time.time()
-net.fit(X_train, y_train, epochs=5, batch_size=64, shuffle=True)
+net.fit(X_train, y_train, epochs=10, batch_size=64, shuffle=True)
 end_time = time.time()
 formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
 print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")

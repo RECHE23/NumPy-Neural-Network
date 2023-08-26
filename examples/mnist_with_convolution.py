@@ -14,14 +14,14 @@ image_shape = (28, 28)
 # Network:
 net = NeuralNetwork()
 net.add(Normalization(samples=X_train))
-net.add(Reshape((image_channels, *image_shape)))
+net.add(Reshape(output_shape=(image_channels, *image_shape)))
 net.add(Conv2d(image_channels, kernel_depth, kernel_size))
 net.add(ReLU())
-net.add(Reshape((kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1),)))
+net.add(Reshape(output_shape=(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1),)))
 net.add(Linear(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), 25))
 net.add(ReLU())
-net.add(Linear(25, 10))
-net.add(OutputLayer("softmax", "categorical_cross_entropy"))
+net.add(Linear(in_features=25, out_features=10))
+net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
 
 print(net, end="\n\n\n")
 

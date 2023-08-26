@@ -1,40 +1,25 @@
 import time
-import numpy as np
-from keras.datasets import cifar10
+from keras.datasets import fashion_mnist
 from neural_network import *
 
-# Load the MNIST dataset:
-(X_train, y_train), (X_test, y_test) = cifar10.load_data()
-
-# Selects only five classes:
-y_train = y_train.squeeze()
-indices = np.where(y_train <= 4)
-X_train = X_train[indices]
-y_train = y_train[indices]
-
-y_test = y_test.squeeze()
-indices = np.where(y_test <= 4)
-X_test = X_test[indices]
-y_test = y_test[indices]
-
-# Parameters:
-kernel_size = (5, 5)
-kernel_depth = 10
-image_channels = 3
-image_shape = (32, 32)
-classes = 5
+# Load the Fashion MNIST dataset:
+(X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
 
 # Network:
 net = NeuralNetwork()
 net.add(Normalization(samples=X_train))
-net.add(Reshape((image_channels, *image_shape)))
-net.add(Conv2d(image_channels, kernel_depth, kernel_size, padding=2))
+net.add(Reshape(output_shape=(1, 28, 28)))
+net.add(Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1))
 net.add(ReLU())
-net.add(Reshape((kernel_depth * image_shape[0] * image_shape[1],)))
-net.add(Linear(kernel_depth * image_shape[0] * image_shape[1], 128))
+net.add(MaxPool2d(kernel_size=2, stride=2))
+net.add(Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1))
 net.add(ReLU())
-net.add(Linear(128, classes))
-net.add(OutputLayer("softmax", "categorical_cross_entropy"))
+net.add(MaxPool2d(kernel_size=2, stride=2))
+net.add(Reshape(output_shape=(64 * 7 * 7,)))
+net.add(Linear(in_features=64 * 7 * 7, out_features=512))
+net.add(ReLU())
+net.add(Linear(in_features=512, out_features=10))
+net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
 
 print(net, end="\n\n\n")
 
