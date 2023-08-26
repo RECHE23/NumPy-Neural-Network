@@ -156,6 +156,9 @@ class NeuralNetwork:
         assert samples.shape[0] == targets.shape[0]
         assert isinstance(self.layers[-1], OutputLayer)
 
+        for layer in self.layers:
+            layer.is_training(True)
+
         # Converts targets to a one-hot encoding if necessary:
         targets = convert_targets(targets)
 
@@ -181,6 +184,9 @@ class NeuralNetwork:
             error /= len(samples)
             accuracy /= len(samples)
             print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t On training accuracy = {accuracy:.2%}")
+
+        for layer in self.layers:
+            layer.is_training(False)
 
     @staticmethod
     def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:

@@ -6,6 +6,7 @@ from .activation import ActivationLayer, ReLU, Tanh, Sigmoid, Softmax
 from .convolutional2d import Convolutional2DLayer
 from .output import OutputLayer
 from .pooling import Pooling2DLayer, MaxPooling2DLayer, AveragePooling2DLayer
+from .dropout import DropoutLayer
 
 __all__ = ["Layer",
            "NormalizationLayer",
@@ -20,4 +21,5 @@ __all__ = ["Layer",
            "OutputLayer",
            "Pooling2DLayer",
            "MaxPooling2DLayer",
-           "AveragePooling2DLayer"]
+           "AveragePooling2DLayer",
+           "DropoutLayer"]

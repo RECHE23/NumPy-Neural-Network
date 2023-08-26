@@ -55,6 +55,7 @@ class Layer:
         self.upstream_gradients: Optional[np.ndarray] = None
         self.n_samples: Optional[int] = None
         self.optimizer: Optimizer = optimizer if optimizer is not None else Adam(learning_rate=1e-3, decay=1e-4)
+        self._is_training: bool = False
 
     def __call__(self, *args, **kwargs) -> np.ndarray:
         return self.forward_propagation(*args, **kwargs)
@@ -78,6 +79,11 @@ class Layer:
         Get the output shape (batch_size, ...) of the data.
         """
         raise NotImplementedError
+
+    def is_training(self, value: Optional[bool] = None) -> bool:
+        if value is not None:
+            self._is_training = value
+        return self._is_training
 
     @trace()
     def forward_propagation(self, input_data: np.ndarray) -> np.ndarray:
@@ -129,6 +135,7 @@ class Layer:
         retrograde : array-like, shape (n_samples, ...)
             Gradients propagated backward through the layer.
         """
+        assert self.input is not None  # You need a forward propagation before a backward propagation...
         self.upstream_gradients = upstream_gradients
         self.n_samples = None if upstream_gradients is None else upstream_gradients.shape[0]
         self._backward_propagation(upstream_gradients, y_true)

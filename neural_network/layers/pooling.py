@@ -172,10 +172,11 @@ class MaxPooling2DLayer(Pooling2DLayer):
         # Evaluate the max pooling
         self.output = np.nanmax(pool_windows, axis=(4, 5))
 
-        max_values = self.output.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
-        input_window = input_data[:, :, :self.output_dimensions[0] * self.stride[0], :self.output_dimensions[1] * self.stride[1]]
-        # Create a mask indicating the positions of maximum values in the pooling windows
-        self.mask = np.equal(input_window, max_values).astype(np.int8)
+        if self.is_training():
+            max_values = self.output.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
+            input_window = input_data[:, :, :self.output_dimensions[0] * self.stride[0], :self.output_dimensions[1] * self.stride[1]]
+            # Create a mask indicating the positions of maximum values in the pooling windows
+            self.mask = np.equal(input_window, max_values).astype(np.int8)
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
         """
