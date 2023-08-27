@@ -105,7 +105,7 @@ class Pooling2DLayer(Layer):
         raise NotImplementedError
 
     @abstractmethod
-    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
         Abstract method to implement the actual backward propagation.
 

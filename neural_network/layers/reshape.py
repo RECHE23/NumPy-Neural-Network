@@ -1,4 +1,4 @@
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Optional
 import numpy as np
 from . import Layer
 
@@ -65,7 +65,7 @@ class Reshape(Layer):
         """
         self.output = np.reshape(input_data, (-1, *self.output_shape))
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
         Reshape the upstream gradients to match the input shape.
 

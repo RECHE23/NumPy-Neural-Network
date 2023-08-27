@@ -45,7 +45,7 @@ class Conv2d(Layer):
         Stride (vertical stride, horizontal stride).
     padding : tuple of int
         Padding (vertical padding, horizontal padding).
-    weights : np.ndarray
+    weight : np.ndarray
         Convolutional kernels.
     bias : np.ndarray
         Biases for each output channel.
@@ -142,10 +142,10 @@ class Conv2d(Layer):
                                          padding=self.padding, stride=self.stride)
 
         # Perform convolution and add bias:
-        self.output = np.einsum('bihwkl,oikl->bohw', self.windows, self.weights, optimize='greedy')
+        self.output = np.einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize='greedy')
         self.output += np.expand_dims(self.bias, axis=(0, 2, 3))
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
         Compute the retrograde gradients for the convolutional layer.
 
@@ -166,7 +166,7 @@ class Conv2d(Layer):
                                         dilation=(self.stride[0] - 1, self.stride[1] - 1))
 
         # Rotate kernel for convolution:
-        rot_kern = np.rot90(self.weights, 2, axes=(2, 3))
+        rot_kern = np.rot90(self.weight, 2, axes=(2, 3))
 
         # Compute gradients:
         db = np.sum(upstream_gradients, axis=(0, 2, 3))
@@ -174,7 +174,7 @@ class Conv2d(Layer):
         dx = np.einsum('bohwkl,oikl->bihw', out_windows, rot_kern, optimize='greedy')
 
         # Update parameters and retrograde gradients:
-        self.optimizer.update([self.weights, self.bias], [dw, db])
+        self.optimizer.update([self.weight, self.bias], [dw, db])
         self.retrograde = dx
 
     def _initialize_parameters_xavier(self) -> None:
@@ -182,7 +182,7 @@ class Conv2d(Layer):
         Initialize the convolutional kernels using the Xavier initialization method.
         """
         a = np.sqrt(6 / (np.prod((self.output_channels, self.input_channels, *self.kernel_size))))
-        self.weights = np.random.uniform(-a, a, (self.output_channels, self.input_channels, *self.kernel_size))
+        self.weight = np.random.uniform(-a, a, (self.output_channels, self.input_channels, *self.kernel_size))
         self.bias = np.zeros((self.output_channels,))
 
     def _initialize_parameters_he(self) -> None:
@@ -190,7 +190,7 @@ class Conv2d(Layer):
         Initialize the convolutional kernels using the He initialization method.
         """
         a = np.sqrt(2 / self.input_channels)
-        self.weights = np.random.normal(0, a, (self.output_channels, self.input_channels, *self.kernel_size))
+        self.weight = np.random.normal(0, a, (self.output_channels, self.input_channels, *self.kernel_size))
         self.bias = np.zeros((self.output_channels,))
 
     @staticmethod

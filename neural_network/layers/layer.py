@@ -160,7 +160,7 @@ class Layer:
         raise NotImplementedError
 
     @trace()
-    def backward(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> np.ndarray:
+    def backward(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> np.ndarray:
         """
         Perform backward propagation through the layer.
 

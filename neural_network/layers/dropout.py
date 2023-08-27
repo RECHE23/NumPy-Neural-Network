@@ -55,7 +55,7 @@ class Dropout(Layer):
         else:
             self.output = input_data
 
-    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
         Perform the backward propagation step.
 

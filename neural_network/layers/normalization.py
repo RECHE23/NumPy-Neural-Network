@@ -91,7 +91,7 @@ class Normalization(Layer):
             self._evaluate_norm(self.output)
         self.output /= self.norm
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
         Compute the retrograde gradients for the normalization layer.
 

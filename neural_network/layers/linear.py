@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 import numpy as np
 from . import Layer
 
@@ -25,7 +25,7 @@ class Linear(Layer):
             Number of input features or neurons from the previous layer.
     out_features : int
         Number of neurons in this layer.
-    weights : array-like, shape (in_features, out_features)
+    weight : array-like, shape (out_features, in_features)
         Learnable weights for the connections between input and output neurons.
     bias : array-like, shape (out_features,)
         Learnable biases added to each neuron's weighted sum during forward propagation.
@@ -94,9 +94,9 @@ class Linear(Layer):
         input_data : array-like, shape (n_samples, in_features)
             The input data to propagate through the layer.
         """
-        self.output = np.einsum("ij,jk", self.input, self.weights, optimize='greedy') + self.bias
+        self.output = np.einsum("ij,kj->ik", self.input, self.weight, optimize='greedy') + self.bias
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
         Perform backward propagation through the fully connected layer.
 
@@ -107,17 +107,17 @@ class Linear(Layer):
         y_true : array-like, shape (n_samples, ...)
             The true target values corresponding to the input data.
         """
-        self.retrograde = np.einsum("ij,kj", upstream_gradients, self.weights, optimize='greedy')
-        weights_error = np.einsum("ji,jk", self.input, upstream_gradients, optimize='greedy')
+        self.retrograde = np.einsum("ij,jk->ik", upstream_gradients, self.weight, optimize='greedy')
+        weights_error = np.einsum("ji,jk->ki", self.input, upstream_gradients, optimize='greedy')
 
-        self.optimizer.update([self.weights, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
+        self.optimizer.update([self.weight, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
 
     def _initialize_parameters_xavier(self) -> None:
         """
         Initialize layer parameters using Xavier initialization.
         """
         a = np.sqrt(6 / (self.input_size + self.output_size))
-        self.weights = np.random.uniform(-a, a, (self.input_size, self.output_size))
+        self.weight = np.random.uniform(-a, a, (self.output_size, self.input_size))
         self.bias = np.zeros((self.output_size,))
 
     def _initialize_parameters_he(self) -> None:
@@ -125,5 +125,5 @@ class Linear(Layer):
         Initialize layer parameters using He initialization.
         """
         a = np.sqrt(2 / self.input_size)
-        self.weights = np.random.normal(0, a, (self.input_size, self.output_size))
+        self.weight = np.random.normal(0, a, (self.output_size, self.input_size))
         self.bias = np.zeros((self.output_size,))

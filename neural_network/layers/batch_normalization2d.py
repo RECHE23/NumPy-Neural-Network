@@ -117,7 +117,7 @@ class BatchNorm2d(Layer):
         x_normalized = (input_data - self.mean) / np.sqrt(self.var + self.epsilon)
         self.output = self.gamma * x_normalized + self.beta
 
-    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
         Perform the backward propagation step.
 

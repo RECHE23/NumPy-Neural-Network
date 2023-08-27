@@ -1,7 +1,7 @@
 from .layer import Layer
 from .normalization import Normalization
 from .reshape import Reshape, Flatten, Unflatten
-from .fully_connected import Linear
+from .linear import Linear
 from .activation import ActivationLayer, ReLU, Tanh, Sigmoid, Softmax, BentIdentity, SiLU, Gaussian, ArcTan, Swish, PReLU, ELU, LeakyReLU
 from .convolutional2d import Conv2d
 from .output import OutputLayer
