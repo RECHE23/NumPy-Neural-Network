@@ -11,7 +11,7 @@ class Adagrad(Optimizer):
 
     Parameters:
     -----------
-    epsilon : float, optional
+    eps : float, optional
         A small constant added to prevent division by zero. Default is 1e-7.
     lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
@@ -26,7 +26,7 @@ class Adagrad(Optimizer):
 
     Attributes:
     -----------
-    epsilon : float
+    eps : float
         A small constant added to prevent division by zero.
     sum_sq_gradients : list of arrays or None
         The cumulative sum of squared gradients, initialized to None.
@@ -43,7 +43,7 @@ class Adagrad(Optimizer):
 
         Parameters:
         -----------
-        epsilon : float, optional
+        eps : float, optional
             A small constant added to prevent division by zero. Default is 1e-7.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
@@ -57,7 +57,7 @@ class Adagrad(Optimizer):
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
-        return super().__repr__()[:-1] + f", epsilon={self.epsilon})"
+        return super().__repr__()[:-1] + f", eps={self.epsilon})"
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
@@ -78,7 +78,7 @@ class Adagrad(Optimizer):
             # Update sum_sq_gradient gradient: sum_sq_gradient += gradient^2
             sum_sq_gradient += gradient * gradient
 
-            # Update parameter: parameter -= lr * gradient / (sqrt(sum_sq_gradient) + epsilon)
+            # Update parameter: parameter -= lr * gradient / (sqrt(sum_sq_gradient) + eps)
             parameter -= self.lr * gradient / (np.sqrt(sum_sq_gradient) + self.epsilon)
 
             # Update attributes

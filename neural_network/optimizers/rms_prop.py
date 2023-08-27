@@ -14,7 +14,7 @@ class RMSprop(Optimizer):
     -----------
     rho : float, optional
         The decay factor for the moving average. Default is 0.9.
-    epsilon : float, optional
+    eps : float, optional
         A small value added to the denominator for numerical stability. Default is 1e-7.
     lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
@@ -31,7 +31,7 @@ class RMSprop(Optimizer):
     -----------
     rho : float
         The decay factor for the moving average.
-    epsilon : float
+    eps : float
         A small value added to the denominator for numerical stability.
     squared_gradient_accumulations : list of arrays or None
         The moving average of squared gradients, initialized to None.
@@ -50,7 +50,7 @@ class RMSprop(Optimizer):
         -----------
         rho : float, optional
             The decay factor for the moving average. Default is 0.9.
-        epsilon : float, optional
+        eps : float, optional
             A small value added to the denominator for numerical stability. Default is 1e-7.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
@@ -65,7 +65,7 @@ class RMSprop(Optimizer):
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
-        return super().__repr__()[:-1] + f", rho={self.rho}, epsilon={self.epsilon})"
+        return super().__repr__()[:-1] + f", rho={self.rho}, eps={self.epsilon})"
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
@@ -86,7 +86,7 @@ class RMSprop(Optimizer):
             # Update sq_grad_accum: sq_grad_accum = rho * sq_grad_accum + (1 - rho) * gradient * gradient
             sq_grad_accum = self.rho * sq_grad_accum + (1 - self.rho) * gradient * gradient
 
-            # Update parameter using RMSprop update: parameter -= lr * gradient / (sqrt(sq_grad_accum) + epsilon)
+            # Update parameter using RMSprop update: parameter -= lr * gradient / (sqrt(sq_grad_accum) + eps)
             parameter -= self.lr * gradient / (np.sqrt(sq_grad_accum) + self.epsilon)
 
             # Update attribute

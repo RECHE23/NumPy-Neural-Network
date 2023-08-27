@@ -47,7 +47,7 @@ class TestLinearLayer(unittest.TestCase):
         custom_retrograde = self.custom_layer.backward(self.upstream_gradients, None)
 
         # Retrieve gradients from the layer's input (retrograde) for both implementations
-        torch_retrograde = self.torch_input.grad.numpy()
+        torch_retrograde = self.torch_input.grad.cpu().detach().numpy()
 
         # Compare the retrograde gradients
         np.testing.assert_allclose(torch_retrograde, custom_retrograde, rtol=1e-7, atol=1e-7)

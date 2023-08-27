@@ -13,7 +13,7 @@ class Adadelta(Optimizer):
     -----------
     rho : float, optional
         The decay rate for the moving average of squared gradients. Default is 0.9.
-    epsilon : float, optional
+    eps : float, optional
         A small constant added to prevent division by zero. Default is 1e-7.
     lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
@@ -30,7 +30,7 @@ class Adadelta(Optimizer):
     -----------
     rho : float
         The decay rate for the moving average of squared gradients.
-    epsilon : float
+    eps : float
         A small constant added to prevent division by zero.
     avg_sq_gradients : list of arrays or None
         The moving average of squared gradients, initialized to None.
@@ -51,7 +51,7 @@ class Adadelta(Optimizer):
         -----------
         rho : float, optional
             The decay rate for the moving average of squared gradients. Default is 0.9.
-        epsilon : float, optional
+        eps : float, optional
             A small constant added to prevent division by zero. Default is 1e-7.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
@@ -67,7 +67,7 @@ class Adadelta(Optimizer):
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
-        return super().__repr__()[:-1] + f", rho={self.rho}, epsilon={self.epsilon})"
+        return super().__repr__()[:-1] + f", rho={self.rho}, eps={self.epsilon})"
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
@@ -91,7 +91,7 @@ class Adadelta(Optimizer):
             # Update avg_sq_gradient gradient: E[g^2] = rho * E[g^2] + (1 - rho) * gradient^2
             avg_sq_gradient = self.rho * avg_sq_gradient + (1 - self.rho) * gradient * gradient
 
-            # Calculate update: update = gradient * sqrt(delta + epsilon) / sqrt(avg_sq_gradient + epsilon)
+            # Calculate update: update = gradient * sqrt(delta + eps) / sqrt(avg_sq_gradient + eps)
             update = gradient * np.sqrt(delta + self.epsilon) / np.sqrt(avg_sq_gradient + self.epsilon)
 
             # Update parameter: parameter -= lr * update

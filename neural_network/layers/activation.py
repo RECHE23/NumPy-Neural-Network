@@ -116,11 +116,6 @@ class ELU(ActivationLayer):
         super().__init__(activation_function="elu", *args, alpha=alpha, **kwargs)
 
 
-class PReLU(ActivationLayer):
-    def __init__(self, alpha=0.01, *args, **kwargs):
-        super().__init__(activation_function="prelu", *args, alpha=alpha, **kwargs)
-
-
 class Swish(ActivationLayer):
     def __init__(self, beta=1.0, *args, **kwargs):
         super().__init__(activation_function="swish", *args, beta=beta, **kwargs)
@@ -144,3 +139,28 @@ class SiLU(ActivationLayer):
 class BentIdentity(ActivationLayer):
     def __init__(self, *args, **kwargs):
         super().__init__(activation_function="bent_identity", *args, **kwargs)
+
+
+class SELU(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="selu", *args, **kwargs)
+
+
+class CELU(ActivationLayer):
+    def __init__(self, alpha=1.0, *args, **kwargs):
+        super().__init__(activation_function="celu", *args, alpha=alpha, **kwargs)
+
+
+class GELU(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="gelu", *args, **kwargs)
+
+
+class Softplus(ActivationLayer):
+    def __init__(self, beta=1, threshold=20, *args, **kwargs):
+        super().__init__(activation_function="softplus", *args, beta=beta, threshold=threshold, **kwargs)
+
+
+class Mish(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="mish", *args, **kwargs)

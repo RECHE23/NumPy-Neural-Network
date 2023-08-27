@@ -32,7 +32,7 @@ class TestConv2dLayer(unittest.TestCase):
 
     def test_forward(self):
         # Forward pass through both layers
-        torch_output = self.torch_layer(self.torch_input).detach().numpy()
+        torch_output = self.torch_layer(self.torch_input).cpu().detach().numpy()
         custom_output = self.custom_layer(self.input_data)
 
         # Compare the forward pass outputs
@@ -48,7 +48,7 @@ class TestConv2dLayer(unittest.TestCase):
         custom_retrograde = self.custom_layer.backward(self.upstream_gradients, None)
 
         # Retrieve gradients from the layer's input (retrograde) for both implementations
-        torch_retrograde = self.torch_input.grad.numpy()
+        torch_retrograde = self.torch_input.grad.cpu().detach().numpy()
 
         # Compare the retrograde gradients
         np.testing.assert_allclose(torch_retrograde, custom_retrograde, rtol=1e-7, atol=1e-6)
@@ -56,3 +56,5 @@ class TestConv2dLayer(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+# TODO: Add tests for different kernel_size, stride and padding values...

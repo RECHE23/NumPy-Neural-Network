@@ -15,7 +15,7 @@ class Adamax(Optimizer):
         Exponential decay rate for the first moment estimates. Default is 0.9.
     beta2 : float, optional
         Exponential decay rate for the infinite norm estimates. Default is 0.999.
-    epsilon : float, optional
+    eps : float, optional
         A small constant added to prevent division by zero. Default is 1e-8.
     lr : float, optional
         The learning rate controlling the step size of parameter updates. Default is 1e-3.
@@ -34,7 +34,7 @@ class Adamax(Optimizer):
         Exponential decay rate for the first moment estimates.
     beta2 : float
         Exponential decay rate for the infinite norm estimates.
-    epsilon : float
+    eps : float
         A small constant added to prevent division by zero.
     first_moments : list of arrays or None
         First moment estimates, initialized to None.
@@ -59,7 +59,7 @@ class Adamax(Optimizer):
             Exponential decay rate for the first moment estimates. Default is 0.9.
         beta2 : float, optional
             Exponential decay rate for the infinite norm estimates. Default is 0.999.
-        epsilon : float, optional
+        eps : float, optional
             A small constant added to prevent division by zero. Default is 1e-8.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
@@ -77,7 +77,7 @@ class Adamax(Optimizer):
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
-        return super().__repr__()[:-1] + f", beta1={self.beta1}, beta2={self.beta2}, epsilon={self.epsilon})"
+        return super().__repr__()[:-1] + f", beta1={self.beta1}, beta2={self.beta2}, eps={self.epsilon})"
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """
@@ -109,7 +109,7 @@ class Adamax(Optimizer):
             # Update second moment estimate: second_moment = max(beta2 * second_moment, abs(gradient))
             second_moment = np.maximum(self.beta2 * second_moment, np.abs(gradient))
 
-            # Update parameter: parameter -= adjusted_learning_rate * first_moment / (second_moment + epsilon)
+            # Update parameter: parameter -= adjusted_learning_rate * first_moment / (second_moment + eps)
             parameter -= adjusted_learning_rate * first_moment / (second_moment + self.epsilon)
 
             # Update attributes

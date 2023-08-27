@@ -12,8 +12,8 @@ class BatchNorm2d(Layer):
     in_channels : int
         Number of input channels.
 
-    epsilon : float, optional
-        A small constant to avoid division by zero, by default 1e-8.
+    eps : float, optional
+        A small constant to avoid division by zero, by default 1e-05.
 
     momentum : float, optional
         The momentum value for updating running statistics during training, by default 0.1.
@@ -59,23 +59,25 @@ class BatchNorm2d(Layer):
         Perform the backward propagation step.
     """
 
-    def __init__(self, input_channels: int, epsilon: float = 1e-8, momentum: float = 0.1, *args, **kwargs):
+    def __init__(self, num_features: int, eps: float = 1e-05, momentum: float = 0.1, affine=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.input_channels = input_channels
-        self.epsilon = epsilon
+        self.input_channels = num_features
+        self.epsilon = eps
         self.momentum = momentum
+        self.affine = affine
 
-        self.gamma = np.ones((1, self.input_channels, 1, 1))
-        self.beta = np.zeros((1, self.input_channels, 1, 1))
+        if self.affine:
+            self.gamma = np.ones((1, self.input_channels, 1, 1))
+            self.beta = np.zeros((1, self.input_channels, 1, 1))
 
-        self.running_mean = np.zeros(input_channels)
-        self.running_var = np.ones(input_channels)
+        self.running_mean = np.zeros(num_features)
+        self.running_var = np.ones(num_features)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the batch normalization layer.
         """
-        return f"{self.__class__.__name__}(in_channels={self.input_channels})"
+        return f"{self.__class__.__name__}({self.input_channels}, eps={self.epsilon}, momentum={self.momentum})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
@@ -100,8 +102,8 @@ class BatchNorm2d(Layer):
         """
         if self.is_training():
             # Compute mean and variance over spatial dimensions (H x W)
-            mean = np.mean(input_data, axis=(0, 2, 3))
-            var = np.var(input_data, axis=(0, 2, 3))
+            mean = np.nanmean(input_data, axis=(0, 2, 3))
+            var = np.nanvar(input_data, axis=(0, 2, 3))
 
             # Update running statistics with exponential moving average
             self.running_mean += self.momentum * (mean - self.running_mean)
@@ -115,7 +117,7 @@ class BatchNorm2d(Layer):
 
         # Normalize input data
         x_normalized = (input_data - self.mean) / np.sqrt(self.var + self.epsilon)
-        self.output = self.gamma * x_normalized + self.beta
+        self.output = self.gamma * x_normalized + self.beta if self.affine else x_normalized
 
     def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -140,7 +142,7 @@ class BatchNorm2d(Layer):
         dgamma = np.sum(upstream_gradients * x_normalized, axis=(0, 2, 3), keepdims=True)
         dbeta = np.sum(upstream_gradients, axis=(0, 2, 3), keepdims=True)
 
-        dx_normalized = upstream_gradients * self.gamma
+        dx_normalized = upstream_gradients * self.gamma if self.affine else upstream_gradients
 
         # Compute gradients of mean and variance
         dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.epsilon) ** (-1.5), axis=(0, 2, 3), keepdims=True)
@@ -152,4 +154,5 @@ class BatchNorm2d(Layer):
         self.retrograde += dmean / m
 
         # Update gamma and beta using optimizer
-        self.optimizer.update([self.gamma, self.beta], [dgamma, dbeta])
+        if self.affine:
+            self.optimizer.update([self.gamma, self.beta], [dgamma, dbeta])
