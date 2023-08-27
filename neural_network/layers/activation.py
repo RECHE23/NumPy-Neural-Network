@@ -1,4 +1,5 @@
 from typing import Callable, Tuple
+from functools import partial
 import numpy as np
 from . import Layer
 from neural_network.functions.activation import activation_functions
@@ -46,8 +47,8 @@ class ActivationLayer(Layer):
             The activation function to be applied during forward and backward propagation. Default is "relu".
         """
         self.activation_function_name: str = activation_function.lower().strip()
-        self.activation_function: Callable = activation_functions[activation_function]
-        super().__init__(*args, **kwargs)
+        self.activation_function: Callable = partial(activation_functions[activation_function], **kwargs)
+        super().__init__(*args)
 
     def __repr__(self) -> str:
         activation_function = f"activation_function={self.activation_function_name}" if self.__class__.__name__ == "ActivationLayer" else ""
@@ -103,3 +104,43 @@ class Sigmoid(ActivationLayer):
 class Softmax(ActivationLayer):
     def __init__(self, *args, **kwargs):
         super().__init__(activation_function="softmax", *args, **kwargs)
+
+
+class LeakyReLU(ActivationLayer):
+    def __init__(self, alpha=0.01, *args, **kwargs):
+        super().__init__(activation_function="leaky_relu", *args, alpha=alpha, **kwargs)
+
+
+class ELU(ActivationLayer):
+    def __init__(self, alpha=1.0, *args, **kwargs):
+        super().__init__(activation_function="elu", *args, alpha=alpha, **kwargs)
+
+
+class PReLU(ActivationLayer):
+    def __init__(self, alpha=0.01, *args, **kwargs):
+        super().__init__(activation_function="prelu", *args, alpha=alpha, **kwargs)
+
+
+class Swish(ActivationLayer):
+    def __init__(self, beta=1.0, *args, **kwargs):
+        super().__init__(activation_function="swish", *args, beta=beta, **kwargs)
+
+
+class ArcTan(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="arctan", *args, **kwargs)
+
+
+class Gaussian(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="gaussian", *args, **kwargs)
+
+
+class SiLU(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="silu", *args, **kwargs)
+
+
+class BentIdentity(ActivationLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(activation_function="bent_identity", *args, **kwargs)
