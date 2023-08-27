@@ -8,7 +8,7 @@ from neural_network import *
 # Deep fully connected network:
 net = NeuralNetwork()
 net.add(Normalization(samples=X_train))
-net.add(Reshape((28 * 28,)))
+net.add(Flatten())
 net.add(Linear(28 * 28, 100))
 net.add(Dropout(p=0.1))
 net.add(Swish())

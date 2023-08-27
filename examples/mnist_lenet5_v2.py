@@ -17,7 +17,7 @@ net.add(Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1, padding=
 net.add(BatchNorm2d(16))
 net.add(Tanh())
 net.add(AvgPool2d(kernel_size=(2, 2), stride=(2, 2)))
-net.add(Reshape(output_shape=(400,)))
+net.add(Flatten())
 net.add(Linear(in_features=400, out_features=120))
 net.add(Tanh())
 net.add(Linear(in_features=120, out_features=84))
