@@ -41,9 +41,9 @@ class Layer:
 
     Methods:
     --------
-    forward_propagation(input_data) -> np.ndarray
+    forward(input_data) -> np.ndarray
         Perform forward propagation through the layer.
-    backward_propagation(upstream_gradients, y_true) -> np.ndarray
+    backward(upstream_gradients, y_true) -> np.ndarray
         Perform backward propagation through the layer.
 
     """
@@ -68,7 +68,7 @@ class Layer:
         self._is_training: bool = False
 
     def __call__(self, *args, **kwargs) -> np.ndarray:
-        return self.forward_propagation(*args, **kwargs)
+        return self.forward(*args, **kwargs)
 
     def __str__(self) -> str:
         return repr(self)
@@ -127,7 +127,7 @@ class Layer:
         return self._optimizer_instance
 
     @trace()
-    def forward_propagation(self, input_data: np.ndarray) -> np.ndarray:
+    def forward(self, input_data: np.ndarray) -> np.ndarray:
         """
         Perform forward propagation through the layer.
 
@@ -160,7 +160,7 @@ class Layer:
         raise NotImplementedError
 
     @trace()
-    def backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> np.ndarray:
+    def backward(self, upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> np.ndarray:
         """
         Perform backward propagation through the layer.
 

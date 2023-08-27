@@ -131,7 +131,7 @@ class NeuralNetwork:
 
         predictions = samples
         for layer in self.layers:
-            predictions = layer.forward_propagation(predictions)
+            predictions = layer.forward(predictions)
 
         return convert_targets(predictions, to=to)
 
@@ -168,12 +168,12 @@ class NeuralNetwork:
             for batch_samples, batch_labels in self._batch_iterator(samples, targets, batch_size, shuffle):
                 # Forward propagation:
                 for layer in self.layers:
-                    batch_samples = layer.forward_propagation(batch_samples)
+                    batch_samples = layer.forward(batch_samples)
 
                 # Backward propagation:
                 error_grad = None
                 for layer in reversed(self.layers):
-                    error_grad = layer.backward_propagation(error_grad, batch_labels)
+                    error_grad = layer.backward(error_grad, batch_labels)
                     layer.optimizer.next_epoch()
 
                 # Compute the total loss:
