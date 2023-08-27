@@ -6,6 +6,7 @@ from neural_network.layers.conv2d import Conv2d
 
 
 class TestConv2dLayer(unittest.TestCase):
+
     def setUp(self):
         # Set up common parameters and data for the tests
         self.input_channels = 3

@@ -4,6 +4,7 @@ from neural_network.layers.activation import *
 
 
 class TestActivationFunctions(unittest.TestCase):
+
     def setUp(self):
         self.size = (32, 64, 28, 28)
 

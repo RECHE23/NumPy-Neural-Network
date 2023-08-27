@@ -6,6 +6,7 @@ from neural_network.layers.batchnorm2d import BatchNorm2d
 
 
 class TestBatchNorm2dLayer(unittest.TestCase):
+
     def setUp(self):
         # Set up common parameters and data for the tests
         self.input_channels = 3

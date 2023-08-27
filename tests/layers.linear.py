@@ -6,6 +6,7 @@ from neural_network.layers.linear import Linear
 
 
 class TestLinearLayer(unittest.TestCase):
+
     def setUp(self):
         # Set up common parameters and data for the tests
         self.input_size = 10

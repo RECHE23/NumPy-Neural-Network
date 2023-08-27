@@ -67,4 +67,7 @@ class Dropout(Layer):
         y_true : np.ndarray
             The true labels for the data.
         """
-        self.retrograde = self.dropout_mask * upstream_gradients * self.scaling
+        if self.is_training():
+            self.retrograde = self.dropout_mask * upstream_gradients * self.scaling
+        else:
+            self.retrograde = upstream_gradients
