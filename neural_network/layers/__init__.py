@@ -1,6 +1,6 @@
 from .layer import Layer
 from .normalization import Normalization
-from .reshape import Reshape, Flatten, Unflatten
+from .shape_manipulation import Reshape, Flatten, Unflatten
 from .linear import Linear
 from .activation import ActivationLayer, ReLU, Tanh, Sigmoid, Softmax, BentIdentity, SiLU, Gaussian, ArcTan, Swish, ELU, LeakyReLU, SELU, CELU, GELU, Softplus, Mish
 from .conv2d import Conv2d
