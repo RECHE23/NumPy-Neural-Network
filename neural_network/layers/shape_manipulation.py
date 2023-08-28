@@ -55,7 +55,7 @@ class Reshape(Layer):
         return self._output_shape
 
     def __repr__(self) -> str:
-        input_shape = f"input_shape={self.input_shape}, " if self.input else ""
+        input_shape = f"input_shape={self.input_shape}, " if self.input is not None else ""
         return f"{self.__class__.__name__}({input_shape}output_shape={self.output_shape})"
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:

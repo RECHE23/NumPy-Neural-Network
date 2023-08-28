@@ -1,8 +1,9 @@
 import numpy as np
-from typing import Tuple, Generator, List
+from typing import Tuple, Iterator, List, Callable, Optional
 from .tools import trace
 from .functions import convert_targets
 from .layers import OutputLayer, Layer
+from .callbacks import ProgressCallback
 
 
 class NeuralNetwork:
@@ -22,11 +23,11 @@ class NeuralNetwork:
     predict(samples: np.ndarray, to: str = None) -> np.ndarray:
         Make predictions using the neural network.
 
-    fit(samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1, shuffle: bool = False) -> None:
+    fit(samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1, shuffle: bool = False, callbacks: List[Callable] = None) -> None:
         Train the neural network.
 
-    Attributes (private):
-    ---------------------
+    Private Attributes:
+    -------------------
     _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
         Generate batches of samples and targets.
 
@@ -55,6 +56,8 @@ class NeuralNetwork:
             List to store the layers of the neural network.
         """
         self.layers: List[Layer] = []
+        self.callbacks: List[Callable] = [ProgressCallback()]
+        self._is_training: bool = False
 
     def __str__(self):
         """
@@ -99,6 +102,14 @@ class NeuralNetwork:
 
     @property
     def parameters_count(self):
+        """
+        Calculate the total number of learnable parameters in the network.
+
+        Returns:
+        --------
+        count : int
+            Total number of learnable parameters.
+        """
         return sum(layer.parameters_count for layer in self.layers)
 
     @trace()
@@ -111,6 +122,7 @@ class NeuralNetwork:
         layer : Layer
             The layer to be added to the network.
         """
+        # Check compatibility of layer shapes:
         if self.layers and layer.input_shape:
             assert self.layers[-1].output_shape == layer.input_shape, "Previous layer's output shape does not match the new layer's input shape"
         self.layers.append(layer)
@@ -144,7 +156,8 @@ class NeuralNetwork:
         return convert_targets(predictions, to=to)
 
     @trace()
-    def fit(self, samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1, shuffle: bool = False) -> None:
+    def fit(self, samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1,
+            shuffle: bool = False, callbacks: List[Callable] = None) -> None:
         """
         Train the neural network.
 
@@ -153,29 +166,40 @@ class NeuralNetwork:
         samples : np.ndarray
             Input samples for training.
         targets : np.ndarray
-            Target labels for training.
+            Target targets for training.
         epochs : int, optional
             Number of training epochs. Default is 100.
         batch_size : int, optional
             Batch size for training. Default is 1.
         shuffle : bool, optional
             Whether to shuffle the data before each epoch. Default is False.
+        callbacks : list of callable functions, optional
+            List of callback functions to be called after each batch and epoch.
         """
         assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
         assert samples.shape[0] == targets.shape[0], "The length of the samples doesn't match the length of the targets."
         if self.layers[0].input_shape is not None:
             assert samples.shape[1:] == self.layers[0].input_shape[1:], "Input sample shape does not match the network's input layer shape"
 
-        for layer in self.layers:
-            layer.is_training(True)
+        # Set additional callbacks if provided:
+        self.callbacks += callbacks if callbacks else []
+
+        self.is_training(True)
 
         # Converts targets to a one-hot encoding if necessary:
         targets = convert_targets(targets)
 
         for epoch in range(1, epochs + 1):
-            error = 0
-            accuracy = 0
-            for batch_samples, batch_labels in self._batch_iterator(samples, targets, batch_size, shuffle):
+            epoch_info = (epoch, epochs)
+
+            # Call on epoch begin callbacks:
+            self.call_callbacks(epoch_info, None, samples, targets, status="epoch_begin")
+
+            for batch_info, batch_samples, batch_targets in self._batch_iterator(samples, targets, batch_size, shuffle):
+
+                # Call on batch begin callbacks:
+                self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_begin")
+
                 # Forward propagation:
                 for layer in self.layers:
                     batch_samples = layer.forward(batch_samples)
@@ -183,7 +207,7 @@ class NeuralNetwork:
                 # Backward propagation:
                 error_grad = None
                 for layer in reversed(self.layers):
-                    error_grad = layer.backward(error_grad, batch_labels)
+                    error_grad = layer.backward(error_grad, batch_targets)
                     layer.optimizer.next_epoch()
                     if hasattr(layer, 'weights'):
                         assert not np.any(np.isnan(layer.weights)), "NaN values detected in layer weights"
@@ -192,20 +216,57 @@ class NeuralNetwork:
                         assert not np.any(np.isnan(layer.bias)), "NaN values detected in layer weights"
                         assert not np.any(np.isinf(layer.bias)), "Infinity values detected in layer weights"
 
-                # Compute the total loss:
-                error += self.layers[-1].loss(batch_labels, batch_samples)
-                accuracy += np.sum(np.argmax(batch_samples, axis=-1) == convert_targets(batch_labels, to="labels"))
+                # Call on batch end callbacks:
+                self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_end")
 
-            # Evaluate the average error on all samples:
-            error /= len(samples)
-            accuracy /= len(samples)
-            print(f"Epoch {epoch:4d} of {epochs:<4d} \t Error = {error:.6f} \t On training accuracy = {accuracy:.2%}")
+            # Call on epoch end callbacks:
+            self.call_callbacks(epoch_info, None, samples, targets, status="epoch_end")
 
-        for layer in self.layers:
-            layer.is_training(False)
+        self.is_training(False)
+
+    def call_callbacks(self, epoch_info, batch_info, batch_samples, batch_targets, status):
+        """
+        Call registered callbacks.
+
+        Parameters:
+        -----------
+        epoch_info : Tuple[int, int]
+            Current epoch number and total number of epochs.
+        batch_info : Tuple[int, int]
+            Current batch number and total number of batches.
+        batch_samples : np.ndarray
+            Batch of input samples.
+        batch_targets : np.ndarray
+            Batch of target labels.
+        status : str
+            Current callback status ("batch_begin", "batch_end", "epoch_begin", "epoch_end").
+        """
+        for callback in self.callbacks:
+            callback(self, epoch_info, batch_info, batch_samples, batch_targets, status)
+
+    def is_training(self, value: Optional[bool] = None) -> bool:
+        """
+        Get or set the training status of the neural network.
+
+        Parameters:
+        -----------
+        value : bool, optional
+            If provided, set the training status to this value. If None, return the current training status.
+
+        Returns:
+        --------
+        training_status : bool
+            Current training status of the neural network.
+        """
+        if value is not None:
+            self._is_training = value
+            for layer in self.layers:
+                layer.is_training(value)
+        return self._is_training
 
     @staticmethod
-    def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
+    def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) \
+            -> Iterator[Tuple[Tuple[int, int], np.ndarray, np.ndarray]]:
         """
         Generate batches of samples and targets.
 
@@ -214,7 +275,7 @@ class NeuralNetwork:
         samples : np.ndarray
             Input samples for training.
         targets : np.ndarray
-            Target labels for training.
+            Target targets for training.
         batch_size : int
             Batch size.
         shuffle : bool, optional
@@ -222,6 +283,8 @@ class NeuralNetwork:
 
         Yields:
         -------
+        batch_info : Tuple[int, int]
+            A tuple containing the current batch number and the total number of batches.
         batch_samples : np.ndarray
             Batch of input samples.
         batch_targets : np.ndarray
@@ -232,10 +295,18 @@ class NeuralNetwork:
         if shuffle:
             indices = np.arange(samples.shape[0])
             np.random.shuffle(indices)
-        for start_idx in range(0, samples.shape[0], batch_size):
+
+        # Generate ranges for batch start indices:
+        start_indices_range = range(0, samples.shape[0], batch_size)
+        total_batches = len(start_indices_range)
+
+        # Iterate over batches:
+        for batch_index, start_idx in enumerate(start_indices_range):
             end_idx = min(start_idx + batch_size, samples.shape[0])
             if shuffle:
                 excerpt = indices[start_idx:end_idx]
             else:
                 excerpt = slice(start_idx, end_idx)
-            yield samples[excerpt], targets[excerpt]
+
+            # Yield batch information, samples, and targets:
+            yield (batch_index + 1, total_batches), samples[excerpt], targets[excerpt]

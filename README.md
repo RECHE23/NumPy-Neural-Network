@@ -1,6 +1,6 @@
 # NumPy Neural Network Project
 
-Welcome to the NumPy Neural Network project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at revisiting machine learning concepts and practicing coding skills. It offers a modular architecture that can be easily customized for testing new solutions and structures.
+Welcome to the NumPy Neural Network project! This repository contains a Python implementation of a neural network framework using basic Python and NumPy libraries. The framework is designed as a personal project aimed at revisiting machine learning concepts and practicing coding skills. It offers a modular architecture that can be easily customized for testing new solutions and architectures.
 
 ## Table of Contents
 
