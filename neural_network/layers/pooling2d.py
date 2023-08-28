@@ -157,6 +157,10 @@ class MaxPool2d(Pooling2DLayer):
         Perform backward propagation through the max pooling layer.
     """
 
+    @property
+    def parameters_count(self) -> int:
+        return np.prod(self.mask.shape) if hasattr(self, 'mask') else 0
+
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Perform forward propagation using max pooling.
@@ -178,7 +182,7 @@ class MaxPool2d(Pooling2DLayer):
             # Create a mask indicating the positions of maximum values in the pooling windows
             self.mask = np.equal(input_window, max_values).astype(np.int8)
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
         Perform backward propagation for max pooling layer.
 
@@ -227,6 +231,10 @@ class AvgPool2d(Pooling2DLayer):
         Perform backward propagation through the average pooling layer.
     """
 
+    @property
+    def parameters_count(self) -> int:
+        return 0
+
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Perform forward propagation using average pooling.
@@ -242,7 +250,7 @@ class AvgPool2d(Pooling2DLayer):
         # Evaluate the average pooling
         self.output = np.nanmean(pool_windows, axis=(4, 5))
 
-    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true:Optional[np.ndarray] = None) -> None:
         """
         Perform backward propagation for average pooling layer.
 

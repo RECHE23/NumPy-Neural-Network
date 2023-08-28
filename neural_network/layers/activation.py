@@ -55,6 +55,10 @@ class ActivationLayer(Layer):
         return f"{self.__class__.__name__}({activation_function})"
 
     @property
+    def parameters_count(self) -> int:
+        return 0
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, ...) of the data.

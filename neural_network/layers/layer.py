@@ -77,6 +77,10 @@ class Layer:
         return f"{self.__class__.__name__}()"
 
     @property
+    def parameters_count(self) -> int:
+        raise NotImplementedError
+
+    @property
     def input_shape(self) -> Tuple[int, ...]:
         """
         Get the input shape (batch_size, ...) of the data.

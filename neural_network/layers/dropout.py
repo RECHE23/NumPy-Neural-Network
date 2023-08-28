@@ -29,6 +29,10 @@ class Dropout(Layer):
         return f"{self.__class__.__name__}(p={self.dropout_rate})"
 
     @property
+    def parameters_count(self) -> int:
+        return np.prod(self.dropout_mask) if self.dropout_mask else 0  # TODO: Should always be > 0?
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape of the layer.

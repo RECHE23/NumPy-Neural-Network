@@ -80,6 +80,13 @@ class BatchNorm2d(Layer):
         return f"{self.__class__.__name__}({self.input_channels}, eps={self.epsilon}, momentum={self.momentum})"
 
     @property
+    def parameters_count(self) -> int:
+        c = np.prod(self.running_mean.shape) + np.prod(self.running_var.shape)
+        if self.affine:
+            c += np.prod(self.gamma.shape) + np.prod(self.beta.shape)
+        return c
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape of the layer.

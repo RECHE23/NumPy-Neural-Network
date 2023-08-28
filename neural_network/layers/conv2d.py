@@ -106,6 +106,10 @@ class Conv2d(Layer):
         )
 
     @property
+    def parameters_count(self) -> int:
+        return np.prod(self.weight.shape) + np.prod(self.bias.shape)
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, out_channels, output_height, output_width) of the data.

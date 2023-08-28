@@ -44,6 +44,10 @@ class Reshape(Layer):
         super().__init__(*args, **kwargs)
 
     @property
+    def parameters_count(self) -> int:
+        return 0
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, output_shape) of the data.
@@ -124,6 +128,17 @@ class Flatten(Layer):
         self.end_dim = end_dim
         super().__init__(*args, **kwargs)
 
+    @property
+    def parameters_count(self) -> int:
+        return 0
+
+    @property
+    def output_shape(self) -> Tuple[int, int]:
+        """
+        Get the output shape (batch_size, output_shape) of the data.
+        """
+        return self.input.shape[0], int(np.prod(self.input.shape[1:]))
+
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Flatten the input data with specified dimensions.
@@ -190,6 +205,17 @@ class Unflatten(Layer):
         self._dim = dim
         self._unflattened_size = unflattened_size
         super().__init__(*args, **kwargs)
+
+    @property
+    def parameters_count(self) -> int:
+        return 0
+
+    @property
+    def output_shape(self) -> Tuple[int, int]:
+        """
+        Get the output shape (batch_size, output_shape) of the data.
+        """
+        return self.input.shape[0], *self._unflattened_size
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

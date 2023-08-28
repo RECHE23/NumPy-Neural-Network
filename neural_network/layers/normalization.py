@@ -71,6 +71,10 @@ class Normalization(Layer):
         return f"{self.__class__.__name__}({norm}dtype={self.dtype})"
 
     @property
+    def parameters_count(self) -> int:
+        return 1
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, ...) of the data.

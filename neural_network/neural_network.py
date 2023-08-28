@@ -66,7 +66,7 @@ class NeuralNetwork:
             String representation of the neural network.
         """
         layers_info = "\n".join([f"Layer {i}: {repr(layer)}" for i, layer in enumerate(self.layers)])
-        return f"NeuralNetwork:\n{layers_info}"
+        return f"NeuralNetwork:\n{layers_info}\nLearnable parameters count: {self.parameters_count}"
 
     def __repr__(self):
         """
@@ -96,6 +96,10 @@ class NeuralNetwork:
             Predictions made by the neural network.
         """
         return self.predict(samples, to=to)
+
+    @property
+    def parameters_count(self):
+        return sum(layer.parameters_count for layer in self.layers)
 
     @trace()
     def add(self, layer: Layer) -> None:

@@ -79,6 +79,10 @@ class Linear(Layer):
         return f"{self.__class__.__name__}(in_features={self.input_size}, out_features={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
 
     @property
+    def parameters_count(self) -> int:
+        return np.prod(self.weight.shape) + np.prod(self.bias.shape)
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, out_features) of the data.
