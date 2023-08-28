@@ -196,7 +196,7 @@ class MaxPool2d(Pooling2DLayer):
         # Initialize retrograde array
         self.retrograde = np.zeros_like(self.input)
 
-        if self.stride == self.pool_size:  # Overlapping indices can cause bugs in memory access.
+        if self.stride[0] <= self.pool_size[0] or self.stride[1] <= self.pool_size[1]:  # Overlapping indices can cause bugs in memory access.
             # Upsample the gradients and apply the mask
             gradients = upstream_gradients.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
             gradients = np.multiply(gradients, self.mask)
