@@ -56,7 +56,12 @@ class OutputLayer(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self.activation_function_name: str = activation_function.lower().strip()
+        activation_function_name = activation_function.lower().strip()
+        loss_function_name = loss_function.lower().strip()
+        assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
+        assert loss_function_name in loss_functions, f"Invalid loss function. Choose from {list(loss_functions.keys())}"
+
+        self.activation_function_name: str = activation_function_name
         self.loss_function_name: str = loss_function.lower().strip()
         self.activation_function: Callable = activation_functions[activation_function]
         self.loss_function: Callable = loss_functions[loss_function]

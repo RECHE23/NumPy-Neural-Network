@@ -111,8 +111,10 @@ class NeuralNetwork:
         layer : Layer
             The layer to be added to the network.
         """
+        if self.layers and layer.input_shape:
+            assert self.layers[-1].output_shape == layer.input_shape, "Previous layer's output shape does not match the new layer's input shape"
         self.layers.append(layer)
-        assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1
+        assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1, "Only one output layer can be added."
 
     @trace()
     def predict(self, samples: np.ndarray, to: str = None) -> np.ndarray:
@@ -131,7 +133,9 @@ class NeuralNetwork:
         predictions : np.ndarray
             Predictions made by the neural network.
         """
-        assert isinstance(self.layers[-1], OutputLayer)
+        assert self.layers, "No layers in the neural network. Add layers before making predictions."
+        assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
+        assert samples.shape[1:] == self.layers[0].input_shape[1:], "Input sample shape does not match the network's input layer shape"
 
         predictions = samples
         for layer in self.layers:
@@ -157,8 +161,10 @@ class NeuralNetwork:
         shuffle : bool, optional
             Whether to shuffle the data before each epoch. Default is False.
         """
-        assert samples.shape[0] == targets.shape[0]
-        assert isinstance(self.layers[-1], OutputLayer)
+        assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
+        assert samples.shape[0] == targets.shape[0], "The length of the samples doesn't match the length of the targets."
+        if self.layers[0].input_shape is not None:
+            assert samples.shape[1:] == self.layers[0].input_shape[1:], "Input sample shape does not match the network's input layer shape"
 
         for layer in self.layers:
             layer.is_training(True)
@@ -179,6 +185,12 @@ class NeuralNetwork:
                 for layer in reversed(self.layers):
                     error_grad = layer.backward(error_grad, batch_labels)
                     layer.optimizer.next_epoch()
+                    if hasattr(layer, 'weights'):
+                        assert not np.any(np.isnan(layer.weights)), "NaN values detected in layer weights"
+                        assert not np.any(np.isinf(layer.weights)), "Infinity values detected in layer weights"
+                    if hasattr(layer, 'bias'):
+                        assert not np.any(np.isnan(layer.bias)), "NaN values detected in layer weights"
+                        assert not np.any(np.isinf(layer.bias)), "Infinity values detected in layer weights"
 
                 # Compute the total loss:
                 error += self.layers[-1].loss(batch_labels, batch_samples)
@@ -215,6 +227,8 @@ class NeuralNetwork:
         batch_targets : np.ndarray
             Batch of target labels.
         """
+        assert batch_size <= samples.shape[0], "Batch size cannot be larger than the number of samples"
+
         if shuffle:
             indices = np.arange(samples.shape[0])
             np.random.shuffle(indices)

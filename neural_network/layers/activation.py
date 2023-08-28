@@ -46,8 +46,12 @@ class ActivationLayer(Layer):
         activation_function : callable
             The activation function to be applied during forward and backward propagation. Default is "relu".
         """
-        self.activation_function_name: str = activation_function.lower().strip()
+        activation_function_name = activation_function.lower().strip()
+        assert activation_function_name in activation_functions, "Invalid activation function"
+
+        self.activation_function_name: str = activation_function_name
         self.activation_function: Callable = partial(activation_functions[activation_function], **kwargs)
+
         super().__init__(*args)
 
     def __repr__(self) -> str:

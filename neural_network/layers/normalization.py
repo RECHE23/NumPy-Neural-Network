@@ -79,7 +79,7 @@ class Normalization(Layer):
         """
         Get the output shape (batch_size, ...) of the data.
         """
-        return self.input.shape
+        return self.input_shape
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

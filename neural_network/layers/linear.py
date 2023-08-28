@@ -64,19 +64,14 @@ class Linear(Layer):
         """
         super().__init__(*args, **kwargs)
 
-        self.input_size: int = in_features
-        self.output_size: int = out_features
+        self.in_features: int = in_features
+        self.out_features: int = out_features
         self.initialization: str = initialization
 
-        if initialization == "xavier":
-            self._initialize_parameters_xavier()
-        elif initialization == "he":
-            self._initialize_parameters_he()
-        else:
-            raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
+        self._initialize_parameters(initialization)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(in_features={self.input_size}, out_features={self.output_size}, optimizer={self.optimizer}, initialization={self.initialization})"
+        return f"{self.__class__.__name__}(in_features={self.in_features}, out_features={self.out_features}, optimizer={self.optimizer}, initialization={self.initialization})"
 
     @property
     def parameters_count(self) -> int:
@@ -87,7 +82,7 @@ class Linear(Layer):
         """
         Get the output shape (batch_size, out_features) of the data.
         """
-        return self.input.shape[0], self.output_size
+        return self.input.shape[0], self.out_features
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -98,6 +93,8 @@ class Linear(Layer):
         input_data : array-like, shape (n_samples, in_features)
             The input data to propagate through the layer.
         """
+        assert input_data.shape[1] == self.in_features, "Input size doesn't match"
+
         self.output = np.einsum("ij,kj->ik", self.input, self.weight, optimize='greedy') + self.bias
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
@@ -111,23 +108,29 @@ class Linear(Layer):
         y_true : array-like, shape (n_samples, ...)
             The true target values corresponding to the input data.
         """
+        assert upstream_gradients.shape[1] == self.out_features, "Upstream gradients size doesn't match"
+
         self.retrograde = np.einsum("ij,jk->ik", upstream_gradients, self.weight, optimize='greedy')
         weights_error = np.einsum("ji,jk->ki", self.input, upstream_gradients, optimize='greedy')
 
         self.optimizer.update([self.weight, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
 
-    def _initialize_parameters_xavier(self) -> None:
+    def _initialize_parameters(self, initialization: str) -> None:
         """
-        Initialize layer parameters using Xavier initialization.
-        """
-        a = np.sqrt(6 / (self.input_size + self.output_size))
-        self.weight = np.random.uniform(-a, a, (self.output_size, self.input_size))
-        self.bias = np.zeros((self.output_size,))
+        Initialize layer parameters using the specified initialization method.
 
-    def _initialize_parameters_he(self) -> None:
+        Parameters:
+        -----------
+        initialization : str
+            Initialization method to use ("xavier" or "he").
         """
-        Initialize layer parameters using He initialization.
-        """
-        a = np.sqrt(2 / self.input_size)
-        self.weight = np.random.normal(0, a, (self.output_size, self.input_size))
-        self.bias = np.zeros((self.output_size,))
+        if initialization == "xavier":
+            a = np.sqrt(6 / (self.in_features + self.out_features))
+            self.weight = np.random.uniform(-a, a, (self.out_features, self.in_features))
+        elif initialization == "he":
+            a = np.sqrt(2 / self.in_features)
+            self.weight = np.random.normal(0, a, (self.out_features, self.in_features))
+        else:
+            raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
+
+        self.bias = np.zeros((self.out_features,))

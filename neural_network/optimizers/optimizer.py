@@ -49,6 +49,9 @@ class Optimizer:
             Additional arguments passed to the optimizer.
 
         """
+        assert lr_min >= 0, "Learning rate should be positive."
+        assert lr_min < lr < lr_max, f"Learning rate should be in the range ({lr_min}, {lr_max})."
+
         self.lr: float = lr
         self.lr_decay: float = lr_decay
         self.lr_min: float = lr_min

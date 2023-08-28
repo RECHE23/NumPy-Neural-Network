@@ -193,6 +193,8 @@ class MaxPool2d(Pooling2DLayer):
         y_true : np.ndarray
             The true target values corresponding to the input data.
         """
+        assert hasattr(self, 'mask'), "No mask found. Make sure forward propagation was performed."
+
         # Initialize retrograde array
         self.retrograde = np.zeros_like(self.input)
 

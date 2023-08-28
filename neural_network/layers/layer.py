@@ -85,7 +85,7 @@ class Layer:
         """
         Get the input shape (batch_size, ...) of the data.
         """
-        return self.input.shape
+        return self.input.shape if self.input is not None else None
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
@@ -180,7 +180,7 @@ class Layer:
         retrograde : array-like, shape (n_samples, ...)
             Gradients propagated backward through the layer.
         """
-        assert self.input is not None  # You need a forward propagation before a backward propagation...
+        assert self.input is not None, "You need a forward propagation before a backward propagation..."
         self.upstream_gradients = upstream_gradients
         self.n_samples = None if upstream_gradients is None else upstream_gradients.shape[0]
         self._backward_propagation(upstream_gradients, y_true)

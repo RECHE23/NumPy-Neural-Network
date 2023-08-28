@@ -78,30 +78,28 @@ class Conv2d(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
+        assert in_channels > 0, "Number of input channels must be greater than 0"
+        assert out_channels > 0, "Number of output channels must be greater than 0"
+
         super().__init__(*args, **kwargs)
 
-        self.input_channels: int = in_channels
-        self.output_channels: int = out_channels
+        self.in_channels: int = in_channels
+        self.out_channels: int = out_channels
         self.kernel_size: Tuple[int, int] = pair(kernel_size)
         self.stride: Tuple[int, int] = pair(stride)
         self.padding: Tuple[int, int] = pair(padding)
         self.initialization: str = initialization
         self.windows: Optional[np.ndarray] = None
 
-        if initialization == "xavier":
-            self._initialize_parameters_xavier()
-        elif initialization == "he":
-            self._initialize_parameters_he()
-        else:
-            raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
+        self._initialize_parameters(initialization)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the Conv2d.
         """
         return (
-            f"{self.__class__.__name__}(in_channels={self.input_channels}, out_channels="
-            f"{self.output_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding="
+            f"{self.__class__.__name__}(in_channels={self.in_channels}, out_channels="
+            f"{self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding="
             f"{self.padding}, optimizer={self.optimizer}, initialization={self.initialization})"
         )
 
@@ -114,7 +112,7 @@ class Conv2d(Layer):
         """
         Get the output shape (batch_size, out_channels, output_height, output_width) of the data.
         """
-        return self.input.shape[0], self.output_channels, self.output_dimensions[0], self.output_dimensions[1]
+        return self.input.shape[0], self.out_channels, self.output_dimensions[0], self.output_dimensions[1]
 
     @property
     def input_dimensions(self) -> Tuple[int, int]:
@@ -141,6 +139,8 @@ class Conv2d(Layer):
         input_data : np.ndarray
             The input data for the convolutional layer.
         """
+        assert len(input_data.shape) == 4, "Input data must have shape (batch, channels, height, width)"
+
         # Generate windows:
         self.windows = self._get_windows(input_data, self.output_dimensions, self.kernel_size,
                                          padding=self.padding, stride=self.stride)
@@ -160,6 +160,9 @@ class Conv2d(Layer):
         y_true : np.ndarray
             The true labels used for calculating the retrograde gradient.
         """
+        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, channels, height, width)"
+        assert upstream_gradients.shape[1] == self.out_channels, "Upstream gradients channels don't match"
+
         # Compute padding for input and output:
         v_padding = self.kernel_size[0] - 1 if self.padding[0] == 0 else self.padding[0]
         h_padding = self.kernel_size[1] - 1 if self.padding[1] == 0 else self.padding[1]
@@ -181,21 +184,25 @@ class Conv2d(Layer):
         self.optimizer.update([self.weight, self.bias], [dw, db])
         self.retrograde = dx
 
-    def _initialize_parameters_xavier(self) -> None:
+    def _initialize_parameters(self, initialization: str) -> None:
         """
-        Initialize the convolutional kernels using the Xavier initialization method.
-        """
-        a = np.sqrt(6 / (np.prod((self.output_channels, self.input_channels, *self.kernel_size))))
-        self.weight = np.random.uniform(-a, a, (self.output_channels, self.input_channels, *self.kernel_size))
-        self.bias = np.zeros((self.output_channels,))
+        Initialize convolutional kernels using the specified initialization method.
 
-    def _initialize_parameters_he(self) -> None:
+        Parameters:
+        -----------
+        initialization : str
+            Initialization method to use ("xavier" or "he").
         """
-        Initialize the convolutional kernels using the He initialization method.
-        """
-        a = np.sqrt(2 / self.input_channels)
-        self.weight = np.random.normal(0, a, (self.output_channels, self.input_channels, *self.kernel_size))
-        self.bias = np.zeros((self.output_channels,))
+        if initialization == "xavier":
+            a = np.sqrt(6 / (np.prod((self.out_channels, self.in_channels, *self.kernel_size))))
+            self.weight = np.random.uniform(-a, a, (self.out_channels, self.in_channels, *self.kernel_size))
+        elif initialization == "he":
+            a = np.sqrt(2 / self.in_channels)
+            self.weight = np.random.normal(0, a, (self.out_channels, self.in_channels, *self.kernel_size))
+        else:
+            raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
+
+        self.bias = np.zeros((self.out_channels,))
 
     @staticmethod
     def _get_windows(input_data: np.ndarray, output_size: Tuple[int, int], kernel_size: Tuple[int, int],
@@ -224,6 +231,8 @@ class Conv2d(Layer):
         numpy.ndarray
             Window views for the convolution operation.
         """
+        assert len(input_data.shape) == 4, "Input data must have shape (batch, channels, height, width)"
+
         # Dilate and pad the input if necessary:
         if dilation[0] != 0:
             input_data = np.insert(input_data, range(1, input_data.shape[2]), 0, axis=2)

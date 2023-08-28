@@ -60,7 +60,12 @@ class BatchNorm2d(Layer):
     """
 
     def __init__(self, num_features: int, eps: float = 1e-05, momentum: float = 0.1, affine=True, *args, **kwargs):
+        assert num_features > 0, "Number of features must be greater than 0"
+        assert eps > 0, "Epsilon must be positive for numerical stability"
+        assert 0 <= momentum < 1, "Momentum must be in the range [0, 1)"
+
         super().__init__(*args, **kwargs)
+
         self.input_channels = num_features
         self.epsilon = eps
         self.momentum = momentum
@@ -107,6 +112,8 @@ class BatchNorm2d(Layer):
         input_data : np.ndarray
             The input data.
         """
+        assert len(input_data.shape) == 4, "Input data must have shape (batch, channels, height, width)"
+
         if self.is_training():
             # Compute mean and variance over spatial dimensions (H x W)
             mean = np.nanmean(input_data, axis=(0, 2, 3))
@@ -123,7 +130,9 @@ class BatchNorm2d(Layer):
             self.var = self.running_var[None, :, None, None]
 
         # Normalize input data
-        x_normalized = (input_data - self.mean) / np.sqrt(self.var + self.epsilon)
+        sqrt_var_eps = np.sqrt(self.var + self.epsilon)
+        x_normalized = (input_data - self.mean) / sqrt_var_eps
+
         self.output = self.gamma * x_normalized + self.beta if self.affine else x_normalized
 
     def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
@@ -138,11 +147,12 @@ class BatchNorm2d(Layer):
         y_true : np.ndarray
             The true labels for the data.
         """
+        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, channels, height, width)"
+
         m = self.input.shape[0] * self.input.shape[2] * self.input.shape[3]
 
         x_minus_mean = self.input - self.mean
         sqrt_var_eps = np.sqrt(self.var + self.epsilon)
-
         x_normalized = x_minus_mean / sqrt_var_eps
 
         # Compute gradients of gamma and beta
