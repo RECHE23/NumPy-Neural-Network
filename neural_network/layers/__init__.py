@@ -8,6 +8,7 @@ from .output import OutputLayer
 from .pooling2d import Pooling2DLayer, MaxPool2d, AvgPool2d
 from .dropout import Dropout
 from .batchnorm2d import BatchNorm2d
+from .sequential import Sequential
 
 __all__ = ["Layer",
            "Normalization",
@@ -38,4 +39,5 @@ __all__ = ["Layer",
            "MaxPool2d",
            "AvgPool2d",
            "Dropout",
-           "BatchNorm2d"]
+           "BatchNorm2d",
+           "Sequential"]

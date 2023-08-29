@@ -66,14 +66,14 @@ class BatchNorm2d(Layer):
 
         super().__init__(*args, **kwargs)
 
-        self.input_channels = num_features
+        self.in_channels = num_features
         self.epsilon = eps
         self.momentum = momentum
         self.affine = affine
 
         if self.affine:
-            self.gamma = np.ones((1, self.input_channels, 1, 1))
-            self.beta = np.zeros((1, self.input_channels, 1, 1))
+            self.gamma = np.ones((1, self.in_channels, 1, 1))
+            self.beta = np.zeros((1, self.in_channels, 1, 1))
 
         self.running_mean = np.zeros(num_features)
         self.running_var = np.ones(num_features)
@@ -82,7 +82,7 @@ class BatchNorm2d(Layer):
         """
         Return a string representation of the batch normalization layer.
         """
-        return f"{self.__class__.__name__}({self.input_channels}, eps={self.epsilon}, momentum={self.momentum})"
+        return f"{self.__class__.__name__}({self.in_channels}, eps={self.epsilon}, momentum={self.momentum})"
 
     @property
     def parameters_count(self) -> int:
@@ -112,7 +112,7 @@ class BatchNorm2d(Layer):
         input_data : np.ndarray
             The input data.
         """
-        assert len(input_data.shape) == 4, "Input data must have shape (batch, channels, height, width)"
+        assert len(input_data.shape) == 4, "Input data must have shape (batch, in_channels, height, width)"
 
         if self.is_training():
             # Compute mean and variance over spatial dimensions (H x W)
@@ -123,8 +123,8 @@ class BatchNorm2d(Layer):
             self.running_mean += self.momentum * (mean - self.running_mean)
             self.running_var += self.momentum * (var - self.running_var)
 
-            self.mean = mean.reshape((1, self.input_channels, 1, 1))
-            self.var = var.reshape((1, self.input_channels, 1, 1))
+            self.mean = mean.reshape((1, self.in_channels, 1, 1))
+            self.var = var.reshape((1, self.in_channels, 1, 1))
         else:
             self.mean = self.running_mean[None, :, None, None]
             self.var = self.running_var[None, :, None, None]
@@ -147,7 +147,7 @@ class BatchNorm2d(Layer):
         y_true : np.ndarray
             The true labels for the data.
         """
-        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, channels, height, width)"
+        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, in_channels, height, width)"
 
         m = self.input.shape[0] * self.input.shape[2] * self.input.shape[3]
 

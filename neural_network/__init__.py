@@ -59,6 +59,7 @@ __all__ = ["relu",
            "Adadelta",
            "Adam",
            "Adamax",
+           "Sequential",
            "Callback",
            "ProgressCallback",
            "NeuralNetwork"]

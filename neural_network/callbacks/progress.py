@@ -4,6 +4,7 @@ import numpy as np
 from .callback import Callback
 from ..functions.utils import convert_targets
 
+
 class ProgressCallback(Callback):
     """
     A callback for displaying progress during training epochs and batches.
@@ -65,7 +66,7 @@ class ProgressCallback(Callback):
         self.error = 0
         self.accuracy = 0
         if epoch_info[0] == 1:
-            print("Training:")
+            print(f"Training on {len(samples)} samples:")
             self.start_time = time.time()
 
     def on_batch_begin(self, model, epoch_info: Tuple[int, int], batch_info: Optional[Tuple[int, int]],
@@ -157,4 +158,4 @@ class ProgressCallback(Callback):
         if epoch_info[0] == epoch_info[1]:
             end_time = time.time()
             formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - self.start_time))
-            print(f"\nTraining time : {formatted_time}, on {total_samples} samples.")
+            print(f"\nTraining time : {formatted_time}")

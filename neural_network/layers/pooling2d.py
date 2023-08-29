@@ -19,7 +19,7 @@ class Pooling2DLayer(Layer):
 
     Attributes
     ----------
-    pool_size : tuple of int
+    kernel_size : tuple of int
         The size of the pooling window.
     stride : tuple of int
         The stride for the pooling operation.
@@ -34,7 +34,7 @@ class Pooling2DLayer(Layer):
 
     Methods
     -------
-    __init__(self, pool_size=(2, 2), stride=(1, 1), *args, **kwargs)
+    __init__(self, kernel_size=(2, 2), stride=(1, 1), *args, **kwargs)
         Initialize the 2D pooling layer.
     __repr__(self)
         Return a string representation of the pooling layer.
@@ -60,14 +60,14 @@ class Pooling2DLayer(Layer):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-        self.pool_size: Tuple[int, int] = pair(kernel_size)
+        self.kernel_size: Tuple[int, int] = pair(kernel_size)
         self.stride: Tuple[int, int] = pair(stride)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the pooling layer.
         """
-        return f"{self.__class__.__name__}(kernel_size={self.pool_size}, stride={self.stride})"
+        return f"{self.__class__.__name__}(kernel_size={self.kernel_size}, stride={self.stride})"
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
@@ -88,8 +88,8 @@ class Pooling2DLayer(Layer):
         """
         Calculate and get the output dimensions (height, width) after pooling.
         """
-        output_height = (self.input_dimensions[0] - self.pool_size[0]) // self.stride[0] + 1
-        output_width = (self.input_dimensions[1] - self.pool_size[1]) // self.stride[1] + 1
+        output_height = (self.input_dimensions[0] - self.kernel_size[0]) // self.stride[0] + 1
+        output_width = (self.input_dimensions[1] - self.kernel_size[1]) // self.stride[1] + 1
         return output_height, output_width
 
     @abstractmethod
@@ -133,7 +133,7 @@ class Pooling2DLayer(Layer):
             Pooling windows.
         """
         # Calculate the parameters for creating the windows
-        pool_windows_shape = (*self.output_shape, *self.pool_size)
+        pool_windows_shape = (*self.output_shape, *self.kernel_size)
         strides = (
                       input_data.strides[0], input_data.strides[1],
                       self.stride[0] * input_data.strides[2],
@@ -198,7 +198,7 @@ class MaxPool2d(Pooling2DLayer):
         # Initialize retrograde array
         self.retrograde = np.zeros_like(self.input)
 
-        if self.stride[0] <= self.pool_size[0] or self.stride[1] <= self.pool_size[1]:  # Overlapping indices can cause bugs in memory access.
+        if self.stride[0] <= self.kernel_size[0] or self.stride[1] <= self.kernel_size[1]:  # Overlapping indices can cause bugs in memory access.
             # Upsample the gradients and apply the mask
             gradients = upstream_gradients.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
             gradients = np.multiply(gradients, self.mask)
@@ -209,11 +209,11 @@ class MaxPool2d(Pooling2DLayer):
             for i in range(output_height):
                 for j in range(output_width):
                     start_i, start_j = i * self.stride[0], j * self.stride[1]
-                    end_i, end_j = start_i + self.pool_size[0], start_j + self.pool_size[1]
+                    end_i, end_j = start_i + self.kernel_size[0], start_j + self.kernel_size[1]
 
                     # Find the indices of max values in the pooling window
                     pooling_window = self.input[:, :, start_i:end_i, start_j:end_j].reshape(batch_size, input_channels, -1)
-                    max_indices_i, max_indices_j = np.unravel_index(np.argmax(pooling_window, axis=2), self.pool_size)
+                    max_indices_i, max_indices_j = np.unravel_index(np.argmax(pooling_window, axis=2), self.kernel_size)
 
                     # Distribute gradients to the positions of max values in the input window
                     for b in range(batch_size):
@@ -270,5 +270,5 @@ class AvgPool2d(Pooling2DLayer):
         for i in range(output_height):
             for j in range(output_width):
                 start_i, start_j = i * self.stride[0], j * self.stride[1]
-                end_i, end_j = start_i + self.pool_size[0], start_j + self.pool_size[1]
-                self.retrograde[:, :, start_i:end_i, start_j:end_j] = upstream_gradients[:, :, i, j][:, :, None, None] / (self.pool_size[0] * self.pool_size[1])
+                end_i, end_j = start_i + self.kernel_size[0], start_j + self.kernel_size[1]
+                self.retrograde[:, :, start_i:end_i, start_j:end_j] = upstream_gradients[:, :, i, j][:, :, None, None] / (self.kernel_size[0] * self.kernel_size[1])

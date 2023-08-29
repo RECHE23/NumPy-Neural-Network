@@ -68,7 +68,7 @@ class NeuralNetwork:
         str_representation : str
             String representation of the neural network.
         """
-        layers_info = "\n".join([f"Layer {i}: {repr(layer)}" for i, layer in enumerate(self.layers)])
+        layers_info = "\n".join([f"Layer {i}: {layer}" for i, layer in enumerate(self.layers)])
         return f"NeuralNetwork:\n{layers_info}\nLearnable parameters count: {self.parameters_count}"
 
     def __repr__(self):
