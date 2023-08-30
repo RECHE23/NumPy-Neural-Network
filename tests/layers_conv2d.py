@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 import torch.nn as nn
-from neural_network.layers.conv2d import Conv2d
+from neural_network.modules.conv2d import Conv2d
 
 
 class TestConv2dLayer(unittest.TestCase):

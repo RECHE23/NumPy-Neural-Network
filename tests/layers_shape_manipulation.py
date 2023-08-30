@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from neural_network.layers.shape_manipulation import Reshape, Flatten, Unflatten
+from neural_network.modules.shape_manipulation import Reshape, Flatten, Unflatten
 
 
 class TestShapeManipulationLayers(unittest.TestCase):

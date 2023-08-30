@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 import torch.nn as nn
-from neural_network.layers.batchnorm2d import BatchNorm2d
+from neural_network.modules.batchnorm2d import BatchNorm2d
 
 
 class TestBatchNorm2dLayer(unittest.TestCase):

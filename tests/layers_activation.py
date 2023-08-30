@@ -1,6 +1,6 @@
 import unittest
 import torch
-from neural_network.layers.activation import *
+from neural_network.modules.activation import *
 
 
 class TestActivationFunctions(unittest.TestCase):

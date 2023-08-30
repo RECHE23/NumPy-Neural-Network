@@ -3,7 +3,7 @@ from typing import Tuple, Iterator, List, Callable, Optional, Dict, Any
 from .tools import trace
 from .functions import convert_targets
 from .callbacks import ProgressCallback
-from .layers import *
+from .modules import *
 from .optimizers import *
 
 

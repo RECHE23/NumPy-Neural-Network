@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from neural_network.layers.pooling2d import MaxPool2d, AvgPool2d
+from neural_network.modules.pooling2d import MaxPool2d, AvgPool2d
 import torch
 import torch.nn.functional as F
 from itertools import product

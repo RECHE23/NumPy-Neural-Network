@@ -1,5 +1,5 @@
 from .functions import *
-from .layers import *
+from .modules import *
 from .optimizers import *
 from .tools import *
 from .callbacks import *

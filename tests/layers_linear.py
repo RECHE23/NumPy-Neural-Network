@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import torch
 import torch.nn as nn
-from neural_network.layers.linear import Linear
+from neural_network.modules.linear import Linear
 
 
 class TestLinearLayer(unittest.TestCase):
