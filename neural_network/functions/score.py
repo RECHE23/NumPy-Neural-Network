@@ -182,13 +182,15 @@ def format_classification_report(report):
     formatted_report : str
         Formatted string representation of the classification report.
     """
-    # Format the report dictionary as a string
-    formatted_report = ""
+    # Create a formatted table using ASCII symbols
+    formatted_report = "┌───────────────────┬───────────┬───────────┬───────────┬───────────┐\n"
+    formatted_report += "│       Class       │ Precision │   Recall  │  F1-Score │  Support  │\n"
+    formatted_report += "├───────────────────┼───────────┼───────────┼───────────┼───────────┤\n"
+
     for class_name, scores in report.items():
-        formatted_report += f"Class: {class_name}\n"
-        formatted_report += f"Precision: {scores['precision']:.2%}\n"
-        formatted_report += f"Recall: {scores['recall']:.2%}\n"
-        formatted_report += f"F1-Score: {scores['f1-score']:.2%}\n"
-        formatted_report += f"Support: {scores['support']}\n\n"
+        formatted_report += f"│{str(class_name)[:19]: ^19}│{scores['precision']: ^11.2%}│{scores['recall']: ^11.2%}" + \
+                            f"│{scores['f1-score']: ^11.2%}│{scores['support']: ^11}│\n"
+
+    formatted_report += "└───────────────────┴───────────┴───────────┴───────────┴───────────┘\n"
 
     return formatted_report
