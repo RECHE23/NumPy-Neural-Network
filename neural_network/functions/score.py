@@ -23,6 +23,7 @@ def accuracy_score(y_true: Union[np.ndarray, list], y_predicted: Union[np.ndarra
     """
     y_true = convert_targets(y_true, to="labels")
     y_predicted = convert_targets(y_predicted, to="labels")
+
     return np.sum(y_true == y_predicted) / y_true.shape[0]
 
 
@@ -33,15 +34,18 @@ def precision_score(y_true, y_pred):
     Parameters:
     -----------
     y_true : np.ndarray
-        True target labels (one-hot encoded).
+        True target labels.
     y_pred : np.ndarray
-        Predicted labels (one-hot encoded).
+        Predicted labels.
 
     Returns:
     --------
     precision : np.ndarray
         Precision scores for each class.
     """
+    y_true = convert_targets(y_true)
+    y_pred = convert_targets(y_pred)
+
     true_positive = np.sum(y_true * y_pred, axis=-1)
     false_positive = np.sum((1 - y_true) * y_pred, axis=-1)
     precision = true_positive / (true_positive + false_positive + np.finfo(float).eps)
@@ -55,15 +59,18 @@ def recall_score(y_true, y_pred):
     Parameters:
     -----------
     y_true : np.ndarray
-        True target labels (one-hot encoded).
+        True target labels.
     y_pred : np.ndarray
-        Predicted labels (one-hot encoded).
+        Predicted labels.
 
     Returns:
     --------
     recall : np.ndarray
         Recall scores for each class.
     """
+    y_true = convert_targets(y_true)
+    y_pred = convert_targets(y_pred)
+
     true_positive = np.sum(y_true * y_pred, axis=-1)
     false_negative = np.sum(y_true * (1 - y_pred), axis=-1)
     recall = true_positive / (true_positive + false_negative + np.finfo(float).eps)
@@ -77,15 +84,18 @@ def f1_score(y_true, y_pred):
     Parameters:
     -----------
     y_true : np.ndarray
-        True target labels (one-hot encoded).
+        True target labels.
     y_pred : np.ndarray
-        Predicted labels (one-hot encoded).
+        Predicted labels.
 
     Returns:
     --------
     f1 : np.ndarray
         F1 scores for each class.
     """
+    y_true = convert_targets(y_true)
+    y_pred = convert_targets(y_pred)
+
     precision = precision_score(y_true, y_pred)
     recall = recall_score(y_true, y_pred)
     f1 = 2 * (precision * recall) / (precision + recall + np.finfo(float).eps)
@@ -99,15 +109,18 @@ def confusion_matrix(y_true, y_pred):
     Parameters:
     -----------
     y_true : np.ndarray
-        True target labels (one-hot encoded).
+        True target labels.
     y_pred : np.ndarray
-        Predicted labels (one-hot encoded).
+        Predicted labels.
 
     Returns:
     --------
     confusion_matrix : np.ndarray
         Confusion matrix.
     """
+    y_true = convert_targets(y_true)
+    y_pred = convert_targets(y_pred)
+
     return np.dot(y_true.T, y_pred).astype(int)
 
 
