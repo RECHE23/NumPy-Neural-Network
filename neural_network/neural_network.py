@@ -29,7 +29,7 @@ class NeuralNetwork:
 
     Private Attributes:
     -------------------
-    _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
+    _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) -> Iterator[Tuple[Tuple[int, int], np.ndarray, np.ndarray]]:
         Generate batches of samples and targets.
 
     Special Methods:
@@ -274,6 +274,14 @@ class NeuralNetwork:
 
     @property
     def state(self) -> Dict[str, Any]:
+        """
+        Return the current state of the neural network.
+
+        Returns:
+        --------
+        state : Dict[str, Any]
+            Dictionary containing the current state of the neural network.
+        """
         return {
             "class_name": self.__class__.__name__,
             "layers_state": [layer.state for layer in self.layers]
@@ -281,17 +289,29 @@ class NeuralNetwork:
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the neural network.
+
+        Parameters:
+        -----------
+        value : Dict[str, Any]
+            Dictionary containing the state to be set.
+
+        Raises:
+        ------
+        AssertionError
+            If the provided class name does not match the current class name.
+        """
         assert value["class_name"] == self.__class__.__name__
 
         for class_name, layer_state in value["layers_state"]:
             layer = globals()[class_name](**layer_state)
             layer.state = layer_state
-            print(layer)
             self.layers.append(layer)
 
     def save_state(self, filepath: str) -> None:
         """
-        Save the current state (parameters) of the layer to a file.
+        Save the current state (parameters) of the neural network to a file.
 
         Parameters:
         -----------
@@ -302,7 +322,7 @@ class NeuralNetwork:
 
     def load_state(self, filepath: str) -> None:
         """
-        Load the saved state (parameters) of the layer from a file.
+        Load the saved state (parameters) of the neural network from a file.
 
         Parameters:
         -----------

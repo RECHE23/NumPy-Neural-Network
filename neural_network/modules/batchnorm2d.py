@@ -86,6 +86,9 @@ class BatchNorm2d(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the current state of the batch normalization layer.
+        """
         state = self.__class__.__name__, {
             "num_features": self.num_features,
             "eps": self.eps,
@@ -103,6 +106,9 @@ class BatchNorm2d(Layer):
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the batch normalization layer.
+        """
         assert value["num_features"] > 0, "Number of features must be greater than 0"
         assert value["eps"] > 0, "Epsilon must be positive for numerical stability"
         assert 0 <= value["momentum"] < 1, "Momentum must be in the range [0, 1)"
@@ -121,6 +127,9 @@ class BatchNorm2d(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the total number of parameters in the layer.
+        """
         c = np.prod(self.running_mean.shape) + np.prod(self.running_var.shape)
         if self.affine:
             c += np.prod(self.gamma.shape) + np.prod(self.beta.shape)
@@ -129,12 +138,12 @@ class BatchNorm2d(Layer):
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape of the layer.
+        Get the output shape (batch_size, out_channels, output_height, output_width)  of the layer's data.
 
         Returns:
-        ----------
-        output_shape : tuple
-            The shape of the layer's output data.
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape
 

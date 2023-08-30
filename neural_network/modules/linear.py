@@ -1,5 +1,5 @@
-from typing import Tuple, Optional, Any, Dict
 import numpy as np
+from typing import Tuple, Optional, Any, Dict
 from . import Layer
 
 
@@ -16,18 +16,22 @@ class Linear(Layer):
         Number of input features or neurons from the previous layer.
     out_features : int
         Number of neurons in this layer.
+    initialization : str, optional
+        Initialization method to use ("xavier" or "he"). Default is "xavier".
     *args, **kwargs
         Additional arguments passed to the base class Layer.
 
     Attributes:
     -----------
     in_features : int
-            Number of input features or neurons from the previous layer.
+        Number of input features or neurons from the previous layer.
     out_features : int
         Number of neurons in this layer.
-    weight : array-like, shape (out_features, in_features)
+    initialization : str
+        Initialization method used for weight initialization.
+    weight : np.ndarray, shape (out_features, in_features)
         Learnable weights for the connections between input and output neurons.
-    bias : array-like, shape (out_features,)
+    bias : np.ndarray, shape (out_features,)
         Learnable biases added to each neuron's weighted sum during forward propagation.
     input_shape : tuple of int
         The shape of the input to the layer.
@@ -36,19 +40,17 @@ class Linear(Layer):
 
     Methods:
     --------
-    _forward_propagation(input_data)
+    _forward_propagation(input_data: np.ndarray) -> None:
         Perform forward propagation through the fully connected layer.
-    _backward_propagation(upstream_gradients, y_true)
+    _backward_propagation(upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         Perform backward propagation through the fully connected layer.
-    _initialize_parameters_xavier()
-        Initialize layer parameters using Xavier initialization.
-    _initialize_parameters_he()
-        Initialize layer parameters using He initialization.
-
+    _initialize_parameters(initialization: str) -> None:
+        Initialize layer parameters using the specified initialization method.
     """
+
     def __init__(self, in_features: int, out_features: int, initialization: str = "xavier", *args, **kwargs):
         """
-        Initialize the Linear with chosen initialization.
+        Initialize the Linear layer with chosen initialization.
 
         Parameters:
         -----------
@@ -60,7 +62,6 @@ class Linear(Layer):
             Initialization method to use ("xavier" or "he"). Default is "xavier".
         *args, **kwargs
             Additional arguments passed to the base class Layer.
-
         """
         super().__init__(*args, **kwargs)
 
@@ -79,10 +80,21 @@ class Linear(Layer):
         self._initialize_parameters(initialization)
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the linear layer.
+        """
         return f"{self.__class__.__name__}(in_features={self.in_features}, out_features={self.out_features}, optimizer={self.optimizer}, initialization={self.initialization})"
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the state of the Linear layer.
+
+        Returns:
+        --------
+        Tuple[str, Dict[str, Any]]:
+            The layer's class name and a dictionary containing the layer's state.
+        """
         return self.__class__.__name__, {
             "optimizer_state": self.optimizer.state,
             "in_features": self.in_features,
@@ -94,6 +106,14 @@ class Linear(Layer):
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the Linear layer.
+
+        Parameters:
+        -----------
+        value : Tuple[str, Dict[str, Any]]
+            A tuple containing the layer's class name and a dictionary representing the layer's state.
+        """
         self.in_features = value["in_features"]
         self.out_features = value["out_features"]
         self.initialization = value["initialization"]
@@ -102,12 +122,25 @@ class Linear(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the total number of learnable parameters in the layer.
+
+        Returns:
+        --------
+        int:
+            The total number of learnable parameters in the layer.
+        """
         return np.prod(self.weight.shape) + np.prod(self.bias.shape)
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, out_features) of the data.
+
+        Returns:
+        --------
+        Tuple[int, ...]:
+            The shape of the output from the layer.
         """
         return self.input.shape[0], self.out_features
 
@@ -117,12 +150,12 @@ class Linear(Layer):
 
         Parameters:
         -----------
-        input_data : array-like, shape (n_samples, in_features)
+        input_data : np.ndarray, shape (n_samples, in_features)
             The input data to propagate through the layer.
         """
         assert input_data.shape[1] == self.in_features, "Input size doesn't match"
 
-        self.output = np.einsum("ij,kj->ik", self.input, self.weight, optimize='greedy') + self.bias
+        self.output = np.einsum("ij,kj->ik", input_data, self.weight, optimize='greedy') + self.bias
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -130,9 +163,9 @@ class Linear(Layer):
 
         Parameters:
         -----------
-        upstream_gradients : array-like, shape (n_samples, out_features)
+        upstream_gradients : np.ndarray, shape (n_samples, out_features)
             Gradients received from the subsequent layer during backward propagation.
-        y_true : array-like, shape (n_samples, ...)
+        y_true : np.ndarray, shape (n_samples, ...)
             The true target values corresponding to the input data.
         """
         assert upstream_gradients.shape[1] == self.out_features, "Upstream gradients size doesn't match"
@@ -159,5 +192,4 @@ class Linear(Layer):
             self.weight = np.random.normal(0, a, (self.out_features, self.in_features))
         else:
             raise ValueError("Invalid initialization method. Use 'xavier' or 'he'.")
-
         self.bias = np.zeros((self.out_features,))

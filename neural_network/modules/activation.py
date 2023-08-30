@@ -56,17 +56,26 @@ class ActivationLayer(Layer):
         }
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the activation layer.
+        """
         activation_function = f"activation_function={self.activation_function_name}" if self.__class__.__name__ == "ActivationLayer" else ""
         return f"{self.__class__.__name__}({activation_function})"
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the current state of the activation layer.
+        """
         return self.__class__.__name__, {
             "activation_function_name": self.activation_function_name
         }
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the activation layer.
+        """
         activation_function_name = value["activation_function_name"].lower().strip()
         assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
 
@@ -75,12 +84,20 @@ class ActivationLayer(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the total number of parameters in the layer.
+        """
         return 0
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, ...) of the data.
+        Get the output shape (batch_size, ...) of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape
 

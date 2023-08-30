@@ -48,6 +48,14 @@ class Reshape(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the state of the reshape layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
         return self.__class__.__name__, {
             "output_shape": self.output_shape
         }
@@ -58,6 +66,14 @@ class Reshape(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the number of parameters in the reshape layer.
+
+        Returns:
+        ----------
+        count : int
+            The number of parameters (always 0 for reshape layer).
+        """
         return 0
 
     @property
@@ -146,6 +162,14 @@ class Flatten(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the state of the flatten layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
         return self.__class__.__name__, {
             "start_dim": self.start_dim,
             "end_dim": self.end_dim
@@ -158,6 +182,14 @@ class Flatten(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the number of parameters in the flatten layer.
+
+        Returns:
+        ----------
+        count : int
+            The number of parameters (always 0 for flatten layer).
+        """
         return 0
 
     @property
@@ -239,6 +271,14 @@ class Unflatten(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the state of the unflatten layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
         return self.__class__.__name__, {
             "dim": self._dim,
             "unflattened_size": self._unflattened_size
@@ -251,6 +291,14 @@ class Unflatten(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the number of parameters in the unflatten layer.
+
+        Returns:
+        ----------
+        count : int
+            The number of parameters (always 0 for unflatten layer).
+        """
         return 0
 
     @property

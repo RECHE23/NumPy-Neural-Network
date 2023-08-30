@@ -66,18 +66,6 @@ class Pooling2DLayer(Layer):
             "stride": stride
         }
 
-    @property
-    def state(self) -> Tuple[str, Dict[str, Any]]:
-        return self.__class__.__name__, {
-            "kernel_size": self.kernel_size,
-            "stride": self.stride
-        }
-
-    @state.setter
-    def state(self, value) -> None:
-        self.kernel_size = pair(value["kernel_size"])
-        self.stride = pair(value["stride"])
-
     def __repr__(self) -> str:
         """
         Return a string representation of the pooling layer.
@@ -85,9 +73,39 @@ class Pooling2DLayer(Layer):
         return f"{self.__class__.__name__}(kernel_size={self.kernel_size}, stride={self.stride})"
 
     @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the current state of the pooling layer.
+        """
+        return self.__class__.__name__, {
+            "kernel_size": self.kernel_size,
+            "stride": self.stride
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        """
+        Set the state of the pooling layer.
+        """
+        self.kernel_size = pair(value["kernel_size"])
+        self.stride = pair(value["stride"])
+
+    @property
+    def parameters_count(self) -> int:
+        """
+        Get the total number of parameters in the layer.
+        """
+        return 0
+
+    @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, out_channels, output_height, output_width) of the data.
+        Get the output shape (batch_size, out_channels, output_height, output_width)  of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape[0], self.input.shape[1], self.output_dimensions[0], self.output_dimensions[1]
 
@@ -172,10 +190,6 @@ class MaxPool2d(Pooling2DLayer):
         Perform backward propagation through the max pooling layer.
     """
 
-    @property
-    def parameters_count(self) -> int:
-        return np.prod(self.mask.shape) if hasattr(self, 'mask') else 0
-
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
         Perform forward propagation using max pooling.
@@ -247,10 +261,6 @@ class AvgPool2d(Pooling2DLayer):
     _backward_propagation(self, upstream_gradients, y_true)
         Perform backward propagation through the average pooling layer.
     """
-
-    @property
-    def parameters_count(self) -> int:
-        return 0
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

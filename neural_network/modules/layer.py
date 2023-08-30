@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Dict, Any
 from abc import abstractmethod
 import numpy as np
 from neural_network.tools import trace
-from neural_network.optimizers import *
+from neural_network.optimizers import Optimizer, Adam
 
 
 class Layer:
@@ -13,37 +13,30 @@ class Layer:
     It provides methods for both forward and backward propagation, allowing for the
     building of complex neural network architectures.
 
-    Parameters:
-    -----------
-    optimizer : Optimizer, optional
-        The optimizer to use for updating the layer's parameters during training.
-        If not provided, the default optimizer Adam with learning rate 1e-3 and
-        decay 1e-4 will be used.
-
     Attributes:
     -----------
-    input : array-like
+    input : np.ndarray or None
         The input data passed to the layer during forward propagation.
-    output : array-like
+    output : np.ndarray or None
         The output data after applying the layer's operations.
-    retrograde : array-like
+    retrograde : np.ndarray or None
         The gradients propagated backward through the layer during backward propagation.
-    upstream_gradients : array-like
+    upstream_gradients : np.ndarray or None
         The gradients received from the subsequent layer during backward propagation.
     n_samples : int or None
         The number of samples in the input data. Used for handling batch operations.
-    output_shape : tuple
-        Shape of the input data.
-    output_shape : tuple
-        Shape of the output data.
     optimizer : Optimizer
         The optimizer to use for gradient descent.
+    _optimizer_instance : Optimizer or None
+        The optimizer instance to update the layer's parameters during training.
+    _is_training : bool
+        Flag indicating whether the layer is in training mode.
 
     Methods:
     --------
-    forward(input_data) -> np.ndarray
+    forward(input_data: np.ndarray) -> np.ndarray:
         Perform forward propagation through the layer.
-    backward(upstream_gradients, y_true) -> np.ndarray
+    backward(upstream_gradients: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         Perform backward propagation through the layer.
 
     """
@@ -54,7 +47,7 @@ class Layer:
 
         Parameters:
         -----------
-        optimizer : Optimizer, optional
+        optimizer : Optimizer or None, optional
             The optimizer to use for updating the layer's parameters during training.
             If not provided, the default optimizer Adam with learning rate 1e-3 and
             decay 1e-4 will be used.
@@ -68,37 +61,99 @@ class Layer:
         self._is_training: bool = False
 
     def __call__(self, *args, **kwargs) -> np.ndarray:
+        """
+        Make the layer callable for forward propagation.
+
+        Returns:
+        --------
+        np.ndarray
+            Output of the layer after applying its operations.
+        """
         return self.forward(*args, **kwargs)
 
     def __str__(self) -> str:
+        """
+        Convert the layer to a string representation.
+
+        Returns:
+        --------
+        str
+            String representation of the layer.
+        """
         return repr(self)
 
     def __repr__(self) -> str:
+        """
+        Convert the layer to a detailed string representation.
+
+        Returns:
+        --------
+        str
+            Detailed string representation of the layer.
+        """
         return f"{self.__class__.__name__}()"
 
     @property
+    @abstractmethod
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the current state of the layer.
+
+        Returns:
+        --------
+        Tuple[str, Dict[str, Any]]
+            A tuple containing the class name and a dictionary of the layer's state.
+        """
         raise NotImplementedError
 
     @state.setter
+    @abstractmethod
     def state(self, value) -> None:
+        """
+        Set the state of the layer.
+
+        Parameters:
+        -----------
+        value : Tuple[str, Dict[str, Any]]
+            A tuple containing the class name and a dictionary of the layer's state.
+        """
         raise NotImplementedError
 
     @property
+    @abstractmethod
     def parameters_count(self) -> int:
+        """
+        Get the total number of learnable parameters in the layer.
+
+        Returns:
+        --------
+        int
+            Total number of learnable parameters.
+        """
         raise NotImplementedError
 
     @property
     def input_shape(self) -> Tuple[int, ...]:
         """
-        Get the input shape (batch_size, ...) of the data.
+        Get the input shape of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Input shape of the layer's data.
         """
         return self.input.shape if self.input is not None else None
 
     @property
+    @abstractmethod
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, ...) of the data.
+        Get the output shape (batch_size, ...) of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         raise NotImplementedError
 
@@ -106,14 +161,11 @@ class Layer:
         """
         Get or set the training mode of the layer.
 
-        When called without any arguments, this method returns the current training mode of the layer.
-        When called with a boolean argument, it sets the training mode of the layer accordingly.
-
         Parameters:
         -----------
         value : bool, optional
-            If provided, sets the training mode of the layer.
-            If not provided, returns the current training mode.
+            If provided, set the training mode of the layer.
+            If not provided, return the current training mode.
 
         Returns:
         --------
@@ -125,7 +177,7 @@ class Layer:
         return self._is_training
 
     @property
-    def optimizer(self):
+    def optimizer(self) -> Optimizer:
         """
         Get the optimizer instance for updating the layer's parameters during training.
 
@@ -139,7 +191,15 @@ class Layer:
         return self._optimizer_instance
 
     @optimizer.setter
-    def optimizer(self, value: Optimizer):
+    def optimizer(self, value: Optimizer) -> None:
+        """
+        Set the optimizer instance for updating the layer's parameters during training.
+
+        Parameters:
+        -----------
+        value : Optimizer
+            The optimizer instance.
+        """
         self._optimizer_instance = value
 
     @trace()
@@ -149,12 +209,12 @@ class Layer:
 
         Parameters:
         -----------
-        input_data : array-like, shape (n_samples, ...)
+        input_data : np.ndarray, shape (n_samples, ...)
             The input data to propagate through the layer.
 
         Returns:
         --------
-        output : array-like, shape (n_samples, ...)
+        np.ndarray, shape (n_samples, ...)
             The output of the layer after applying its operations.
         """
         self.input = input_data
@@ -170,7 +230,7 @@ class Layer:
 
         Parameters:
         -----------
-        input_data : array-like, shape (n_samples, ...)
+        input_data : np.ndarray, shape (n_samples, ...)
             The input data to propagate through the layer.
         """
         raise NotImplementedError
@@ -182,14 +242,14 @@ class Layer:
 
         Parameters:
         -----------
-        upstream_gradients : array-like, shape (n_samples, ...)
+        upstream_gradients : np.ndarray, shape (n_samples, ...)
             Gradients received from the subsequent layer during backward propagation.
-        y_true : array-like, shape (n_samples, ...)
+        y_true : np.ndarray, shape (n_samples, ...)
             The true target values corresponding to the input data.
 
         Returns:
         --------
-        retrograde : array-like, shape (n_samples, ...)
+        np.ndarray, shape (n_samples, ...)
             Gradients propagated backward through the layer.
         """
         assert self.input is not None, "You need a forward propagation before a backward propagation..."
@@ -206,9 +266,9 @@ class Layer:
 
         Parameters:
         -----------
-        upstream_gradients : array-like, shape (n_samples, ...)
+        upstream_gradients : np.ndarray, shape (n_samples, ...)
             Gradients received from the subsequent layer during backward propagation.
-        y_true : array-like, shape (n_samples, ...)
+        y_true : np.ndarray, shape (n_samples, ...)
             The true target values corresponding to the input data.
         """
         raise NotImplementedError

@@ -97,7 +97,12 @@ class Normalization(Layer):
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, ...) of the data.
+        Get the output shape of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input_shape
 

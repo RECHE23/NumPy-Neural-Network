@@ -46,6 +46,9 @@ class Sequential(Layer):
         return f"Sequential(\n{layer_str}\n)"
 
     def __repr__(self):
+        """
+        Return a string representation of the sequential module.
+        """
         layer_str = ", ".join([f"{i}: {repr(layer)}" for i, layer in enumerate(self.sub_layers)])
         return f"Sequential({layer_str})"
 
@@ -77,6 +80,11 @@ class Sequential(Layer):
     def output_shape(self) -> Tuple[int, ...]:
         """
         Get the output shape (batch_size, ...) of the sequential model.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the sequential model's data.
         """
         if self.sub_layers:
             return self.sub_layers[-1].output_shape

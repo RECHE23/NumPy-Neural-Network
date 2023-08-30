@@ -69,10 +69,21 @@ class OutputLayer(Layer):
         }
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the output layer.
+        """
         return f"{self.__class__.__name__}(activation_function={self.activation_function_name}, loss_function={self.loss_function_name})"
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Return the state of the output layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
         return self.__class__.__name__, {
             "activation_function_name": self.activation_function_name,
             "loss_function_name": self.loss_function_name,
@@ -80,6 +91,19 @@ class OutputLayer(Layer):
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the output layer.
+
+        Parameters:
+        -----------
+        value : dict
+            A dictionary containing the activation and loss function names.
+
+        Raises:
+        -------
+        AssertionError
+            If the activation or loss function name is invalid.
+        """
         activation_function_name = value["activation_function_name"].lower().strip()
         loss_function_name = value["loss_function_name"].lower().strip()
         assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
@@ -92,12 +116,25 @@ class OutputLayer(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Return the number of parameters in the output layer.
+
+        Returns:
+        ----------
+        count : int
+            The number of parameters (always 0 for output layer).
+        """
         return 0
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, ...) of the data.
+        Get the output shape (batch_size, ...) of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape
 

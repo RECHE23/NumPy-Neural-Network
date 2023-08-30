@@ -1,5 +1,5 @@
-from typing import Union, Tuple, Optional, Dict, Any
 import numpy as np
+from typing import Union, Tuple, Optional, Dict, Any
 from . import Layer
 from neural_network.functions import pair
 
@@ -31,28 +31,33 @@ class Conv2d(Layer):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    input_dimensions : tuple of int
-        Input shape (height, width) of the data.
-    output_dimensions : tuple of int
-        Output shape (height, width) after convolution and pooling.
-    input_shape : tuple of int
-        The shape of the input to the layer.
-    output_shape : tuple of int
-        The shape of the output from the layer.
     kernel_size : tuple of int
-        Shape of the convolutional kernels.
+        Size of the convolutional kernels.
     stride : tuple of int
         Stride (vertical stride, horizontal stride).
     padding : tuple of int
         Padding (vertical padding, horizontal padding).
+    initialization : str
+        Weight initialization method.
     weight : np.ndarray
         Convolutional kernels.
     bias : np.ndarray
         Biases for each output channel.
-    initialization : str
-        Weight initialization method.
     windows : np.ndarray
         Memorized convolution windows from the forward propagation.
+
+    Methods:
+    --------
+    _forward_propagation(input_data: np.ndarray) -> None:
+        Compute the output of the convolutional layer using the given input data.
+    _backward_propagation(upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
+        Compute the retrograde gradients for the convolutional layer.
+    _initialize_parameters(initialization: str) -> None:
+        Initialize convolutional kernels using the specified initialization method.
+    _get_windows(input_data: np.ndarray, output_size: Tuple[int, int], kernel_size: Tuple[int, int],
+                 padding: Tuple[int, int] = (0, 0), stride: Tuple[int, int] = (1, 1),
+                 dilation: Tuple[int, int] = (0, 0)) -> np.ndarray:
+        Generate convolution windows for the input data.
     """
 
     def __init__(self, in_channels: int, out_channels: int, kernel_size: Union[int, Tuple[int, int]],
@@ -104,7 +109,7 @@ class Conv2d(Layer):
 
     def __repr__(self) -> str:
         """
-        Return a string representation of the Conv2d.
+        Return a string representation of the Conv2d layer.
         """
         return (
             f"{self.__class__.__name__}(in_channels={self.in_channels}, out_channels="
@@ -114,6 +119,14 @@ class Conv2d(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Get the state of the Conv2d layer.
+
+        Returns:
+        --------
+        Tuple[str, Dict[str, Any]]:
+            The layer's class name and a dictionary containing the layer's state.
+        """
         return self.__class__.__name__, {
             "in_channels": self.in_channels,
             "out_channels": self.out_channels,
@@ -127,6 +140,14 @@ class Conv2d(Layer):
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the Conv2d layer.
+
+        Parameters:
+        -----------
+        value : Tuple[str, Dict[str, Any]]
+            The layer's class name and a dictionary containing the layer's state.
+        """
         assert value["in_channels"] > 0, "Number of input channels must be greater than 0"
         assert value["out_channels"] > 0, "Number of output channels must be greater than 0"
 
@@ -141,12 +162,20 @@ class Conv2d(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the total number of parameters in the Conv2d layer.
+        """
         return np.prod(self.weight.shape) + np.prod(self.bias.shape)
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, out_channels, output_height, output_width) of the data.
+        Get the output shape (batch_size, out_channels, output_height, output_width)  of the layer's data.
+
+        Returns:
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape[0], self.out_channels, self.output_dimensions[0], self.output_dimensions[1]
 

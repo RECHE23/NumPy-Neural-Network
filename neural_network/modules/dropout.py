@@ -4,6 +4,35 @@ from . import Layer
 
 
 class Dropout(Layer):
+    """
+    Dropout layer for neural networks.
+
+    Parameters:
+    -----------
+    p : float, optional
+        The probability of dropping out a neuron's output. Must be in the range [0, 1).
+
+    Attributes:
+    -----------
+    dropout_rate : float
+        The probability of dropping out a neuron's output.
+    scaling : float
+        Scaling factor applied to the output during training.
+    dropout_mask : np.ndarray
+        Random binary mask used for dropout during training.
+    input_shape : tuple of int
+        The shape of the input to the layer.
+    output_shape : tuple of int
+        The shape of the output from the layer.
+
+    Methods:
+    --------
+    _forward_propagation(input_data: np.ndarray) -> None:
+        Perform the forward propagation step.
+    _backward_propagation(upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        Perform the backward propagation step.
+    """
+
     def __init__(self, p: float = 0.5, *args, **kwargs):
         """
         Create a dropout layer.
@@ -34,12 +63,33 @@ class Dropout(Layer):
 
     @property
     def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Return the state of the dropout layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
         return self.__class__.__name__, {
             "dropout_rate": self.dropout_rate
         }
 
     @state.setter
     def state(self, value) -> None:
+        """
+        Set the state of the dropout layer.
+
+        Parameters:
+        -----------
+        value : dict
+            A dictionary containing the dropout rate.
+
+        Raises:
+        -------
+        AssertionError
+            If the dropout rate is not in the range [0, 1).
+        """
         assert 0 <= value["dropout_rate"] < 1, "Dropout rate must be in the range [0, 1)"
 
         self.dropout_rate = value["dropout_rate"]
@@ -47,17 +97,25 @@ class Dropout(Layer):
 
     @property
     def parameters_count(self) -> int:
+        """
+        Return the number of parameters in the dropout layer.
+
+        Returns:
+        ----------
+        count : int
+            The number of parameters (always 0 for dropout).
+        """
         return 0
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape of the layer.
+        Get the output shape of the layer's data.
 
         Returns:
-        ----------
-        output_shape : tuple
-            The shape of the layer's output data.
+        --------
+        Tuple[int, ...]
+            Output shape of the layer's data.
         """
         return self.input.shape
 
