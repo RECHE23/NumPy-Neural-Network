@@ -1,4 +1,6 @@
 from abc import abstractmethod
+from typing import Tuple, Dict, Any
+
 import numpy as np
 
 
@@ -49,13 +51,18 @@ class Optimizer:
             Additional arguments passed to the optimizer.
 
         """
-        assert lr_min >= 0, "Learning rate should be positive."
-        assert lr_min < lr < lr_max, f"Learning rate should be in the range ({lr_min}, {lr_max})."
+        self.lr: float
+        self.lr_decay: float
+        self.lr_min: float
+        self.lr_max: float
 
-        self.lr: float = lr
-        self.lr_decay: float = lr_decay
-        self.lr_min: float = lr_min
-        self.lr_max: float = lr_max
+        state = {
+            "lr": lr,
+            "lr_decay": lr_decay,
+            "lr_min": lr_min,
+            "lr_max": lr_max
+        }
+        Optimizer.state.fset(self, state)
 
     def __str__(self) -> str:
         """
@@ -68,6 +75,26 @@ class Optimizer:
         Return a string representation of the optimizer with its hyperparameters.
         """
         return f"{self.__class__.__name__}(lr={self.lr}, lr_decay={self.lr_decay})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "lr": float(self.lr),
+            "lr_decay": float(self.lr_decay),
+            "lr_min": float(self.lr_min),
+            "lr_max": float(self.lr_max)
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        assert value["lr_min"] >= 0, "Learning rate should be positive."
+        assert value["lr_decay"] >= 0, "Decay should be positive."
+        assert value["lr_min"] < value["lr"] < value["lr_max"], f"Learning rate should be in the range ({value['lr_min']}, {value['lr_max']})."
+
+        self.lr = value["lr"]
+        self.lr_decay = value["lr_decay"]
+        self.lr_min = value["lr_min"]
+        self.lr_max = value["lr_max"]
 
     @abstractmethod
     def update(self, parameters: list, gradients: list) -> None:

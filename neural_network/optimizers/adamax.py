@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 from .optimizer import Optimizer
 
@@ -14,7 +14,7 @@ class Adamax(Optimizer):
     beta1 : float, optional
         Exponential decay rate for the first moment estimates. Default is 0.9.
     beta2 : float, optional
-        Exponential decay rate for the infinite norm estimates. Default is 0.999.
+        Exponential decay rate for the infinite metric estimates. Default is 0.999.
     eps : float, optional
         A small constant added to prevent division by zero. Default is 1e-8.
     lr : float, optional
@@ -33,7 +33,7 @@ class Adamax(Optimizer):
     beta1 : float
         Exponential decay rate for the first moment estimates.
     beta2 : float
-        Exponential decay rate for the infinite norm estimates.
+        Exponential decay rate for the infinite metric estimates.
     eps : float
         A small constant added to prevent division by zero.
     first_moments : list of arrays or None
@@ -58,26 +58,54 @@ class Adamax(Optimizer):
         beta1 : float, optional
             Exponential decay rate for the first moment estimates. Default is 0.9.
         beta2 : float, optional
-            Exponential decay rate for the infinite norm estimates. Default is 0.999.
+            Exponential decay rate for the infinite metric estimates. Default is 0.999.
         eps : float, optional
             A small constant added to prevent division by zero. Default is 1e-8.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
 
         """
-        self.beta1: float = beta1
-        self.beta2: float = beta2
-        self.epsilon: float = epsilon
+        super().__init__(*args, **kwargs)
+
+        self.beta1: float
+        self.beta2: float
+        self.epsilon: float
         self.first_moments: Optional[List[np.ndarray]] = None
         self.second_moments: Optional[List[np.ndarray]] = None
         self.time_step: int = 0
-        super().__init__(*args, **kwargs)
+
+        state = Optimizer.state.fget(self)[1]
+        state.update({
+            "beta1": beta1,
+            "beta2": beta2,
+            "epsilon": epsilon
+        })
+        Adamax.state.fset(self, state)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
         return super().__repr__()[:-1] + f", beta1={self.beta1}, beta2={self.beta2}, eps={self.epsilon})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        state = {
+            "beta1": self.beta1,
+            "beta2": self.beta2,
+            "epsilon": self.epsilon
+        }
+
+        state.update(Optimizer.state.fget(self)[1])
+
+        return self.__class__.__name__, state
+
+    @state.setter
+    def state(self, value) -> None:
+        Optimizer.state.fset(self, value)
+        self.beta1 = value["beta1"]
+        self.beta2 = value["beta2"]
+        self.epsilon = value["epsilon"]
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """

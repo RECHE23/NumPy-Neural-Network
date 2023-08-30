@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any
 import numpy as np
 from . import Layer
 
@@ -16,11 +16,15 @@ class Dropout(Layer):
         *args, **kwargs : Additional arguments
             Additional arguments to be passed to the parent class constructor.
         """
-        assert 0 <= p < 1, "Dropout rate must be in the range [0, 1)"
         super().__init__(*args, **kwargs)
-        self.dropout_rate = p
-        self.scaling = 1.0 / (1.0 - p)
-        self.dropout_mask = None
+
+        self.dropout_rate: float
+        self.scaling: float
+        self.dropout_mask: np.ndarray
+
+        self.state = {
+            "dropout_rate": p
+        }
 
     def __repr__(self) -> str:
         """
@@ -29,8 +33,21 @@ class Dropout(Layer):
         return f"{self.__class__.__name__}(p={self.dropout_rate})"
 
     @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "dropout_rate": self.dropout_rate
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        assert 0 <= value["dropout_rate"] < 1, "Dropout rate must be in the range [0, 1)"
+
+        self.dropout_rate = value["dropout_rate"]
+        self.scaling = 1.0 / (1.0 - self.dropout_rate)
+
+    @property
     def parameters_count(self) -> int:
-        return np.prod(self.dropout_mask) if self.dropout_mask else 0  # TODO: Should always be > 0?
+        return 0
 
     @property
     def output_shape(self) -> Tuple[int, ...]:

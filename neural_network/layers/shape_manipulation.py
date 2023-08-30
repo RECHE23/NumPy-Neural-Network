@@ -1,4 +1,4 @@
-from typing import Tuple, Union, List, Optional
+from typing import Tuple, Union, List, Optional, Dict, Any
 import numpy as np
 from . import Layer
 
@@ -40,8 +40,21 @@ class Reshape(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self._output_shape: Tuple[int, ...] = output_shape
         super().__init__(*args, **kwargs)
+
+        self.state = {
+            "output_shape": output_shape
+        }
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "output_shape": self.output_shape
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self._output_shape = value["output_shape"]
 
     @property
     def parameters_count(self) -> int:
@@ -124,9 +137,24 @@ class Flatten(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self.start_dim = start_dim
-        self.end_dim = end_dim
         super().__init__(*args, **kwargs)
+
+        self.state = {
+            "start_dim": start_dim,
+            "end_dim": end_dim
+        }
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "start_dim": self.start_dim,
+            "end_dim": self.end_dim
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self.start_dim = value["start_dim"]
+        self.end_dim = value["end_dim"]
 
     @property
     def parameters_count(self) -> int:
@@ -202,9 +230,24 @@ class Unflatten(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self._dim = dim
-        self._unflattened_size = unflattened_size
         super().__init__(*args, **kwargs)
+
+        self.state = {
+            "dim": dim,
+            "unflattened_size": unflattened_size
+        }
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "dim": self._dim,
+            "unflattened_size": self._unflattened_size
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self._dim = value["dim"]
+        self._unflattened_size = value["unflattened_size"]
 
     @property
     def parameters_count(self) -> int:

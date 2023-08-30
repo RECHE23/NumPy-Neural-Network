@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, Dict, Any
 from abc import abstractmethod
 import numpy as np
 from . import Layer
@@ -60,8 +60,23 @@ class Pooling2DLayer(Layer):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-        self.kernel_size: Tuple[int, int] = pair(kernel_size)
-        self.stride: Tuple[int, int] = pair(stride)
+
+        self.state = {
+            "kernel_size": kernel_size,
+            "stride": stride
+        }
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "kernel_size": self.kernel_size,
+            "stride": self.stride
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self.kernel_size = pair(value["kernel_size"])
+        self.stride = pair(value["stride"])
 
     def __repr__(self) -> str:
         """

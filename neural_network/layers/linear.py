@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Any, Dict
 import numpy as np
 from . import Layer
 
@@ -64,14 +64,41 @@ class Linear(Layer):
         """
         super().__init__(*args, **kwargs)
 
-        self.in_features: int = in_features
-        self.out_features: int = out_features
-        self.initialization: str = initialization
+        self.in_features: int
+        self.out_features: int
+        self.initialization: str
+        self.weight: np.ndarray
+        self.bias: np.ndarray
+
+        self.state = {
+            "in_features": in_features,
+            "out_features": out_features,
+            "initialization": initialization,
+        }
 
         self._initialize_parameters(initialization)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(in_features={self.in_features}, out_features={self.out_features}, optimizer={self.optimizer}, initialization={self.initialization})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "optimizer_state": self.optimizer.state,
+            "in_features": self.in_features,
+            "out_features": self.out_features,
+            "initialization": self.initialization,
+            "weight": self.weight,
+            "bias": self.bias
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self.in_features = value["in_features"]
+        self.out_features = value["out_features"]
+        self.initialization = value["initialization"]
+        self.weight = value.get("weight", None)
+        self.bias = value.get("bias", None)
 
     @property
     def parameters_count(self) -> int:

@@ -158,4 +158,4 @@ class ProgressCallback(Callback):
         if epoch_info[0] == epoch_info[1]:
             end_time = time.time()
             formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - self.start_time))
-            print(f"\nTraining time : {formatted_time}")
+            print(f"Training time : {formatted_time}")

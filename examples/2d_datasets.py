@@ -33,12 +33,10 @@ net.add(Linear(50, 4, optimizer=Adam(learning_rate=1e-3)))
 # net.add(OutputLayer("tanh", "mean_squared_error"))
 net.add(OutputLayer("softmax", "categorical_cross_entropy"))
 
+print(net)
+
 # Train:
-start_time = time.time()
 net.fit(X_train, y_train, epochs=15, batch_size=5, shuffle=True)
-end_time = time.time()
-formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
-print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")
 
 # Test on N samples:
 N = 10

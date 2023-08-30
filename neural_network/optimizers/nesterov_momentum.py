@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 from .optimizer import Optimizer
 
@@ -50,15 +50,37 @@ class NesterovMomentum(Optimizer):
             Additional arguments passed to the base class Optimizer.
 
         """
-        self.momentum: float = momentum
-        self.velocity: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
+
+        self.momentum: float
+        self.velocity: Optional[List[np.ndarray]] = None
+
+        state = Optimizer.state.fget(self)[1]
+        state.update({
+            "momentum": momentum
+        })
+        NesterovMomentum.state.fset(self, state)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
         return super().__repr__()[:-1] + f", momentum={self.momentum})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        state = {
+            "momentum": self.momentum
+        }
+
+        state.update(Optimizer.state.fget(self)[1])
+
+        return self.__class__.__name__, state
+
+    @state.setter
+    def state(self, value) -> None:
+        Optimizer.state.fset(self, value)
+        self.momentum = value["momentum"]
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """

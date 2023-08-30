@@ -1,4 +1,4 @@
-from typing import Union, Callable, Tuple
+from typing import Union, Callable, Tuple, Dict, Any
 import numpy as np
 from . import Layer
 from neural_network.functions.activation import activation_functions
@@ -56,19 +56,39 @@ class OutputLayer(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        activation_function_name = activation_function.lower().strip()
-        loss_function_name = loss_function.lower().strip()
+        super().__init__(*args, **kwargs)
+
+        self.activation_function_name: str
+        self.loss_function_name: str
+        self.activation_function: Callable
+        self.loss_function: Callable
+
+        self.state = {
+            "activation_function_name": activation_function,
+            "loss_function_name": loss_function,
+        }
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(activation_function={self.activation_function_name}, loss_function={self.loss_function_name})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "activation_function_name": self.activation_function_name,
+            "loss_function_name": self.loss_function_name,
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        activation_function_name = value["activation_function_name"].lower().strip()
+        loss_function_name = value["loss_function_name"].lower().strip()
         assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
         assert loss_function_name in loss_functions, f"Invalid loss function. Choose from {list(loss_functions.keys())}"
 
         self.activation_function_name: str = activation_function_name
-        self.loss_function_name: str = loss_function.lower().strip()
-        self.activation_function: Callable = activation_functions[activation_function]
-        self.loss_function: Callable = loss_functions[loss_function]
-        super().__init__(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(activation_function={self.activation_function_name}, loss_function={self.loss_function_name})"
+        self.loss_function_name: str = loss_function_name
+        self.activation_function: Callable = activation_functions[activation_function_name]
+        self.loss_function: Callable = loss_functions[loss_function_name]
 
     @property
     def parameters_count(self) -> int:

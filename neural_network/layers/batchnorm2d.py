@@ -1,4 +1,4 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any
 import numpy as np
 from . import Layer
 
@@ -9,7 +9,7 @@ class BatchNorm2d(Layer):
 
     Parameters:
     ----------
-    in_channels : int
+    num_features : int
         Number of input channels.
 
     eps : float, optional
@@ -23,10 +23,10 @@ class BatchNorm2d(Layer):
 
     Attributes:
     ----------
-    in_channels : int
+    num_features : int
         Number of input channels.
 
-    epsilon : float
+    eps : float
         A small constant to avoid division by zero.
 
     momentum : float
@@ -60,29 +60,64 @@ class BatchNorm2d(Layer):
     """
 
     def __init__(self, num_features: int, eps: float = 1e-05, momentum: float = 0.1, affine=True, *args, **kwargs):
-        assert num_features > 0, "Number of features must be greater than 0"
-        assert eps > 0, "Epsilon must be positive for numerical stability"
-        assert 0 <= momentum < 1, "Momentum must be in the range [0, 1)"
-
         super().__init__(*args, **kwargs)
 
-        self.in_channels = num_features
-        self.epsilon = eps
-        self.momentum = momentum
-        self.affine = affine
+        self.num_features: int
+        self.eps: float
+        self.momentum: float
+        self.affine: bool
+        self.gamma: np.ndarray
+        self.beta: np.ndarray
+        self.running_mean: np.ndarray
+        self.running_var: np.ndarray
 
-        if self.affine:
-            self.gamma = np.ones((1, self.in_channels, 1, 1))
-            self.beta = np.zeros((1, self.in_channels, 1, 1))
-
-        self.running_mean = np.zeros(num_features)
-        self.running_var = np.ones(num_features)
+        self.state = {
+            "num_features": num_features,
+            "eps": eps,
+            "momentum": momentum,
+            "affine": affine,
+        }
 
     def __repr__(self) -> str:
         """
         Return a string representation of the batch normalization layer.
         """
-        return f"{self.__class__.__name__}({self.in_channels}, eps={self.epsilon}, momentum={self.momentum})"
+        return f"{self.__class__.__name__}({self.num_features}, eps={self.eps}, momentum={self.momentum})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        state = self.__class__.__name__, {
+            "num_features": self.num_features,
+            "eps": self.eps,
+            "momentum": self.momentum,
+            "affine": self.affine,
+            "running_mean": self.running_mean,
+            "running_var": self.running_var,
+        }
+
+        if self.affine:
+            state[1]["gamma"] = self.gamma
+            state[1]["beta"] = self.beta
+
+        return state
+
+    @state.setter
+    def state(self, value) -> None:
+        assert value["num_features"] > 0, "Number of features must be greater than 0"
+        assert value["eps"] > 0, "Epsilon must be positive for numerical stability"
+        assert 0 <= value["momentum"] < 1, "Momentum must be in the range [0, 1)"
+
+        self.num_features = value["num_features"]
+        self.eps = value["eps"]
+        self.momentum = value["momentum"]
+        self.affine = value["affine"]
+
+        if self.affine:
+            self.gamma = value.get("gamma", np.ones((1, self.num_features, 1, 1)))
+            self.beta = value.get("beta", np.zeros((1, self.num_features, 1, 1)))
+
+        self.running_mean = value.get("running_mean", np.zeros(self.num_features))
+        self.running_var = value.get("running_var", np.ones(self.num_features))
 
     @property
     def parameters_count(self) -> int:
@@ -112,7 +147,7 @@ class BatchNorm2d(Layer):
         input_data : np.ndarray
             The input data.
         """
-        assert len(input_data.shape) == 4, "Input data must have shape (batch, in_channels, height, width)"
+        assert len(input_data.shape) == 4, "Input data must have shape (batch, num_features, height, width)"
 
         if self.is_training():
             # Compute mean and variance over spatial dimensions (H x W)
@@ -123,14 +158,14 @@ class BatchNorm2d(Layer):
             self.running_mean += self.momentum * (mean - self.running_mean)
             self.running_var += self.momentum * (var - self.running_var)
 
-            self.mean = mean.reshape((1, self.in_channels, 1, 1))
-            self.var = var.reshape((1, self.in_channels, 1, 1))
+            self.mean = mean.reshape((1, self.num_features, 1, 1))
+            self.var = var.reshape((1, self.num_features, 1, 1))
         else:
             self.mean = self.running_mean[None, :, None, None]
             self.var = self.running_var[None, :, None, None]
 
         # Normalize input data
-        sqrt_var_eps = np.sqrt(self.var + self.epsilon)
+        sqrt_var_eps = np.sqrt(self.var + self.eps)
         x_normalized = (input_data - self.mean) / sqrt_var_eps
 
         self.output = self.gamma * x_normalized + self.beta if self.affine else x_normalized
@@ -147,12 +182,12 @@ class BatchNorm2d(Layer):
         y_true : np.ndarray
             The true labels for the data.
         """
-        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, in_channels, height, width)"
+        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, num_features, height, width)"
 
         m = self.input.shape[0] * self.input.shape[2] * self.input.shape[3]
 
         x_minus_mean = self.input - self.mean
-        sqrt_var_eps = np.sqrt(self.var + self.epsilon)
+        sqrt_var_eps = np.sqrt(self.var + self.eps)
         x_normalized = x_minus_mean / sqrt_var_eps
 
         # Compute gradients of gamma and beta
@@ -162,7 +197,7 @@ class BatchNorm2d(Layer):
         dx_normalized = upstream_gradients * self.gamma if self.affine else upstream_gradients
 
         # Compute gradients of mean and variance
-        dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.epsilon) ** (-1.5), axis=(0, 2, 3), keepdims=True)
+        dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.eps) ** (-1.5), axis=(0, 2, 3), keepdims=True)
         dmean = np.sum(dx_normalized * -1.0 / sqrt_var_eps, axis=(0, 2, 3), keepdims=True) + dvar * np.sum(-2.0 * x_minus_mean, axis=(0, 2, 3), keepdims=True) / m
 
         # Compute retrograde (backward) gradients for input

@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, Dict, Any
 import numpy as np
 from . import Layer
 from neural_network.functions import pair
@@ -78,20 +78,29 @@ class Conv2d(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        assert in_channels > 0, "Number of input channels must be greater than 0"
-        assert out_channels > 0, "Number of output channels must be greater than 0"
 
         super().__init__(*args, **kwargs)
 
-        self.in_channels: int = in_channels
-        self.out_channels: int = out_channels
-        self.kernel_size: Tuple[int, int] = pair(kernel_size)
-        self.stride: Tuple[int, int] = pair(stride)
-        self.padding: Tuple[int, int] = pair(padding)
-        self.initialization: str = initialization
+        self.in_channels: int
+        self.out_channels: int
+        self.kernel_size: Tuple[int, int]
+        self.stride: Tuple[int, int]
+        self.padding: Tuple[int, int]
+        self.initialization: str
+        self.weight: np.ndarray
+        self.bias: np.ndarray
         self.windows: Optional[np.ndarray] = None
 
-        self._initialize_parameters(initialization)
+        self.state = {
+            "in_channels": in_channels,
+            "out_channels": out_channels,
+            "kernel_size": kernel_size,
+            "stride": stride,
+            "padding": padding,
+            "initialization": initialization
+        }
+
+        self._initialize_parameters(self.initialization)
 
     def __repr__(self) -> str:
         """
@@ -102,6 +111,33 @@ class Conv2d(Layer):
             f"{self.out_channels}, kernel_size={self.kernel_size}, stride={self.stride}, padding="
             f"{self.padding}, optimizer={self.optimizer}, initialization={self.initialization})"
         )
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "in_channels": self.in_channels,
+            "out_channels": self.out_channels,
+            "kernel_size": self.kernel_size,
+            "stride": self.stride,
+            "padding": self.padding,
+            "initialization": self.initialization,
+            "weight": self.weight,
+            "bias": self.bias
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        assert value["in_channels"] > 0, "Number of input channels must be greater than 0"
+        assert value["out_channels"] > 0, "Number of output channels must be greater than 0"
+
+        self.in_channels = value["in_channels"]
+        self.out_channels = value["out_channels"]
+        self.kernel_size = pair(value["kernel_size"])
+        self.stride = pair(value["stride"])
+        self.padding = pair(value["padding"])
+        self.initialization = value["initialization"]
+        self.weight = value.get("weight", None)
+        self.bias = value.get("bias", None)
 
     @property
     def parameters_count(self) -> int:

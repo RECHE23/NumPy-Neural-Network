@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 from .layer import Layer
 
@@ -38,6 +38,7 @@ class Sequential(Layer):
             The list of sub-layers in the sequential model.
         """
         super().__init__()
+
         self.sub_layers: List[Layer] = list(layers) if layers is not None else []
 
     def __str__(self):
@@ -47,6 +48,19 @@ class Sequential(Layer):
     def __repr__(self):
         layer_str = ", ".join([f"{i}: {repr(layer)}" for i, layer in enumerate(self.sub_layers)])
         return f"Sequential({layer_str})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "sub_layers_state": [layer.state for layer in self.sub_layers]
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        for class_name, layer_state in value["sub_layers_state"]:
+            layer = globals()[class_name](layer_state)
+            layer.state = layer_state
+            self.sub_layers.append(layer)
 
     def add(self, layer: Layer) -> None:
         """

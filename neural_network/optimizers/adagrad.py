@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 from .optimizer import Optimizer
 
@@ -49,9 +49,31 @@ class Adagrad(Optimizer):
             Additional arguments passed to the base class Optimizer.
 
         """
-        self.epsilon: float = epsilon
-        self.sum_sq_gradients: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
+
+        self.epsilon: float
+        self.sum_sq_gradients: Optional[List[np.ndarray]] = None
+
+        state = Optimizer.state.fget(self)[1]
+        state.update({
+            "epsilon": epsilon
+        })
+        Adagrad.state.fset(self, state)
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        state = {
+            "epsilon": self.epsilon
+        }
+
+        state.update(Optimizer.state.fget(self)[1])
+
+        return self.__class__.__name__, state
+
+    @state.setter
+    def state(self, value) -> None:
+        Optimizer.state.fset(self, value)
+        self.epsilon = value["epsilon"]
 
     def __repr__(self) -> str:
         """

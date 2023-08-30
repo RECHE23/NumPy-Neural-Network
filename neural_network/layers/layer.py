@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 from abc import abstractmethod
 import numpy as np
 from neural_network.tools import trace
@@ -48,7 +48,7 @@ class Layer:
 
     """
 
-    def __init__(self, optimizer: Optional[Optimizer] = None):
+    def __init__(self, optimizer: Optional[Optimizer] = None, *args, **kwargs):
         """
         Initialize a neural network layer.
 
@@ -75,6 +75,14 @@ class Layer:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        raise NotImplementedError
+
+    @state.setter
+    def state(self, value) -> None:
+        raise NotImplementedError
 
     @property
     def parameters_count(self) -> int:
@@ -129,6 +137,10 @@ class Layer:
         if self._optimizer_instance is None:
             self._optimizer_instance = Adam(learning_rate=1e-3, decay=1e-4)
         return self._optimizer_instance
+
+    @optimizer.setter
+    def optimizer(self, value: Optimizer):
+        self._optimizer_instance = value
 
     @trace()
     def forward(self, input_data: np.ndarray) -> np.ndarray:

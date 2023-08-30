@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 from .optimizer import Optimizer
 
@@ -50,22 +50,47 @@ class RMSprop(Optimizer):
         -----------
         rho : float, optional
             The decay factor for the moving average. Default is 0.9.
-        eps : float, optional
+        epsilon : float, optional
             A small value added to the denominator for numerical stability. Default is 1e-7.
         *args, **kwargs
             Additional arguments passed to the base class Optimizer.
 
         """
-        self.rho: float = rho
-        self.epsilon: float = epsilon
-        self.squared_gradient_accumulations: Optional[List[np.ndarray]] = None
         super().__init__(*args, **kwargs)
+
+        self.rho: float
+        self.epsilon: float
+        self.squared_gradient_accumulations: Optional[List[np.ndarray]] = None
+
+        state = Optimizer.state.fget(self)[1]
+        state.update({
+            "rho": rho,
+            "epsilon": epsilon
+        })
+        RMSprop.state.fset(self, state)
 
     def __repr__(self) -> str:
         """
         Return a string representation of the optimizer with its hyperparameters.
         """
         return super().__repr__()[:-1] + f", rho={self.rho}, eps={self.epsilon})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        state = {
+            "rho": self.rho,
+            "epsilon": self.epsilon
+        }
+
+        state.update(Optimizer.state.fget(self)[1])
+
+        return self.__class__.__name__, state
+
+    @state.setter
+    def state(self, value) -> None:
+        Optimizer.state.fset(self, value)
+        self.rho = value["rho"]
+        self.epsilon = value["epsilon"]
 
     def update(self, parameters: List[np.ndarray], gradients: List[np.ndarray]) -> None:
         """

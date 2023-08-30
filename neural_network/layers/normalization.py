@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 import numpy as np
 from . import Layer
 
@@ -9,7 +9,7 @@ class Normalization(Layer):
 
     Parameters:
     -----------
-    norm : str, optional
+    metric : str, optional
         The normalization method to use. Default is 'minmax'.
     dtype : str, optional
         Data type to which the input data should be converted. Default is 'float32'.
@@ -43,13 +43,13 @@ class Normalization(Layer):
         Compute the normalization parameter based on the provided samples.
     """
 
-    def __init__(self, norm: str = 'minmax', dtype: str = 'float32', samples: Optional[np.ndarray] = None, *args, **kwargs):
+    def __init__(self, metric: str = 'minmax', dtype: str = 'float32', samples: Optional[np.ndarray] = None, *args, **kwargs):
         """
         Initialize the Normalization with the given parameters.
 
         Parameters:
         -----------
-        norm : str, optional
+        metric : str, optional
             The normalization method to use. Default is 'minmax'.
         dtype : str, optional
             Data type to which the input data should be converted. Default is 'float32'.
@@ -58,17 +58,37 @@ class Normalization(Layer):
         *args, **kwargs:
             Additional arguments to pass to the base class.
         """
-        self.metric: str = norm
-        self.dtype: str = dtype
-        self.samples: Optional[np.ndarray] = samples
-        self.norm: Optional[float] = None
+        super().__init__(*args, **kwargs)
+
+        self.metric: str
+        self.dtype: str
+        self.norm: float
+
+        self.state = {
+            "metric": metric,
+            "dtype": dtype,
+        }
+
         if samples is not None:
             self._evaluate_norm(samples)
-        super().__init__(*args, **kwargs)
 
     def __repr__(self) -> str:
         norm = f"norm={self.norm}, " if self.norm else ""
         return f"{self.__class__.__name__}({norm}dtype={self.dtype})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "metric": self.metric,
+            "dtype": self.dtype,
+            "norm": getattr(self, 'norm', None)
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        self.metric = value["metric"]
+        self.dtype = value["dtype"]
+        self.norm = value.get("norm", None)
 
     @property
     def parameters_count(self) -> int:

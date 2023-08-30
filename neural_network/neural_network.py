@@ -1,9 +1,10 @@
 import numpy as np
-from typing import Tuple, Iterator, List, Callable, Optional
+from typing import Tuple, Iterator, List, Callable, Optional, Dict, Any
 from .tools import trace
 from .functions import convert_targets
-from .layers import OutputLayer, Layer
 from .callbacks import ProgressCallback
+from .layers import *
+from .optimizers import *
 
 
 class NeuralNetwork:
@@ -69,7 +70,7 @@ class NeuralNetwork:
             String representation of the neural network.
         """
         layers_info = "\n".join([f"Layer {i}: {layer}" for i, layer in enumerate(self.layers)])
-        return f"NeuralNetwork:\n{layers_info}\nLearnable parameters count: {self.parameters_count}"
+        return f"NeuralNetwork:\n{layers_info}\nLearnable parameters count: {self.parameters_count}\n\n"
 
     def __repr__(self):
         """
@@ -263,6 +264,46 @@ class NeuralNetwork:
             for layer in self.layers:
                 layer.is_training(value)
         return self._is_training
+
+    @property
+    def state(self) -> Dict[str, Any]:
+        return {
+            "class_name": self.__class__.__name__,
+            "layers_state": [layer.state for layer in self.layers]
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        assert value["class_name"] == self.__class__.__name__
+
+        for class_name, layer_state in value["layers_state"]:
+            layer = globals()[class_name](**layer_state)
+            layer.state = layer_state
+            print(layer)
+            self.layers.append(layer)
+
+    def save_state(self, filepath: str) -> None:
+        """
+        Save the current state (parameters) of the layer to a file.
+
+        Parameters:
+        -----------
+        filepath : str
+            The path to the file where the state will be saved.
+        """
+        np.savez(filepath, **self.state)
+
+    def load_state(self, filepath: str) -> None:
+        """
+        Load the saved state (parameters) of the layer from a file.
+
+        Parameters:
+        -----------
+        filepath : str
+            The path to the file containing the saved state.
+        """
+        self.state = np.load(filepath, allow_pickle=True)
+        assert self.state["class_name"] == self.__class__.__name__
 
     @staticmethod
     def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) \

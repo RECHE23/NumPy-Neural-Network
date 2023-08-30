@@ -15,11 +15,7 @@ net.add(Linear(in_features=3, out_features=1, optimizer=NesterovMomentum(learnin
 net.add(OutputLayer(activation_function="tanh", loss_function="mean_squared_error"))
 
 # Train:
-start_time = time.time()
 net.fit(X_train, y_train, epochs=100, batch_size=1, shuffle=True)
-end_time = time.time()
-formatted_time = time.strftime("%H hours, %M minutes, %S seconds", time.gmtime(end_time - start_time))
-print(f"\nTraining time : {formatted_time}, on {y_train.shape[0]} samples.")
 
 # Test:
 out = net.predict(X_train, to="binary")

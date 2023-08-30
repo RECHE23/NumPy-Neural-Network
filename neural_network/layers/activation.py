@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Dict, Any
 from functools import partial
 import numpy as np
 from . import Layer
@@ -46,17 +46,32 @@ class ActivationLayer(Layer):
         activation_function : callable
             The activation function to be applied during forward and backward propagation. Default is "relu".
         """
-        activation_function_name = activation_function.lower().strip()
-        assert activation_function_name in activation_functions, "Invalid activation function"
+        super().__init__(*args, **kwargs)
 
-        self.activation_function_name: str = activation_function_name
-        self.activation_function: Callable = partial(activation_functions[activation_function], **kwargs)
+        self.activation_function_name: str
+        self.activation_function: Callable
 
-        super().__init__(*args)
+        self.state = {
+            "activation_function_name": activation_function
+        }
 
     def __repr__(self) -> str:
         activation_function = f"activation_function={self.activation_function_name}" if self.__class__.__name__ == "ActivationLayer" else ""
         return f"{self.__class__.__name__}({activation_function})"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return self.__class__.__name__, {
+            "activation_function_name": self.activation_function_name
+        }
+
+    @state.setter
+    def state(self, value) -> None:
+        activation_function_name = value["activation_function_name"].lower().strip()
+        assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
+
+        self.activation_function_name: str = activation_function_name
+        self.activation_function: Callable = activation_functions[activation_function_name]
 
     @property
     def parameters_count(self) -> int:
