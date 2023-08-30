@@ -32,11 +32,12 @@ class ProgressCallback(Callback):
         Called at the end of each epoch.
     """
 
-    def __init__(self):
+    def __init__(self, progress_bar_length: int = 74):
         super().__init__()
         self.error: float = 0
         self.accuracy: float = 0
         self.start_time = None
+        self.progress_bar_length = progress_bar_length
 
     def on_epoch_begin(self, model, epoch_info: Tuple[int, int], batch_info: Optional[Tuple[int, int]],
                        samples: np.ndarray, labels: np.ndarray, status: str) -> None:
@@ -92,11 +93,9 @@ class ProgressCallback(Callback):
         status : str
             Indicates the current callback status ("batch_begin", "batch_end", etc.).
         """
-        print("\r", end="")
-        bar_length = 74
-        progress = (batch_info[0] * bar_length) // batch_info[1]
-        progress_bar = "█" * progress + "░" * (bar_length - progress)
-        print(progress_bar, f"Training on batch {batch_info[0]} of {batch_info[1]}.", end="")
+        progress = (batch_info[0] * self.progress_bar_length) // batch_info[1]
+        progress_bar = "█" * progress + "░" * (self.progress_bar_length - progress)
+        print("\r", end=f"{progress_bar} Training on batch {batch_info[0]} of {batch_info[1]}.")
 
     def on_batch_end(self, model, epoch_info: Tuple[int, int], batch_info: Optional[Tuple[int, int]],
                      batch_samples: np.ndarray, batch_labels: np.ndarray, status: str) -> None:
@@ -151,9 +150,8 @@ class ProgressCallback(Callback):
         total_samples = len(samples)
         avg_error = self.error / total_samples
         avg_accuracy = self.accuracy / total_samples
-        print("\r", end="")
-        print(f"Epoch {epoch_info[0]:4d} of {epoch_info[1]:<4d}"
-              f" \t Average Error = {avg_error:.6f} \t Average Accuracy = {avg_accuracy:.2%}")
+        print("\r", end=f"Epoch {epoch_info[0]:4d} of {epoch_info[1]:<4d}"
+              f" \t Average Error = {avg_error:.6f} \t Average Accuracy = {avg_accuracy:.2%}" + 35 * " " + "\n")
 
         if epoch_info[0] == epoch_info[1]:
             end_time = time.time()
