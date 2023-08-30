@@ -47,7 +47,7 @@ class NeuralNetwork:
         Make predictions using the neural network by calling it as a function.
     """
 
-    def __init__(self):
+    def __init__(self, *layers, verbose=True):
         """
         Initialize a neural network model.
 
@@ -57,8 +57,15 @@ class NeuralNetwork:
             List to store the layers of the neural network.
         """
         self.layers: List[Layer] = []
-        self.callbacks: List[Callable] = [ProgressCallback()]
+        self.callbacks: List[Callable] = []
         self._is_training: bool = False
+        self._verbose: bool = verbose
+
+        for layer in layers:
+            self.add(layer)
+
+        if self._verbose:
+            self.callbacks.append(ProgressCallback())
 
     def __str__(self):
         """
@@ -69,7 +76,7 @@ class NeuralNetwork:
         str_representation : str
             String representation of the neural network.
         """
-        layers_info = "\n".join([f"Layer {i}: {layer}" for i, layer in enumerate(self.layers)])
+        layers_info = "\n".join([f" ({i}) {layer}" for i, layer in enumerate(self.layers)])
         return f"NeuralNetwork:\n{layers_info}\nLearnable parameters count: {self.parameters_count}\n\n"
 
     def __repr__(self):
