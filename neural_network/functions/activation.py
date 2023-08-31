@@ -74,31 +74,6 @@ def sigmoid(x: np.ndarray, prime: bool = False) -> np.ndarray:
 
 
 @trace()
-def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
-    """
-    Softmax activation function.
-
-    Parameters:
-    -----------
-    x : array-like
-        Input array to apply softmax activation to.
-    prime : bool, optional
-        If True, return the derivative of the softmax function. Default is False.
-
-    Returns:
-    --------
-    result : array-like
-        Result of applying softmax activation or its derivative.
-
-    """
-    e = np.exp(x - np.max(x))
-    s = e / np.sum(e, axis=-1, keepdims=True)
-    if prime:
-        return np.diagflat(s) - np.dot(s, s.T)
-    return s
-
-
-@trace()
 def leaky_relu(x: np.ndarray, alpha: float = 0.01, prime: bool = False) -> np.ndarray:
     """
     Leaky Rectified Linear Unit (Leaky ReLU) activation function.
@@ -238,10 +213,10 @@ def silu(x: np.ndarray, prime: bool = False) -> np.ndarray:
         Result of applying SiLU activation or its derivative.
 
     """
+    sigmoid_x = sigmoid(x)
     if prime:
-        sigmoid_x = 1 / (1 + np.exp(-x))
         return sigmoid_x * (1 + x * (1 - sigmoid_x))
-    return x * sigmoid(x)
+    return x * sigmoid_x
 
 
 @trace()
@@ -263,8 +238,8 @@ def bent_identity(x: np.ndarray, prime: bool = False) -> np.ndarray:
 
     """
     if prime:
-        return (2 * x + 1) / (2 * np.sqrt(x**2 + x) + 1)
-    return (np.sqrt(x**2 + 1) - 1) + x
+        return x / (2 * np.sqrt(x**2 + 1)) + 1
+    return 0.5 * (np.sqrt(x**2 + 1) - 1) + x
 
 
 @trace()
@@ -425,12 +400,36 @@ def mish(x: np.ndarray, prime: bool = False) -> np.ndarray:
     return x * np.tanh(np.log(1 + np.exp(x)))
 
 
+@trace()
+def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
+    """
+    Softmax activation function.
+
+    Parameters:
+    -----------
+    x : array-like
+        Input array to apply softmax activation to.
+    prime : bool, optional
+        If True, return the derivative of the softmax function. Default is False.
+
+    Returns:
+    --------
+    result : array-like
+        Result of applying softmax activation or its derivative.
+
+    """
+    e = np.exp(x - np.max(x))
+    s = e / np.sum(e, axis=-1, keepdims=True)
+    if prime:
+        return np.einsum('ij,jk->ijk', s, np.eye(s.shape[-1])) - np.einsum('ij,ik->ijk', s, s)
+    return s
+
+
 # Update the dictionary of activation functions
 activation_functions = {
     "relu": relu,
     "tanh": tanh,
     "sigmoid": sigmoid,
-    "softmax": softmax,
     "leaky_relu": leaky_relu,
     "elu": elu,
     "swish": swish,
@@ -442,5 +441,6 @@ activation_functions = {
     "celu": celu,
     "gelu": gelu,
     "softplus": softplus,
-    "mish": mish
+    "mish": mish,
+    "softmax": softmax
 }
