@@ -3,6 +3,7 @@ import numpy as np
 from . import Layer
 from neural_network.functions.activation import activation_functions
 from neural_network.functions.loss import loss_functions
+from neural_network.functions.output import output_functions
 
 
 class OutputLayer(Layer):
@@ -43,7 +44,7 @@ class OutputLayer(Layer):
         The shape of the output from the layer.
     """
 
-    def __init__(self, activation_function: str = "relu", loss_function: str = "categorical_cross_entropy", *args, **kwargs):
+    def __init__(self, activation_function: str = "tanh", loss_function: str = "mean_squared_error", *args, **kwargs):
         """
         Initialize the OutputLayer with the given activation and loss functions.
 
@@ -181,3 +182,24 @@ class OutputLayer(Layer):
             The computed loss value.
         """
         return np.sum(self.loss_function(y_true, y_pred, prime))
+
+
+class SoftmaxCrossEntropy(OutputLayer):
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        return super().state
+
+    @state.setter
+    def state(self, value) -> None:
+        OutputLayer.state.fset(self, value)
+        self.activation_function_name = "softmax"
+        self.loss_function_name = "categorical_cross_entropy"
+        self.activation_function = output_functions["softmax"]
+        self.loss_function = loss_functions["categorical_cross_entropy"]
+
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        y_pred_clipped = np.clip(self.output, 1e-10, 1 - 1e-10)
+        self.retrograde = y_pred_clipped - y_true

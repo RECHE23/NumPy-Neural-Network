@@ -32,7 +32,7 @@ net.add(Flatten())
 net.add(Linear(in_features=128 * 4 * 4, out_features=512))
 net.add(ReLU())
 net.add(Linear(in_features=512, out_features=classes))
-net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
+net.add(SoftmaxCrossEntropy())
 
 print(net)
 

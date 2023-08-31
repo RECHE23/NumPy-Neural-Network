@@ -19,7 +19,7 @@ net.add(Flatten())
 net.add(Linear(in_features=64 * 7 * 7, out_features=512))
 net.add(ReLU())
 net.add(Linear(in_features=512, out_features=10))
-net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
+net.add(SoftmaxCrossEntropy())
 
 print(net, end="\n\n\n")
 

@@ -22,7 +22,7 @@ net.add(Linear(33, 50))
 net.add(Dropout(p=0.1))
 net.add(Gaussian())
 net.add(Linear(50, 10))
-net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
+net.add(SoftmaxCrossEntropy())
 
 print(net, end="\n\n\n")
 

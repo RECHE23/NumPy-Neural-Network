@@ -21,7 +21,7 @@ net.add(Flatten())
 net.add(Linear(kernel_depth * (image_shape[0] - kernel_size[0] + 1) * (image_shape[1] - kernel_size[1] + 1), 25))
 net.add(ReLU())
 net.add(Linear(in_features=25, out_features=10))
-net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
+net.add(SoftmaxCrossEntropy())
 
 print(net)
 

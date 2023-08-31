@@ -23,7 +23,7 @@ def mean_squared_error(y_true: np.ndarray, y_pred: np.ndarray, prime: bool = Fal
     """
     y_pred = y_pred.squeeze()
     if prime:
-        return 2 * (y_pred - y_true) / y_true.size
+        return 2 * (y_pred - y_true) / y_true.shape[-1]
     return np.mean(np.power(y_true - y_pred, 2), axis=-1)
 
 
@@ -48,7 +48,7 @@ def categorical_cross_entropy(y_true: np.ndarray, y_pred: np.ndarray, prime: boo
     """
     y_pred_clipped = np.clip(y_pred, 1e-10, 1 - 1e-10)
     if prime:
-        return y_pred_clipped - y_true
+        return - y_true / y_pred_clipped
     return -np.sum(y_true * np.log(y_pred_clipped), axis=-1)
 
 

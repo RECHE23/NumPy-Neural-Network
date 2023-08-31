@@ -23,7 +23,7 @@ net.add(Tanh())
 net.add(Linear(in_features=120, out_features=84))
 net.add(Tanh())
 net.add(Linear(in_features=84, out_features=10))
-net.add(OutputLayer(activation_function="softmax", loss_function="categorical_cross_entropy"))
+net.add(SoftmaxCrossEntropy())
 
 print(net)
 
