@@ -9,9 +9,9 @@ y_train = np.array([[0], [1], [1], [0]])
 
 # Network:
 net = NeuralNetwork()
-net.add(Linear(in_features=2, out_features=3, optimizer=NesterovMomentum(learning_rate=0.05)))
+net.add(Linear(in_features=2, out_features=3, optimizer=NesterovMomentum(lr=0.05)))
 net.add(Tanh())
-net.add(Linear(in_features=3, out_features=1, optimizer=NesterovMomentum(learning_rate=0.01)))
+net.add(Linear(in_features=3, out_features=1, optimizer=NesterovMomentum(lr=0.01)))
 net.add(OutputLayer(activation_function="tanh", loss_function="mean_squared_error"))
 
 # Train:

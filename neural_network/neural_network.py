@@ -2,7 +2,7 @@ import numpy as np
 from typing import Tuple, Iterator, List, Callable, Optional, Dict, Any
 from .tools import trace
 from .functions import convert_targets
-from .callbacks import ProgressCallback
+from .callbacks import *
 from .modules import *
 from .optimizers import *
 
@@ -57,7 +57,7 @@ class NeuralNetwork:
             List to store the layers of the neural network.
         """
         self.layers: List[Layer] = []
-        self.callbacks: List[Callable] = []
+        self.callbacks: List[Callable] = [BaseCallback()]
         self._is_training: bool = False
         self._verbose: bool = verbose
 
@@ -192,8 +192,6 @@ class NeuralNetwork:
         # Set additional callbacks if provided:
         self.callbacks += callbacks if callbacks else []
 
-        self.is_training(True)
-
         # Converts targets to a one-hot encoding if necessary:
         targets = convert_targets(targets)
 
@@ -216,21 +214,12 @@ class NeuralNetwork:
                 error_grad = None
                 for layer in reversed(self.layers):
                     error_grad = layer.backward(error_grad, batch_targets)
-                    layer.optimizer.next_epoch()
-                    if hasattr(layer, 'weights'):
-                        assert not np.any(np.isnan(layer.weights)), "NaN values detected in layer weights"
-                        assert not np.any(np.isinf(layer.weights)), "Infinity values detected in layer weights"
-                    if hasattr(layer, 'bias'):
-                        assert not np.any(np.isnan(layer.bias)), "NaN values detected in layer weights"
-                        assert not np.any(np.isinf(layer.bias)), "Infinity values detected in layer weights"
 
                 # Call on batch end callbacks:
                 self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_end")
 
             # Call on epoch end callbacks:
             self.call_callbacks(epoch_info, None, samples, targets, status="epoch_end")
-
-        self.is_training(False)
 
     def call_callbacks(self, epoch_info, batch_info, batch_samples, batch_targets, status):
         """

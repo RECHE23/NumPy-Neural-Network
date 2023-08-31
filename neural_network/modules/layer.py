@@ -187,7 +187,7 @@ class Layer:
             The optimizer instance.
         """
         if self._optimizer_instance is None:
-            self._optimizer_instance = Adam(learning_rate=1e-3, decay=1e-4)
+            self._optimizer_instance = Adam()
         return self._optimizer_instance
 
     @optimizer.setter
