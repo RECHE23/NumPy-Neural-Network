@@ -63,7 +63,7 @@ nn.add(Linear(in_features=64, out_features=32))
 nn.add(ReLU())
 nn.add(Linear(in_features=32, out_features=2))
 nn.add(ReLU())
-nn.add(SoftmaxCrossEntropy())
+nn.add(SoftmaxCategoricalCrossEntropy())
 
 # Train the nn:
 nn.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)
