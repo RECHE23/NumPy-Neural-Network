@@ -120,7 +120,7 @@ class ProgressCallback(Callback):
         status : str
             Indicates the current callback status ("batch_begin", "batch_end", etc.).
         """
-        self.error += np.sum(model.layers[-1].loss(batch_labels, batch_samples))
+        self.error += model.layers[-1].loss(batch_labels, batch_samples)
         self.accuracy += np.sum(np.argmax(batch_samples, axis=-1) == convert_targets(batch_labels, to="labels"))
 
     def on_epoch_end(self, model, epoch_info: Tuple[int, int], batch_info: Optional[Tuple[int, int]],

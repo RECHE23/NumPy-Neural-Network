@@ -1,11 +1,13 @@
+from .tools import *
 from .functions import *
 from .modules import *
 from .optimizers import *
-from .tools import *
 from .callbacks import *
 from .neural_network import NeuralNetwork
 
-__all__ = ["relu",
+__all__ = ["trace",
+           "debug_assert",
+           "relu",
            "tanh",
            "sigmoid",
            "leaky_relu",

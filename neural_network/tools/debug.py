@@ -2,10 +2,10 @@ import time
 import numpy as np
 
 # Activates the trace for debugging:
-DEBUG = False
+SHOW_TRACE = False
 
 
-def trace(debug=DEBUG):
+def trace(display=SHOW_TRACE):
     # Colours for the trace:
     RED = '\33[31m'
     GREEN = '\33[32m'
@@ -18,7 +18,7 @@ def trace(debug=DEBUG):
     def parameterized(func):
         def wrap(*args, **kwargs):
             NAME = func.__qualname__ if func.__name__ != func.__qualname__ else f"{func.__module__}.{func.__name__}"
-            if debug:
+            if display:
                 # Log the function name and arguments:
                 argsname_ = func.__code__.co_varnames
                 if argsname_[0] == 'self':
@@ -38,7 +38,7 @@ def trace(debug=DEBUG):
             # Call the original function:
             result = func(*args, **kwargs)
 
-            if debug:
+            if display:
                 end = time.time()
                 duration = (end - start) * 10 ** 3
                 # Log the return value:
@@ -58,3 +58,8 @@ def trace(debug=DEBUG):
         return wrap
 
     return parameterized
+
+
+def debug_assert(condition, message):
+    if __debug__:
+        assert condition, message

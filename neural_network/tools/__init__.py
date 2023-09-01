@@ -1,3 +1,4 @@
-from .debug import trace
+from .debug import trace, debug_assert
 
-__all__ = ["trace"]
+__all__ = ["trace",
+           "debug_assert"]
