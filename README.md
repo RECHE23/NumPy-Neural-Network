@@ -8,6 +8,7 @@ Welcome to the NumPy Neural Network project! This repository contains a Python i
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 - [Author](#author)
@@ -80,21 +81,46 @@ print(f"Accuracy score on the test set: {score:.2%}")
 
 The NumPy Neural Network project provides a range of features to help you build, train, and experiment with neural network models. These features include:
 
-### Layer Types
+### Modules
 
 The framework supports various types of layers that can be combined to create complex neural network architectures:
 
-- **Linear Layer (Fully Connected):** Create dense layers with adjustable input and output dimensions for constructing multi-layer perceptrons.
+- `Linear` A dense (fully connected) layer similar to [PyTorch's Linear](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html) or [Tensorflow's Dense](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dense).
 
-- **Convolutional2D Layer:** Implement 2D convolutional layers with customizable filter sizes, strides, and padding for image and spatial data analysis.
+- `Conv2d` A 2D convolutional layer similar to [PyTorch's Conv2d](https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html) or [Tensorflow's Conv2D](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D).
 
-- **BatchNorm2D Layer:** Apply 2D batch normalization to improve training stability and convergence by normalizing activations across the batch dimension.
+- `BatchNorm2d` A 2D batch normalization similar to [PyTorch's BatchNorm2d](https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html) or [Tensorflow's BatchNormalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization).
 
-- **MaxPool2D and AvgPool2D Layer:** Incorporate 2D max pooling and average pooling layers to downsample feature maps while preserving important information.
+- `AvgPool2d` A average pooling layer similar to [PyTorch's AvgPool2d](https://pytorch.org/docs/stable/generated/torch.nn.AvgPool2d.html) or [Tensorflow's AveragePooling2D](https://www.tensorflow.org/api_docs/python/tf/keras/layers/AveragePooling2D).
 
-- **Activation Layers:** Integrate various activation functions, including ReLU (Rectified Linear Unit), sigmoid, and tanh, to introduce non-linearity to the network.
+- `MaxPool2d` A average pooling layer similar to [PyTorch's MaxPool2d](https://pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html) or [Tensorflow's MaxPooling2D](https://www.tensorflow.org/api_docs/python/tf/keras/layers/MaxPooling2D).
 
-- **Dropout Layer:** Implement dropout regularization to prevent overfitting by randomly deactivating a fraction of neurons during training.
+- `Dropout` A average pooling layer similar to [PyTorch's Dropout](https://pytorch.org/docs/stable/generated/torch.nn.Dropout.html) or [Tensorflow's Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout).
+
+- **Activation Layers:** A collection of activation functions:
+   - `ReLU`, `Sigmoid`, `Tanh`, `LeakyReLU`, `Swish`, `ELU`, `SELU`, `Softplus`, `GELU`, `SiLU`, `CELU`, `ArcTan`, `BentIdentity`, `Mish`, `Gaussian`
+
+- **Output Layers:** A special type of layer with an activation function and a loss function:
+   - `OutputLayer` A generic output layer with specified activation function and loss function.
+   - `SoftmaxBinaryCrossEntropy`/`SoftminBinaryCrossEntropy` Outputs a probability distribution with a binary cross entropy loss.
+   - `SoftmaxCategoricalCrossEntropy`/`SoftminCategoricalCrossEntropy` Outputs a probability distribution with a categorical cross entropy loss.
+
+- **Shape manipulation layers:** An ancillary layer that reshape the data for compatibility between layers:
+  - `Reshape` A layer for reshaping the input data to a specified shape.
+  - `Flatten` A layer for flattening the input data with specified start and end dimensions.
+  - `Unflatten` A layer for unflattening the input data.
+
+### Loss Functions
+
+The framework provides several loss functions for training neural networks:
+
+- `binary_cross_entropy` Cross entropy loss for binary classification.
+
+- `categorical_cross_entropy` Standard cross entropy loss for multi-class classification.
+
+- `mean_absolute_error` L1 loss suitable for robust regression.
+
+- `mean_squared_error` Standard MSE loss for regression tasks.
 
 ### Optimization Methods
 
@@ -120,13 +146,11 @@ The framework provides a collection of optimization methods to fine-tune neural 
 
 - **Easy-to-Use Interface:** Utilize the intuitive `NeuralNetwork` class for creating, training, and evaluating models with minimal coding effort.
 
-- **Activation Functions:** Choose from a variety of activation functions like ReLU, sigmoid, tanh, and softmax to introduce non-linearity into the network.
-
-- **Loss Functions:** Select from commonly used loss functions such as mean squared error and categorical cross-entropy for training neural networks.
-
 - **Performance Metrics:** Evaluate model performance using metrics like accuracy, precision, recall, F1-score, and confusion matrices.
 
 - **Batch Training:** Train models using mini-batch gradient descent for improved convergence and memory efficiency.
+
+- **Callbacks:** Add your own callbacks for monitoring the neural network during training.
 
 - **Customizable Parameters:** Customize various hyperparameters, such as learning rates and batch sizes, to fine-tune the training process.
 
@@ -134,6 +158,38 @@ The framework provides a collection of optimization methods to fine-tune neural 
 
 These features collectively enable you to construct, train, and evaluate neural network models across various domains while gaining insights into machine learning concepts and techniques.
 
+## Roadmap
+
+Here are the next features I intend to implement:
+
+- [ ] Weight initialization module with support:
+  - [ ] Glorot/Xavier uniform
+  - [ ] Glorot/Xavier normal
+  - [ ] He/Kaiming uniform
+  - [ ] He/Kaiming normal
+  - [ ] Orthogonal
+- [ ] Additional loss functions:
+  - [ ] HuberLoss : Combines MSE and MAE to be less sensitive to outliers.
+  - [ ] Hinge loss : A loss function used for "maximum-margin" classification.
+- [ ] Regularization methods:
+  - [ ] L1 regularization : Adds a penalty equal to the absolute value of the weights to the loss function.
+  - [ ] L2 regularization: Adds a penalty equal to the square of the weights to the loss function.
+  - [ ] Elastic net regularization: Combines L1 and L2 regularization.
+- [ ] Additional callbacks:
+  - [ ] Early stopping : Stop training early if model performance stops improving on a validation set.
+  - [ ] Model checkpoint : Save model checkpoints during training at defined intervals.
+  - [ ] Learning rate scheduler : Dynamically adjust learning rate at different epochs using a schedule.
+- [ ] Additional normalization modules:
+  - [ ] Layer normalization : Normalization across the features and channels for each sample in a batch.
+  - [ ] Instance normalization : Normalization across each channel for each sample in a batch.
+  - [ ] Group normalization : Splits channels into groups and normalizes within each group for each sample in a batch.
+- [ ] Additional modules:
+  - [ ] 1D Convolution, batch normalization and pooling.
+  - [ ] Reccurent layers such as RNN, LSTM and GRU.
+- [ ] Better and more detailed examples:
+  - [ ] Jupyter notebooks with various models and datasets
+  - [ ] Comparison of performance between NumPy Neural Network, PyTorch and Tensorflow.
+- [ ] Support for regression.
 
 ## Contributing
 
@@ -141,7 +197,7 @@ While contributions are not the primary focus of this personal project, suggesti
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/license/mit/). Feel free to explore and modify the code as a learning exercise.
+This project is licensed under the [MIT License](LICENSE). Feel free to explore and modify the code as a learning exercise.
 
 ## Author
 

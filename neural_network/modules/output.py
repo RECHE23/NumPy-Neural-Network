@@ -303,3 +303,124 @@ class SoftmaxCategoricalCrossEntropy(OutputLayer):
         """
         y_pred_clipped = np.clip(self.output, 1e-10, 1 - 1e-10)
         self.retrograde = y_pred_clipped - y_true
+
+
+class SoftminBinaryCrossEntropy(OutputLayer):
+    """
+    An output layer for neural network architectures with softmin activation and binary cross-entropy loss.
+
+    Methods:
+    --------
+    _backward_propagation(upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        Compute the retrograde gradients for the output layer.
+    """
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the SoftminBinaryCrossEntropy layer.
+        """
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Return the state of the output layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
+        return super().state
+
+    @state.setter
+    def state(self, value) -> None:
+        """
+        Set the state of the output layer.
+
+        It bypasses the default state of the base class OutputLayer to avoid an AssertionError since softmin isn't part of activation_functions.
+
+        Parameters:
+        -----------
+        value : dict
+            A dictionary containing the activation and loss function names.
+        """
+        OutputLayer.state.fset(self, value)
+        self.activation_function_name = "softmin"
+        self.loss_function_name = "binary_cross_entropy"
+        self.activation_function = output_functions[self.activation_function_name]
+        self.loss_function = loss_functions[self.loss_function_name]
+
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        """
+        Compute the retrograde gradients for the output layer.
+
+        Parameters:
+        -----------
+        upstream_gradients : np.ndarray
+            Upstream gradients coming from the subsequent layer.
+        y_true : np.ndarray
+            The true labels used for calculating the retrograde gradient.
+        """
+        y_pred_clipped = np.clip(self.output, 1e-10, 1 - 1e-10)
+        self.retrograde = y_pred_clipped - y_true
+
+
+class SoftminCategoricalCrossEntropy(OutputLayer):
+    """
+    An output layer for neural network architectures with softmin activation and categorical cross-entropy loss.
+
+    Methods:
+    --------
+    _backward_propagation(upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        Compute the retrograde gradients for the output layer.
+    """
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the SoftminCategoricalCrossEntropy layer.
+        """
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def state(self) -> Tuple[str, Dict[str, Any]]:
+        """
+        Return the state of the output layer.
+
+        Returns:
+        ----------
+        state : tuple
+            A tuple containing the class name and a dictionary of attributes.
+        """
+        return super().state
+
+    @state.setter
+    def state(self, value) -> None:
+        """
+        Set the state of the output layer.
+
+        It bypasses the default state of the base class OutputLayer to avoid an AssertionError since softmin isn't part of activation_functions.
+
+        Parameters:
+        -----------
+        value : dict
+            A dictionary containing the activation and loss function names.
+        """
+        OutputLayer.state.fset(self, value)
+        self.activation_function_name = "softmin"
+        self.loss_function_name = "categorical_cross_entropy"
+        self.activation_function = output_functions[self.activation_function_name]
+        self.loss_function = loss_functions[self.loss_function_name]
+
+    def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
+        """
+        Compute the retrograde gradients for the output layer.
+
+        Parameters:
+        -----------
+        upstream_gradients : np.ndarray
+            Upstream gradients coming from the subsequent layer.
+        y_true : np.ndarray
+            The true labels used for calculating the retrograde gradient.
+        """
+        y_pred_clipped = np.clip(self.output, 1e-10, 1 - 1e-10)
+        self.retrograde = y_pred_clipped - y_true

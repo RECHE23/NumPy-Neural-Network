@@ -141,11 +141,6 @@ class Sigmoid(ActivationLayer):
         super().__init__(activation_function="sigmoid", *args, **kwargs)
 
 
-class Softmax(ActivationLayer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(activation_function="softmax", *args, **kwargs)
-
-
 class LeakyReLU(ActivationLayer):
     def __init__(self, alpha=0.01, *args, **kwargs):
         super().__init__(activation_function="leaky_relu", *args, alpha=alpha, **kwargs)
