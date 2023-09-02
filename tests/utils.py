@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+import tensorflow
 from neural_network.functions.output import softmax
 
 
@@ -46,3 +48,62 @@ def make_random_predictions(N, K, probability=False):
         return softmax(np.random.randn(N, K))
     else:
         return np.random.randn(N, K)
+
+
+def to_pytorch(x):
+    return torch.tensor(x, dtype=torch.float32, requires_grad=True)
+
+
+def to_tensorflow(x):
+    if len(x.shape) == 4:
+        x = np.moveaxis(x, 1, -1)
+    return tensorflow.convert_to_tensor(x, dtype=tensorflow.float32)
+
+
+def to_numpy(x):
+    if tensorflow.is_tensor(x):
+        if len(x.shape) == 4:
+            x = np.moveaxis(x, -1, 1)
+        else:
+            x = x.numpy()
+    elif isinstance(x, torch.Tensor):
+        x = x.cpu().detach().numpy()
+    return x
+
+
+def torch_output(torch_layer, x) -> np.ndarray:
+    return to_numpy(torch_layer(to_pytorch(x)))
+
+
+def tensorflow_output(tensorflow_layer, x) -> np.ndarray:
+    return to_numpy(tensorflow_layer(to_tensorflow(x)))
+
+
+def custom_output(custom_layer, x) -> np.ndarray:
+    return custom_layer(x)
+
+
+def torch_grad(torch_layer, x, upstream_gradients) -> np.ndarray:
+    x = to_pytorch(x)
+    upstream_gradients = to_pytorch(upstream_gradients)
+
+    torch_output = torch_layer(x)
+    torch_output.backward(upstream_gradients)
+
+    return to_numpy(x.grad)
+
+
+def tensorflow_grad(tensorflow_layer, x, upstream_gradients) -> np.ndarray:
+    x = to_tensorflow(x)
+    upstream_gradients = to_tensorflow(upstream_gradients)
+
+    with tensorflow.GradientTape() as tape:
+        tape.watch(x)
+        tf_output = tensorflow_layer(x)
+
+    return to_numpy(tape.gradient(tf_output, x, upstream_gradients))
+
+
+def custom_grad(custom_layer, x, upstream_gradients) -> np.ndarray:
+    custom_layer(x)
+    return custom_layer.backward(upstream_gradients, None)
