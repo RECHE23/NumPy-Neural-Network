@@ -163,7 +163,7 @@ class OutputLayer(Layer):
         """
         self.retrograde = self.loss_function(y_true, self.output, prime=True)
 
-    def loss(self, y_true: np.ndarray, y_pred: np.ndarray, prime: bool = False) -> Union[float, np.ndarray]:
+    def loss(self, y_true: np.ndarray, y_pred: np.ndarray, *args, **kwargs) -> Union[float, np.ndarray]:
         """
         Compute the loss between true and predicted values.
 
@@ -173,15 +173,15 @@ class OutputLayer(Layer):
             True target values.
         y_pred : np.ndarray
             Predicted values.
-        prime : bool, optional
-            If True, compute the derivative of the loss with respect to y_pred. Default is False.
+        *args, **kwargs
+            Additional arguments passed to the loss function.
 
         Returns:
         --------
         loss : float
             The computed loss value.
         """
-        return np.sum(self.loss_function(y_true, y_pred, prime))
+        return self.loss_function(y_true, y_pred, *args, **kwargs)
 
 
 class SoftmaxBinaryCrossEntropy(OutputLayer):

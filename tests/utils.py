@@ -71,6 +71,14 @@ def to_numpy(x):
     return x
 
 
+def torch_loss(torch_layer, y_true, y_pred) -> np.ndarray:
+    return to_numpy(torch_layer(to_pytorch(y_pred), to_pytorch(y_true)))
+
+
+def tensorflow_loss(tensorflow_layer, y_true, y_pred) -> np.ndarray:
+    return to_numpy(tensorflow_layer(to_tensorflow(y_true), to_tensorflow(y_pred)))
+
+
 def torch_output(torch_layer, x) -> np.ndarray:
     return to_numpy(torch_layer(to_pytorch(x)))
 

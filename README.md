@@ -162,15 +162,15 @@ These features collectively enable you to construct, train, and evaluate neural 
 
 Here are the next features I intend to implement:
 
-- [ ] Weight initialization module with support:
-  - [ ] Glorot/Xavier uniform
-  - [ ] Glorot/Xavier normal
-  - [ ] He/Kaiming uniform
-  - [ ] He/Kaiming normal
+- [ ] Weight initialization module with support for:
+  - [ ] Xavier Glorot uniform
+  - [ ] Xavier Glorot normal
+  - [ ] Kaiming He uniform
+  - [ ] Kaiming He normal
   - [ ] Orthogonal
 - [ ] Additional loss functions:
-  - [ ] HuberLoss : Combines MSE and MAE to be less sensitive to outliers.
-  - [ ] Hinge loss : A loss function used for "maximum-margin" classification.
+  - [x] HuberLoss : Combines MSE and MAE to be less sensitive to outliers.
+  - [x] Hinge loss : A loss function used for "maximum-margin" classification.
 - [ ] Regularization methods:
   - [ ] L1 regularization : Adds a penalty equal to the absolute value of the weights to the loss function.
   - [ ] L2 regularization: Adds a penalty equal to the square of the weights to the loss function.
