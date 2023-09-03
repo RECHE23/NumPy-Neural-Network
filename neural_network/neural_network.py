@@ -137,6 +137,52 @@ class NeuralNetwork:
         assert sum(isinstance(layer, OutputLayer) for layer in self.layers) <= 1, "Only one output layer can be added."
 
     @trace()
+    def forward(self, input_data: np.ndarray) -> np.ndarray:
+        """
+        Perform forward propagation through the neural network.
+
+        Parameters:
+        -----------
+        input_data : np.ndarray, shape (n_samples, ...)
+            The input data to propagate through the layer.
+
+        Returns:
+        --------
+        np.ndarray, shape (n_samples, ...)
+            The output of the layer after applying its operations.
+        """
+        predictions = input_data
+
+        for layer in self.layers:
+            predictions = layer.forward(predictions)
+
+        return predictions
+
+    @trace()
+    def backward(self, upstream_gradients: Optional[np.ndarray] = None, y_true: Optional[np.ndarray] = None) -> np.ndarray:
+        """
+        Perform backward propagation through the neural network.
+
+        Parameters:
+        -----------
+        upstream_gradients : np.ndarray, shape (n_samples, ...)
+            Gradients received from the subsequent layer during backward propagation.
+        y_true : np.ndarray, shape (n_samples, ...)
+            The true target values corresponding to the input data.
+
+        Returns:
+        --------
+        np.ndarray, shape (n_samples, ...)
+            Gradients propagated backward through the layer.
+        """
+        error_grad = upstream_gradients
+
+        for layer in reversed(self.layers):
+            error_grad = layer.backward(error_grad, y_true)
+
+        return error_grad
+
+    @trace()
     def predict(self, samples: np.ndarray, to: str = None) -> np.ndarray:
         """
         Make predictions using the neural network.
@@ -157,11 +203,7 @@ class NeuralNetwork:
         assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
         assert samples.shape[1:] == self.layers[0].input_shape[1:], "Input sample shape does not match the network's input layer shape"
 
-        predictions = samples
-        for layer in self.layers:
-            predictions = layer.forward(predictions)
-
-        return convert_targets(predictions, to=to)
+        return convert_targets(self.forward(samples), to=to)
 
     @trace()
     def fit(self, samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1,
@@ -207,16 +249,13 @@ class NeuralNetwork:
                 self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_begin")
 
                 # Forward propagation:
-                for layer in self.layers:
-                    batch_samples = layer.forward(batch_samples)
+                batch_predictions = self.forward(batch_samples)
 
                 # Backward propagation:
-                error_grad = None
-                for layer in reversed(self.layers):
-                    error_grad = layer.backward(error_grad, batch_targets)
+                self.backward(y_true=batch_targets)
 
                 # Call on batch end callbacks:
-                self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_end")
+                self.call_callbacks(epoch_info, batch_info, batch_predictions, batch_targets, status="batch_end")
 
             # Call on epoch end callbacks:
             self.call_callbacks(epoch_info, None, samples, targets, status="epoch_end")
