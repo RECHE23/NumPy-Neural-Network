@@ -1,6 +1,11 @@
 import numpy as np
 from neural_network.tools import trace
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 @trace()
 def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
@@ -24,7 +29,7 @@ def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
     s = e / np.sum(e, axis=-1, keepdims=True)
 
     if prime:
-        return np.einsum('ij,jk->ijk', s, np.eye(s.shape[-1])) - np.einsum('ij,ik->ijk', s, s)
+        return einsum('ij,jk->ijk', s, np.eye(s.shape[-1]), optimize=True) - einsum('ij,ik->ijk', s, s, optimize=True)
 
     return s
 
@@ -51,7 +56,7 @@ def softmin(x: np.ndarray, prime: bool = False) -> np.ndarray:
     s = e / np.sum(e, axis=-1, keepdims=True)
 
     if prime:
-        return np.einsum('ij,jk->ijk', s, np.eye(s.shape[-1])) - np.einsum('ij,ik->ijk', s, s)
+        return einsum('ij,jk->ijk', s, np.eye(s.shape[-1]), optimize=True) - einsum('ij,ik->ijk', s, s, optimize=True)
 
     return s
 

@@ -35,8 +35,9 @@ cd NumPy-Neural-Network
 3. Set up a virtual environment and install the required packages:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows, use "venv\Scripts\activate"
+source venv/bin/activate  # On Windows, use "venv\Scripts\activate".
 pip install -r requirements.txt
+pip install -r optional-requirements.txt  # If you intend to run the tests and examples.
 ```
 
 ## Usage

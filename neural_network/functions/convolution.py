@@ -1,6 +1,11 @@
 import numpy as np
 from .utils import apply_padding
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 def correlate2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full", boundary: str = "constant", fillvalue: int = 0) -> np.ndarray:
     """
@@ -30,7 +35,7 @@ def correlate2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full",
     padded_array = apply_padding(input_array, kernel, mode, boundary, fillvalue)
     sliding_view = np.lib.stride_tricks.sliding_window_view(padded_array, kernel.shape)
 
-    return np.einsum('ijkl,kl->ij', sliding_view, kernel)
+    return einsum('ijkl,kl->ij', sliding_view, kernel, optimize=True)
 
 
 def convolve2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full", boundary: str = "constant", fillvalue: int = 0) -> np.ndarray:
@@ -61,5 +66,5 @@ def convolve2d(input_array: np.ndarray, kernel: np.ndarray, mode: str = "full", 
     padded_array = apply_padding(input_array, kernel, mode, boundary, fillvalue, pad_after=True)
     sliding_view = np.lib.stride_tricks.sliding_window_view(padded_array, kernel.shape)
 
-    return np.einsum('ijkl,kl->ij', sliding_view, np.flip(kernel))
+    return einsum('ijkl,kl->ij', sliding_view, np.flip(kernel), optimize=True)
 

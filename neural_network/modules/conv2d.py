@@ -3,6 +3,11 @@ from typing import Union, Tuple, Optional, Dict, Any
 from . import Layer
 from neural_network.functions import pair
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 class Conv2d(Layer):
     """
@@ -211,7 +216,7 @@ class Conv2d(Layer):
                                          padding=self.padding, stride=self.stride)
 
         # Perform convolution and add bias:
-        self.output = np.einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize='greedy')
+        self.output = einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize=True)
         self.output += np.expand_dims(self.bias, axis=(0, 2, 3))
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
@@ -242,8 +247,8 @@ class Conv2d(Layer):
 
         # Compute gradients:
         db = np.sum(upstream_gradients, axis=(0, 2, 3))
-        dw = np.einsum('bihwkl,bohw->oikl', self.windows, upstream_gradients, optimize='greedy')
-        dx = np.einsum('bohwkl,oikl->bihw', out_windows, rot_kern, optimize='greedy')
+        dw = einsum('bihwkl,bohw->oikl', self.windows, upstream_gradients, optimize=True)
+        dx = einsum('bohwkl,oikl->bihw', out_windows, rot_kern, optimize=True)
 
         # Update parameters and retrograde gradients:
         self.optimizer.update([self.weight, self.bias], [dw, db])

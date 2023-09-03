@@ -2,6 +2,11 @@ import numpy as np
 from typing import Tuple, Optional, Any, Dict
 from . import Layer
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 class Linear(Layer):
     """
@@ -155,7 +160,7 @@ class Linear(Layer):
         """
         assert input_data.shape[1] == self.in_features, "Input size doesn't match"
 
-        self.output = np.einsum("ij,kj->ik", input_data, self.weight, optimize='greedy') + self.bias
+        self.output = einsum("ij,kj->ik", input_data, self.weight, optimize=True) + self.bias
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -170,8 +175,8 @@ class Linear(Layer):
         """
         assert upstream_gradients.shape[1] == self.out_features, "Upstream gradients size doesn't match"
 
-        self.retrograde = np.einsum("ij,jk->ik", upstream_gradients, self.weight, optimize='greedy')
-        weights_error = np.einsum("ji,jk->ki", self.input, upstream_gradients, optimize='greedy')
+        self.retrograde = einsum("ij,jk->ik", upstream_gradients, self.weight, optimize=True)
+        weights_error = einsum("ji,jk->ki", self.input, upstream_gradients, optimize=True)
 
         self.optimizer.update([self.weight, self.bias], [weights_error, np.sum(upstream_gradients, axis=0)])
 
