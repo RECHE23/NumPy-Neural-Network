@@ -1,9 +1,9 @@
 from typing import Optional, Tuple, Dict, Any
 import numpy as np
-from . import Layer
+from . import Module
 
 
-class Normalization(Layer):
+class Normalization(Module):
     """
     A normalization layer for neural network architectures.
 

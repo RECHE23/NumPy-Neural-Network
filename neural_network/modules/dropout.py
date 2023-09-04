@@ -1,9 +1,9 @@
 from typing import Tuple, Optional, Dict, Any
 import numpy as np
-from . import Layer
+from . import Module
 
 
-class Dropout(Layer):
+class Dropout(Module):
     """
     Dropout layer for neural networks.
 

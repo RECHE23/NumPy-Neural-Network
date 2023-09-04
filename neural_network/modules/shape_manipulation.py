@@ -1,9 +1,9 @@
 from typing import Tuple, Union, List, Optional, Dict, Any
 import numpy as np
-from . import Layer
+from . import Module
 
 
-class Reshape(Layer):
+class Reshape(Module):
     """
     A layer for reshaping the input data to a specified shape.
 
@@ -112,7 +112,7 @@ class Reshape(Layer):
         self.retrograde = np.reshape(upstream_gradients, (-1, *self.input_shape[1:]))
 
 
-class Flatten(Layer):
+class Flatten(Module):
     """
     A layer for flattening the input data with specified start and end dimensions.
 
@@ -225,7 +225,7 @@ class Flatten(Layer):
         self.retrograde = np.reshape(upstream_gradients, self.original_shape)
 
 
-class Unflatten(Layer):
+class Unflatten(Module):
     """
     A layer for unflattening the input data.
 

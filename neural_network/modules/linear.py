@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Tuple, Optional, Any, Dict
-from . import Layer
+from . import Module
 
 try:
     import opt_einsum.contract as einsum
@@ -8,7 +8,7 @@ except ImportError:
     from numpy import einsum
 
 
-class Linear(Layer):
+class Linear(Module):
     """
     Fully Connected (Dense) Layer for a neural network.
 
@@ -24,7 +24,7 @@ class Linear(Layer):
     initialization : str, optional
         Initialization method to use ("xavier" or "he"). Default is "xavier".
     *args, **kwargs
-        Additional arguments passed to the base class Layer.
+        Additional arguments passed to the base class Module.
 
     Attributes:
     -----------
@@ -66,7 +66,7 @@ class Linear(Layer):
         initialization : str, optional
             Initialization method to use ("xavier" or "he"). Default is "xavier".
         *args, **kwargs
-            Additional arguments passed to the base class Layer.
+            Additional arguments passed to the base class Module.
         """
         super().__init__(*args, **kwargs)
 

@@ -1,9 +1,9 @@
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
-from .layer import Layer
+from . import Module
 
 
-class Sequential(Layer):
+class Sequential(Module):
     """
     A sequential neural network layer composed of multiple sub-layers.
 
@@ -13,12 +13,12 @@ class Sequential(Layer):
 
     Parameters:
     -----------
-    layers : list of Layer
+    layers : list of Module
         The list of sub-layers in the sequential model.
 
     Methods:
     --------
-    add(layer: Layer) -> None:
+    add(layer: Module) -> None:
         Add a sub-layer to the sequential model.
 
     _forward_propagation(input_data: np.ndarray) -> None:
@@ -28,18 +28,18 @@ class Sequential(Layer):
         Perform backward propagation through all sub-layers.
     """
 
-    def __init__(self, *layers: Layer):
+    def __init__(self, *layers: Module):
         """
         Initialize a sequential neural network layer.
 
         Parameters:
         -----------
-        layers : list of Layer, optional
+        layers : list of Module, optional
             The list of sub-layers in the sequential model.
         """
         super().__init__()
 
-        self.sub_layers: List[Layer] = list(layers) if layers is not None else []
+        self.sub_layers: List[Module] = list(layers) if layers is not None else []
 
     def __str__(self):
         layer_str = "\n".join([f"\t({i}): {layer}" for i, layer in enumerate(self.sub_layers)])
@@ -65,13 +65,13 @@ class Sequential(Layer):
             layer.state = layer_state
             self.sub_layers.append(layer)
 
-    def add(self, layer: Layer) -> None:
+    def add(self, layer: Module) -> None:
         """
         Add a sub-layer to the sequential model.
 
         Parameters:
         -----------
-        layer : Layer
+        layer : Module
             The sub-layer to be added to the sequential model.
         """
         self.sub_layers.append(layer)

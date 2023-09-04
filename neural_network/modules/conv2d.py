@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union, Tuple, Optional, Dict, Any
-from . import Layer
+from . import Module
 from neural_network.functions import pair
 
 try:
@@ -9,7 +9,7 @@ except ImportError:
     from numpy import einsum
 
 
-class Conv2d(Layer):
+class Conv2d(Module):
     """
     A 2D convolutional layer for neural network architectures.
 

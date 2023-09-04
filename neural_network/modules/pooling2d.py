@@ -1,11 +1,11 @@
 from typing import Tuple, Optional, Union, Dict, Any
 from abc import abstractmethod
 import numpy as np
-from . import Layer
+from . import Module
 from neural_network.functions import pair
 
 
-class Pooling2DLayer(Layer):
+class Pooling2DLayer(Module):
     """
     Abstract base class for 2D pooling layers in neural network architectures.
     Provides common methods and properties for pooling layers.

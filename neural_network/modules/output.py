@@ -1,12 +1,12 @@
 from typing import Union, Callable, Tuple, Dict, Any
 import numpy as np
-from . import Layer
+from . import Module
 from neural_network.functions.activation import activation_functions
 from neural_network.functions.loss import loss_functions
 from neural_network.functions.output import output_functions
 
 
-class OutputLayer(Layer):
+class OutputLayer(Module):
     """
     An output layer for neural network architectures.
 

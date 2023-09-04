@@ -1,11 +1,11 @@
 from typing import Callable, Tuple, Dict, Any
 from functools import partial
 import numpy as np
-from . import Layer
+from . import Module
 from neural_network.functions.activation import activation_functions
 
 
-class ActivationLayer(Layer):
+class ActivationLayer(Module):
     """
     A layer implementing activation functions for neural network architectures.
 

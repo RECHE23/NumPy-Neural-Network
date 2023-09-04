@@ -1,4 +1,4 @@
-from .layer import Layer
+from .module import Module
 from .normalization import Normalization
 from .shape_manipulation import Reshape, Flatten, Unflatten
 from .linear import Linear
@@ -10,7 +10,7 @@ from .dropout import Dropout
 from .batchnorm2d import BatchNorm2d
 from .sequential import Sequential
 
-__all__ = ["Layer",
+__all__ = ["Module",
            "Normalization",
            "Reshape",
            "Flatten",

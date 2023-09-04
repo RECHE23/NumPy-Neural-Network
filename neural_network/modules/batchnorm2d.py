@@ -1,9 +1,9 @@
 from typing import Tuple, Optional, Dict, Any
 import numpy as np
-from . import Layer
+from . import Module
 
 
-class BatchNorm2d(Layer):
+class BatchNorm2d(Module):
     """
     A 2D Batch Normalization layer for neural networks.
 

@@ -18,7 +18,7 @@ class NeuralNetwork:
 
     Methods:
     --------
-    add(layer: Layer) -> None:
+    add(layer: Module) -> None:
         Add a layer to the neural network.
 
     predict(samples: np.ndarray, to: str = None) -> np.ndarray:
@@ -47,7 +47,7 @@ class NeuralNetwork:
         Make predictions using the neural network by calling it as a function.
     """
 
-    def __init__(self, *layers, verbose=True):
+    def __init__(self, *layers, verbose: bool = True):
         """
         Initialize a neural network model.
 
@@ -56,7 +56,7 @@ class NeuralNetwork:
         layers : list
             List to store the layers of the neural network.
         """
-        self.layers: List[Layer] = []
+        self.layers: List[Module] = []
         self.callbacks: List[Callable] = [BaseCallback()]
         self._is_training: bool = False
         self._verbose: bool = verbose
@@ -121,13 +121,13 @@ class NeuralNetwork:
         return sum(layer.parameters_count for layer in self.layers)
 
     @trace()
-    def add(self, layer: Layer) -> None:
+    def add(self, layer: Module) -> None:
         """
         Add a layer to the neural network.
 
         Parameters:
         -----------
-        layer : Layer
+        layer : Module
             The layer to be added to the network.
         """
         # Check compatibility of layer shapes:
@@ -224,7 +224,7 @@ class NeuralNetwork:
         shuffle : bool, optional
             Whether to shuffle the data before each epoch. Default is False.
         callbacks : list of callable functions, optional
-            List of callback functions to be called after each batch and epoch.
+            List of callback functions to be called before and after each batch and epoch.
         """
         assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
         assert samples.shape[0] == targets.shape[0], "The length of the samples doesn't match the length of the targets."
