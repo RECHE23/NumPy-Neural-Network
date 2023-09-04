@@ -1,4 +1,3 @@
-import unittest
 from .utils import *
 from neural_network.modules.linear import Linear
 
@@ -38,6 +37,7 @@ class TestLinearLayer(unittest.TestCase):
         custom_output_ = custom_output(self.custom_layer, self.input_data)
 
         # Compare the forward pass outputs:
+        np.testing.assert_allclose(torch_output_, tensorflow_output_, rtol=1e-7, atol=1e-7)
         np.testing.assert_allclose(torch_output_, custom_output_, rtol=1e-7, atol=1e-7)
         np.testing.assert_allclose(tensorflow_output_, custom_output_, rtol=1e-7, atol=1e-7)
 
@@ -48,6 +48,7 @@ class TestLinearLayer(unittest.TestCase):
         custom_grad_ = custom_grad(self.custom_layer, self.input_data, self.upstream_gradients)
 
         # Compare the retrograde gradients:
+        np.testing.assert_allclose(torch_grad_, tensorflow_grad_, rtol=1e-7, atol=1e-7)
         np.testing.assert_allclose(torch_grad_, custom_grad_, rtol=1e-7, atol=1e-7)
         np.testing.assert_allclose(tensorflow_grad_, custom_grad_, rtol=1e-7, atol=1e-7)
 

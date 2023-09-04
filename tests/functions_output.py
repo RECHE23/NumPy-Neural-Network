@@ -1,6 +1,4 @@
-import numpy as np
-import unittest
-from .utils import jacobian_check, make_random_predictions
+from .utils import *
 from neural_network.functions.output import *
 
 

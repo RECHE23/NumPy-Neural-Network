@@ -1,6 +1,4 @@
-import numpy as np
-import unittest
-from .utils import grad_check_activation, make_random_predictions
+from .utils import *
 from neural_network.functions.activation import *
 
 
