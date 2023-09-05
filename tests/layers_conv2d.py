@@ -1,4 +1,3 @@
-import unittest
 from .utils import *
 from neural_network.modules.conv2d import Conv2d
 
@@ -16,14 +15,12 @@ class TestConv2dLayer(unittest.TestCase):
 
     def _test_forward_backward(self, kernel_size, stride):
         # Set up the layers with specific kernel_size, stride, and padding:
-        self.torch_layer = torch.nn.Conv2d(self.input_channels, self.output_channels,
-                                           kernel_size=kernel_size, stride=stride)
+        self.torch_layer = torch.nn.Conv2d(self.input_channels, self.output_channels, kernel_size=kernel_size, stride=stride)
         input_shape = (self.batch_size, self.input_channels, self.input_height, self.input_width)
         self.tensorflow_layer = tensorflow.keras.layers.Conv2D(self.output_channels, input_shape=input_shape, use_bias=True, activation=None,
                                                                kernel_size=kernel_size, strides=stride)
         self.tensorflow_layer(to_tensorflow(self.input_data))  # Tensorflow layer needs a forward pass to initialize...
-        self.custom_layer = Conv2d(self.input_channels, self.output_channels,
-                                   kernel_size=kernel_size, stride=stride)
+        self.custom_layer = Conv2d(self.input_channels, self.output_channels, kernel_size=kernel_size, stride=stride)
 
         # Initialize custom layer's weight and bias from torch_layer's parameters:
         self.custom_layer.weight = to_numpy(self.torch_layer.weight)
@@ -50,7 +47,7 @@ class TestConv2dLayer(unittest.TestCase):
         custom_grad_ = custom_grad(self.custom_layer, self.input_data, self.upstream_gradients)
 
         # Compare the retrograde gradients:
-        np.testing.assert_allclose(torch_grad_, custom_grad_, rtol=0.05, atol=0.05, err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
+        np.testing.assert_allclose(torch_grad_, custom_grad_, rtol=1e-6, atol=1e-5, err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
         np.testing.assert_allclose(tensorflow_grad_, custom_grad_, rtol=0.05, atol=0.05, err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
 
     def test_different_kernel_stride_padding(self):

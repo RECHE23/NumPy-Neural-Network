@@ -57,14 +57,14 @@ def to_pytorch(x):
 
 
 def to_tensorflow(x):
-    if len(x.shape) == 4:
+    if len(x.shape) in (3, 4):
         x = np.moveaxis(x, 1, -1)
     return tensorflow.convert_to_tensor(x, dtype=tensorflow.float32)
 
 
 def to_numpy(x):
     if tensorflow.is_tensor(x):
-        if len(x.shape) == 4:
+        if len(x.shape) in (3, 4):
             x = np.moveaxis(x, -1, 1)
         else:
             x = x.numpy()
