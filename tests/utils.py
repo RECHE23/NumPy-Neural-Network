@@ -70,7 +70,7 @@ def to_numpy(x):
             x = x.numpy()
     elif isinstance(x, torch.Tensor):
         x = x.cpu().detach().numpy()
-    return x
+    return x.astype(np.float32)
 
 
 def torch_loss(torch_layer, y_true, y_pred) -> np.ndarray:

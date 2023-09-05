@@ -1,16 +1,17 @@
-from typing import Tuple, Optional, Dict, Any
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
 from . import Module
 
 
-class BatchNorm2d(Module):
+class BatchNorm1d(Module):
     """
-    A 2D Batch Normalization layer for neural networks.
+    A 1D Batch Normalization layer for neural networks.
 
     Parameters:
     ----------
     num_features : int
-        Number of input channels.
+        Number of input features.
 
     eps : float, optional
         A small constant to avoid division by zero, by default 1e-05.
@@ -24,7 +25,7 @@ class BatchNorm2d(Module):
     Attributes:
     ----------
     num_features : int
-        Number of input channels.
+        Number of input features.
 
     eps : float
         A small constant to avoid division by zero.
@@ -49,9 +50,6 @@ class BatchNorm2d(Module):
     __repr__() -> str
         Return a string representation of the batch normalization layer.
 
-    output_shape() -> Tuple[int, ...]
-        Get the output shape of the layer.
-
     _forward_propagation(input_data: np.ndarray) -> None
         Perform the forward propagation step.
 
@@ -60,6 +58,8 @@ class BatchNorm2d(Module):
     """
 
     def __init__(self, num_features: int, eps: float = 1e-05, momentum: float = 0.1, affine=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         self.num_features: int
         self.eps: float
         self.momentum: float
@@ -69,7 +69,6 @@ class BatchNorm2d(Module):
         self.running_mean: np.ndarray
         self.running_var: np.ndarray
 
-        super().__init__(*args, **kwargs)
         self.state = {
             "num_features": num_features,
             "eps": eps,
@@ -118,8 +117,8 @@ class BatchNorm2d(Module):
         self.affine = value["affine"]
 
         if self.affine:
-            self.gamma = value.get("gamma", np.ones((1, self.num_features, 1, 1)))
-            self.beta = value.get("beta", np.zeros((1, self.num_features, 1, 1)))
+            self.gamma = value.get("gamma", np.ones((1, self.num_features)))
+            self.beta = value.get("beta", np.zeros((1, self.num_features)))
 
         self.running_mean = value.get("running_mean", np.zeros(self.num_features))
         self.running_var = value.get("running_var", np.ones(self.num_features))
@@ -137,7 +136,7 @@ class BatchNorm2d(Module):
     @property
     def output_shape(self) -> Tuple[int, ...]:
         """
-        Get the output shape (batch_size, out_channels, output_height, output_width)  of the layer's data.
+        Get the output shape (batch_size, num_features)  of the layer's data.
 
         Returns:
         --------
@@ -155,26 +154,25 @@ class BatchNorm2d(Module):
         input_data : np.ndarray
             The input data.
         """
-        assert len(input_data.shape) == 4, "Input data must have shape (batch, num_features, height, width)"
+        assert len(input_data.shape) == 2, "Input data must have shape (batch, num_features)"
 
         if self.is_training():
-            # Compute mean and variance over spatial dimensions (H x W)
-            mean = np.nanmean(input_data, axis=(0, 2, 3))
-            var = np.nanvar(input_data, axis=(0, 2, 3))
+            # Compute mean and variance over the input dimension
+            mean = np.nanmean(input_data, axis=0)
+            var = np.nanvar(input_data, axis=0)
 
             # Update running statistics with exponential moving average
             self.running_mean += self.momentum * (mean - self.running_mean)
             self.running_var += self.momentum * (var - self.running_var)
 
-            self.mean = mean.reshape((1, self.num_features, 1, 1))
-            self.var = var.reshape((1, self.num_features, 1, 1))
+            self.mean = mean.reshape((1, self.num_features))
+            self.var = var.reshape((1, self.num_features))
         else:
-            self.mean = self.running_mean[None, :, None, None]
-            self.var = self.running_var[None, :, None, None]
+            self.mean = self.running_mean[None, :]
+            self.var = self.running_var[None, :]
 
         # Normalize input data
-        sqrt_var_eps = np.sqrt(self.var + self.eps)
-        x_normalized = (input_data - self.mean) / sqrt_var_eps
+        x_normalized = (input_data - self.mean) / np.sqrt(self.var + self.eps)
 
         self.output = self.gamma * x_normalized + self.beta if self.affine else x_normalized
 
@@ -190,9 +188,9 @@ class BatchNorm2d(Module):
         y_true : np.ndarray
             The true labels for the data.
         """
-        assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, num_features, height, width)"
+        assert len(upstream_gradients.shape) == 2, "Upstream gradients must have shape (batch, num_features)"
 
-        m = self.input.shape[0] * self.input.shape[2] * self.input.shape[3]
+        m = self.input.shape[0]
 
         x_minus_mean = self.input - self.mean
         sqrt_var_eps = np.sqrt(self.var + self.eps)
@@ -200,8 +198,8 @@ class BatchNorm2d(Module):
         dx_normalized = upstream_gradients * self.gamma if self.affine else upstream_gradients
 
         # Compute gradients of mean and variance
-        dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.eps) ** (-1.5), axis=(0, 2, 3), keepdims=True)
-        dmean = np.sum(dx_normalized * -1.0 / sqrt_var_eps, axis=(0, 2, 3), keepdims=True) + dvar * np.sum(-2.0 * x_minus_mean, axis=(0, 2, 3), keepdims=True) / m
+        dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.eps) ** (-1.5), axis=0, keepdims=True)
+        dmean = np.sum(dx_normalized * -1.0 / sqrt_var_eps, axis=0, keepdims=True) + dvar * np.sum(-2.0 * x_minus_mean, axis=0, keepdims=True) / m
 
         # Compute retrograde (backward) gradients for input
         self.retrograde = dx_normalized / sqrt_var_eps
@@ -211,6 +209,7 @@ class BatchNorm2d(Module):
         # Compute gradients of gamma and beta and update gamma and beta using optimizer
         if self.affine:
             x_normalized = x_minus_mean / sqrt_var_eps
-            dgamma = np.sum(upstream_gradients * x_normalized, axis=(0, 2, 3), keepdims=True)
-            dbeta = np.sum(upstream_gradients, axis=(0, 2, 3), keepdims=True)
+            dgamma = np.sum(upstream_gradients * x_normalized, axis=0, keepdims=True)
+            dbeta = np.sum(upstream_gradients, axis=0, keepdims=True)
             self.optimizer.update([self.gamma, self.beta], [dgamma, dbeta])
+
