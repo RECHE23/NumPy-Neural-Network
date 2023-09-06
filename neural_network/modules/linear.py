@@ -110,7 +110,7 @@ class Linear(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the Linear layer.
 
@@ -128,12 +128,7 @@ class Linear(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of learnable parameters in the layer.
-
-        Returns:
-        --------
-        int:
-            The total number of learnable parameters in the layer.
+        Get the total number of parameters in the module.
         """
         return np.prod(self.weight.shape) + np.prod(self.bias.shape)
 

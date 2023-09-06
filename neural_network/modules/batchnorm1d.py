@@ -103,7 +103,7 @@ class BatchNorm1d(Module):
         return state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the batch normalization layer.
         """
@@ -126,7 +126,7 @@ class BatchNorm1d(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of parameters in the layer.
+        Get the total number of parameters in the module.
         """
         c = np.prod(self.running_mean.shape) + np.prod(self.running_var.shape)
         if self.affine:

@@ -108,7 +108,7 @@ class Module:
 
     @state.setter
     @abstractmethod
-    def state(self, value) -> None:
+    def state(self, valu: Dict[str, Any]) -> None:
         """
         Set the state of the module.
 
@@ -123,12 +123,7 @@ class Module:
     @abstractmethod
     def parameters_count(self) -> int:
         """
-        Get the total number of learnable parameters in the module.
-
-        Returns:
-        --------
-        int
-            Total number of learnable parameters.
+        Get the total number of parameters in the module.
         """
         raise NotImplementedError
 

@@ -91,7 +91,7 @@ class OutputLayer(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the output layer.
 
@@ -118,12 +118,7 @@ class OutputLayer(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Return the number of parameters in the output layer.
-
-        Returns:
-        ----------
-        count : int
-            The number of parameters (always 0 for output layer).
+        Get the total number of parameters in the module.
         """
         return 0
 
@@ -213,7 +208,7 @@ class SoftmaxBinaryCrossEntropy(OutputLayer):
         return super().state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the output layer.
 
@@ -273,7 +268,7 @@ class SoftmaxCategoricalCrossEntropy(OutputLayer):
         return super().state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the output layer.
 
@@ -334,7 +329,7 @@ class SoftminBinaryCrossEntropy(OutputLayer):
         return super().state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the output layer.
 
@@ -394,7 +389,7 @@ class SoftminCategoricalCrossEntropy(OutputLayer):
         return super().state
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the output layer.
 

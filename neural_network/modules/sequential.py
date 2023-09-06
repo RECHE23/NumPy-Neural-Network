@@ -59,7 +59,7 @@ class Sequential(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         for class_name, layer_state in value["sub_layers_state"]:
             layer = globals()[class_name](layer_state)
             layer.state = layer_state
@@ -94,7 +94,7 @@ class Sequential(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of parameters in the sequential model.
+        Get the total number of parameters in the module.
         """
         return sum(layer.parameters_count for layer in self.sub_layers)
 

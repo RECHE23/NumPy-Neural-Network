@@ -83,7 +83,7 @@ class Pool2d(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the pooling layer.
         """
@@ -93,7 +93,7 @@ class Pool2d(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of parameters in the layer.
+        Get the total number of parameters in the module.
         """
         return 0
 

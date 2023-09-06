@@ -134,7 +134,7 @@ class Conv1d(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the Conv1d layer.
 
@@ -158,7 +158,7 @@ class Conv1d(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of parameters in the Conv1d layer.
+        Get the total number of parameters in the module.
         """
         return np.prod(self.weight.shape) + np.prod(self.bias.shape)
 

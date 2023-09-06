@@ -61,18 +61,13 @@ class Reshape(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         self._output_shape = value["output_shape"]
 
     @property
     def parameters_count(self) -> int:
         """
-        Get the number of parameters in the reshape layer.
-
-        Returns:
-        ----------
-        count : int
-            The number of parameters (always 0 for reshape layer).
+        Get the total number of parameters in the module.
         """
         return 0
 
@@ -176,19 +171,14 @@ class Flatten(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         self.start_dim = value["start_dim"]
         self.end_dim = value["end_dim"]
 
     @property
     def parameters_count(self) -> int:
         """
-        Get the number of parameters in the flatten layer.
-
-        Returns:
-        ----------
-        count : int
-            The number of parameters (always 0 for flatten layer).
+        Get the total number of parameters in the module.
         """
         return 0
 
@@ -285,19 +275,14 @@ class Unflatten(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         self._dim = value["dim"]
         self._unflattened_size = value["unflattened_size"]
 
     @property
     def parameters_count(self) -> int:
         """
-        Get the number of parameters in the unflatten layer.
-
-        Returns:
-        ----------
-        count : int
-            The number of parameters (always 0 for unflatten layer).
+        Get the total number of parameters in the module.
         """
         return 0
 
@@ -306,7 +291,7 @@ class Unflatten(Module):
         """
         Get the output shape (batch_size, output_shape) of the data.
         """
-        return self.input.shape[0], *self._unflattened_size
+        return (self.input.shape[0], *self._unflattened_size)
 
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """

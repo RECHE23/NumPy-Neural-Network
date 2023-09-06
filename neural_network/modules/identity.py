@@ -54,7 +54,7 @@ class Identity(Module):
         return self.__class__.__name__, {}
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the identity layer.
 
@@ -68,12 +68,7 @@ class Identity(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Get the total number of learnable parameters in the layer.
-
-        Returns:
-        --------
-        int:
-            The total number of learnable parameters in the layer (which is always 0 for the identity layer).
+        Get the total number of parameters in the module.
         """
         return 0
 

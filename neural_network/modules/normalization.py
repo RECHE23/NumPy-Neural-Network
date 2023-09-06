@@ -85,13 +85,16 @@ class Normalization(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         self.metric = value["metric"]
         self.dtype = value["dtype"]
         self.norm = value.get("norm", None)
 
     @property
     def parameters_count(self) -> int:
+        """
+        Get the total number of parameters in the module.
+        """
         return 1
 
     @property

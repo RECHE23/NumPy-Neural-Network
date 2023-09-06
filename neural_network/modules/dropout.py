@@ -76,7 +76,7 @@ class Dropout(Module):
         }
 
     @state.setter
-    def state(self, value) -> None:
+    def state(self, value: Dict[str, Any]) -> None:
         """
         Set the state of the dropout layer.
 
@@ -98,12 +98,7 @@ class Dropout(Module):
     @property
     def parameters_count(self) -> int:
         """
-        Return the number of parameters in the dropout layer.
-
-        Returns:
-        ----------
-        count : int
-            The number of parameters (always 0 for dropout).
+        Get the total number of parameters in the module.
         """
         return 0
 
