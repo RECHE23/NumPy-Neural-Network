@@ -242,8 +242,7 @@ class Conv2d(Module):
         self.windows = self._get_windows(input_data, self.output_dimensions, self.kernel_size, padding=padding, stride=self.stride)
 
         # Perform convolution and add bias:
-        self.output = einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize=True)
-        self.output += np.expand_dims(self.bias, axis=(0, 2, 3))
+        self.output = einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize=True) + self.bias[None, :, None, None]
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -278,13 +277,10 @@ class Conv2d(Module):
                                         padding=(v_padding, h_padding),
                                         dilation=(self.stride[0] - 1, self.stride[1] - 1))
 
-        # Rotate kernel for convolution:
-        rot_kern = np.rot90(self.weight, 2, axes=(2, 3))
-
         # Compute gradients:
         db = einsum('bchw->c', upstream_gradients, optimize=True)
         dw = einsum('bihwkl,bohw->oikl', self.windows, upstream_gradients, optimize=True)
-        dx = einsum('bohwkl,oikl->bihw', out_windows, rot_kern, optimize=True)
+        dx = einsum('bohwkl,oikl->bihw', out_windows, self.weight[:, :, ::-1, ::-1], optimize=True)
 
         # Update parameters and retrograde gradients:
         self.optimizer.update([self.weight, self.bias], [dw, db])
@@ -345,8 +341,7 @@ class Conv2d(Module):
         if dilation[1] != 0:
             input_data = np.insert(input_data, range(1, input_data.shape[3]), 0, axis=3)
         if padding[0] != 0 or padding[1] != 0:
-            input_data = np.pad(input_data, pad_width=((0,), (0,), (padding[0],), (padding[1],)),
-                                mode='constant', constant_values=0)
+            input_data = np.pad(input_data, pad_width=((0,), (0,), (padding[0],), (padding[1],)), mode='constant', constant_values=0)
 
         # Get the strides on the input array:
         batch_str, channel_str, kern_h_str, kern_w_str = input_data.strides

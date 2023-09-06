@@ -203,8 +203,7 @@ class Conv1d(Module):
         self.windows = self._get_windows(input_data, self.output_length, self.kernel_size, padding=self.padding, stride=self.stride)
 
         # Perform convolution and add bias:
-        self.output = einsum('bilk,oik->bol', self.windows, self.weight, optimize=True)
-        self.output += np.expand_dims(self.bias, axis=(0, 2))
+        self.output = einsum('bilk,oik->bol', self.windows, self.weight, optimize=True) + self.bias[None, :, None]
 
     def _backward_propagation(self, upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -227,7 +226,7 @@ class Conv1d(Module):
         out_windows = self._get_windows(upstream_gradients, self.input_length, self.kernel_size, padding=padding, dilation=self.stride - 1)
 
         # Compute gradients:
-        db = np.sum(upstream_gradients, axis=(0, 2))
+        db = einsum('bcl->c', upstream_gradients, optimize=True)
         dw = einsum('bilk,bol->oik', self.windows, upstream_gradients, optimize=True)
         dx = einsum('bolk,oik->bil', out_windows, np.flip(self.weight, axis=2), optimize=True)
 

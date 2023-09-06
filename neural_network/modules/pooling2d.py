@@ -4,6 +4,11 @@ import numpy as np
 from . import Module
 from neural_network.functions import pair
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 class Pool2d(Module):
     """
@@ -237,7 +242,7 @@ class MaxPool2d(Pool2d):
         if self.stride == self.kernel_size:
             # If there is no overlapping indices in the windows, this is way faster:
             gradients = upstream_gradients.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
-            gradients = np.multiply(gradients, self.pool_window_indices)
+            gradients = gradients * self.pool_window_indices
             self.retrograde[:, :, :gradients.shape[2], :gradients.shape[3]] = gradients
         else:
             # If there is overlapping indices in the windows, this provides an accurate result:
@@ -268,7 +273,8 @@ class AvgPool2d(Pool2d):
         input_data : np.ndarray
             The input data for the average pooling layer.
         """
-        self.output = np.nanmean(self.pool_windows, axis=(4, 5))
+        pool_windows = self.pool_windows
+        self.output = einsum('bchwij->bchw', pool_windows, optimize=True) / (pool_windows.shape[4] * pool_windows.shape[5])
 
     def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """

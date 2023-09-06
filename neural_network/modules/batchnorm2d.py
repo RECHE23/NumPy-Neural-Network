@@ -2,6 +2,11 @@ from typing import Tuple, Optional, Dict, Any
 import numpy as np
 from . import Module
 
+try:
+    import opt_einsum.contract as einsum
+except ImportError:
+    from numpy import einsum
+
 
 class BatchNorm2d(Module):
     """
@@ -159,8 +164,10 @@ class BatchNorm2d(Module):
 
         if self.is_training():
             # Compute mean and variance over spatial dimensions (H x W)
-            mean = np.nanmean(input_data, axis=(0, 2, 3))
-            var = np.nanvar(input_data, axis=(0, 2, 3))
+            m = input_data.shape[0] * input_data.shape[2] * input_data.shape[3]
+            mean = einsum('bchw->c', input_data, optimize=True) / m
+            centered_input_data = input_data - mean[None, :, None, None]
+            var = einsum('bchw,bchw->c', centered_input_data, centered_input_data, optimize=True) / m
 
             # Update running statistics with exponential moving average
             self.running_mean += self.momentum * (mean - self.running_mean)
@@ -200,17 +207,19 @@ class BatchNorm2d(Module):
         dx_normalized = upstream_gradients * self.gamma if self.affine else upstream_gradients
 
         # Compute gradients of mean and variance
-        dvar = np.sum(dx_normalized * x_minus_mean * -0.5 * (self.var + self.eps) ** (-1.5), axis=(0, 2, 3), keepdims=True)
-        dmean = np.sum(dx_normalized * -1.0 / sqrt_var_eps, axis=(0, 2, 3), keepdims=True) + dvar * np.sum(-2.0 * x_minus_mean, axis=(0, 2, 3), keepdims=True) / m
+        dvar_ = dx_normalized * x_minus_mean * -0.5 * (self.var + self.eps) ** (-1.5)
+        dvar = einsum('bchw->c', dvar_, optimize=True)[None, :, None, None]
+        dmean_p1 = - dx_normalized / sqrt_var_eps
+        dmean_p2 = - 2.0 * x_minus_mean
+        dmean = einsum('bchw->c', dmean_p1, optimize=True)[None, :, None, None]
+        dmean += dvar * einsum('bchw->c', dmean_p2, optimize=True)[None, :, None, None] / m
 
         # Compute retrograde (backward) gradients for input
-        self.retrograde = dx_normalized / sqrt_var_eps
-        self.retrograde += dvar * 2.0 * x_minus_mean / m
-        self.retrograde += dmean / m
+        self.retrograde = dx_normalized / sqrt_var_eps + dvar * 2.0 * x_minus_mean / m + dmean / m
 
         # Compute gradients of gamma and beta and update gamma and beta using optimizer
         if self.affine:
             x_normalized = x_minus_mean / sqrt_var_eps
-            dgamma = np.sum(upstream_gradients * x_normalized, axis=(0, 2, 3), keepdims=True)
-            dbeta = np.sum(upstream_gradients, axis=(0, 2, 3), keepdims=True)
+            dgamma = einsum('bchw->c', upstream_gradients * x_normalized, optimize=True)[None, :, None, None]
+            dbeta = einsum('bchw->c', upstream_gradients, optimize=True)[None, :, None, None]
             self.optimizer.update([self.gamma, self.beta], [dgamma, dbeta])
