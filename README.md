@@ -185,7 +185,7 @@ Here are the next features I intend to implement:
   - [ ] Instance normalization : Normalization across each channel for each sample in a batch.
   - [ ] Group normalization : Splits channels into groups and normalizes within each group for each sample in a batch.
 - [ ] Additional modules:
-  - [ ] 1D Convolution, batch normalization and pooling.
+  - [x] 1D Convolution, batch normalization and pooling.
   - [ ] Reccurent layers such as RNN, LSTM and GRU.
 - [ ] Better and more detailed examples:
   - [ ] Jupyter notebooks with various models and datasets

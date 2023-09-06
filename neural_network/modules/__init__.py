@@ -6,6 +6,7 @@ from .activation import ActivationLayer, ReLU, Tanh, Sigmoid, BentIdentity, SiLU
 from .conv1d import Conv1d
 from .conv2d import Conv2d
 from .output import OutputLayer, SoftmaxBinaryCrossEntropy, SoftmaxCategoricalCrossEntropy, SoftminBinaryCrossEntropy, SoftminCategoricalCrossEntropy
+from .pooling1d import Pool1d, MaxPool1d, AvgPool1d
 from .pooling2d import Pool2d, MaxPool2d, AvgPool2d
 from .dropout import Dropout
 from .batchnorm1d import BatchNorm1d
@@ -41,6 +42,9 @@ __all__ = ["Module",
            "SoftmaxCategoricalCrossEntropy",
            "SoftminBinaryCrossEntropy",
            "SoftminCategoricalCrossEntropy",
+           "Pool1d",
+           "MaxPool1d",
+           "AvgPool1d",
            "Pool2d",
            "MaxPool2d",
            "AvgPool2d",
