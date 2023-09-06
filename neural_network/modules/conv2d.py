@@ -13,18 +13,24 @@ class Conv2d(Module):
     """
     A 2D convolutional layer for neural network architectures.
 
+    This layer performs 2D convolution operations on input data and is commonly used in deep learning architectures for
+    tasks like image recognition.
+
     Parameters:
     -----------
     in_channels : int
-        Number of input channels.
+        Number of input channels, corresponding to the depth of the input data.
     out_channels : int
-        Number of output channels (number of kernels).
+        Number of output channels, representing the number of convolutional filters.
     kernel_size : int or tuple of int
-        Size of the convolutional kernels.
-    stride : tuple of int
-        Stride (vertical stride, horizontal stride).
-    padding : tuple of int
-        Padding (vertical padding, horizontal padding).
+        Size of the convolutional kernels. If it's an integer, the kernel will have a square shape.
+        If it's a tuple, it should contain two integers for the height and width of the kernel.
+    stride : int or tuple of int, optional
+        Stride (vertical stride, horizontal stride) for the convolution operation. Defaults to (1, 1).
+    padding : int, str, or tuple of int, optional
+        Padding added to the input data. Padding can be specified as an integer, "same" (for zero-padding to maintain
+        input dimensions), "valid" (for no padding), or as a tuple containing two integers for vertical and horizontal padding.
+        Defaults to (0, 0).
     initialization : str, optional
         Weight initialization method: "xavier" or "he" (default is "xavier").
     *args, **kwargs:
@@ -50,23 +56,10 @@ class Conv2d(Module):
         Biases for each output channel.
     windows : np.ndarray
         Memorized convolution windows from the forward propagation.
-
-    Methods:
-    --------
-    _forward_propagation(input_data: np.ndarray) -> None:
-        Compute the output of the convolutional layer using the given input data.
-    _backward_propagation(upstream_gradients: np.ndarray, y_true: Optional[np.ndarray] = None) -> None:
-        Compute the retrograde gradients for the convolutional layer.
-    _initialize_parameters(initialization: str) -> None:
-        Initialize convolutional kernels using the specified initialization method.
-    _get_windows(input_data: np.ndarray, output_size: Tuple[int, int], kernel_size: Tuple[int, int],
-                 padding: Tuple[int, int] = (0, 0), stride: Tuple[int, int] = (1, 1),
-                 dilation: Tuple[int, int] = (0, 0)) -> np.ndarray:
-        Generate convolution windows for the input data.
     """
 
     def __init__(self, in_channels: int, out_channels: int, kernel_size: Union[int, Tuple[int, int]],
-                 stride: Union[int, Tuple[int, int]] = 1, padding: Union[int, Tuple[int, int]] = 0,
+                 stride: Union[int, Tuple[int, int]] = 1, padding: Union[int, str, Tuple[int, int]] = 0,
                  initialization: str = "xavier", *args, **kwargs):
         """
         Initialize a Conv2d layer.
@@ -81,8 +74,9 @@ class Conv2d(Module):
             Size of the convolutional kernels.
         stride : tuple of int, optional
             Stride (vertical stride, horizontal stride). Defaults to (1, 1).
-        padding : tuple of int, optional
+        padding : int, str, or tuple of int, optional
             Padding (vertical padding, horizontal padding). Defaults to (0, 0).
+            Padding can be specified as an integer, a pair of integers, "same," or "valid."
         initialization : str, optional
             Weight initialization method: "xavier" or "he" (default is "xavier").
         *args, **kwargs:
@@ -95,7 +89,7 @@ class Conv2d(Module):
         self.out_channels: int
         self.kernel_size: Tuple[int, int]
         self.stride: Tuple[int, int]
-        self.padding: Tuple[int, int]
+        self.padding: Union[Tuple[int, int], str]
         self.initialization: str
         self.weight: np.ndarray
         self.bias: np.ndarray
@@ -156,11 +150,30 @@ class Conv2d(Module):
         assert value["in_channels"] > 0, "Number of input channels must be greater than 0"
         assert value["out_channels"] > 0, "Number of output channels must be greater than 0"
 
+        if isinstance(value["padding"], str):
+            padding = value["padding"].lower().strip()
+
+            if padding == 'same':
+                pass
+            elif padding == 'valid':
+                padding = 0, 0
+            else:
+                raise ValueError("Invalid padding option. Use 'same', 'valid' a positive integer or a pair of positive integers.")
+        elif isinstance(value["padding"], int):
+            assert value["padding"] >= 0
+            padding = pair(value["padding"])
+        elif isinstance(value["padding"], tuple):
+            assert len(value["padding"]) == 2
+            assert value["padding"][0] >= 0 and value["padding"][1] >= 0
+            padding = pair(value["padding"])
+        else:
+            raise ValueError("Invalid padding option. Use 'same', 'valid' a positive integer or a pair of positive integers.")
+
         self.in_channels = value["in_channels"]
         self.out_channels = value["out_channels"]
         self.kernel_size = pair(value["kernel_size"])
         self.stride = pair(value["stride"])
-        self.padding = pair(value["padding"])
+        self.padding = padding
         self.initialization = value["initialization"]
         self.weight = value.get("weight", None)
         self.bias = value.get("bias", None)
@@ -195,7 +208,11 @@ class Conv2d(Module):
     def output_dimensions(self) -> Tuple[int, int]:
         """
         Calculate and get the output shape (height, width) after convolution and pooling.
+        If padding is set to 'same', it returns the same dimensions as the input.
         """
+        if isinstance(self.padding, str) and self.padding == 'same':
+            return self.input_dimensions
+
         output_height = (self.input_dimensions[0] - self.kernel_size[0] + 2 * self.padding[0]) // self.stride[0] + 1
         output_width = (self.input_dimensions[1] - self.kernel_size[1] + 2 * self.padding[1]) // self.stride[1] + 1
         return output_height, output_width
@@ -208,12 +225,21 @@ class Conv2d(Module):
         -----------
         input_data : np.ndarray
             The input data for the convolutional layer.
+
+        Note: If padding is set to 'same', padding is automatically calculated to maintain input dimensions.
         """
         assert len(input_data.shape) == 4, "Input data must have shape (batch, channels, height, width)"
 
+        if self.padding == 'same':
+            # Calculate padding to achieve 'same' padding
+            v_padding = max(0, ((input_data.shape[2] - 1) * self.stride[0] + self.kernel_size[0] - input_data.shape[2]) // 2)
+            h_padding = max(0, ((input_data.shape[3] - 1) * self.stride[1] + self.kernel_size[1] - input_data.shape[3]) // 2)
+            padding = v_padding, h_padding
+        else:
+            padding = self.padding
+
         # Generate windows:
-        self.windows = self._get_windows(input_data, self.output_dimensions, self.kernel_size,
-                                         padding=self.padding, stride=self.stride)
+        self.windows = self._get_windows(input_data, self.output_dimensions, self.kernel_size, padding=padding, stride=self.stride)
 
         # Perform convolution and add bias:
         self.output = einsum('bihwkl,oikl->bohw', self.windows, self.weight, optimize=True)
@@ -229,13 +255,23 @@ class Conv2d(Module):
             Upstream gradients coming from the subsequent layer.
         y_true : np.ndarray
             The true labels used for calculating the retrograde gradient.
+
+        Note: If padding is set to 'same', padding is automatically calculated for input gradients.
         """
         assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, channels, height, width)"
         assert upstream_gradients.shape[1] == self.out_channels, "Upstream gradients channels don't match"
 
+        if self.padding == 'same':
+            # Calculate padding for input gradients to achieve 'same' padding
+            v_padding = max(0, ((upstream_gradients.shape[2] - 1) * self.stride[0] + self.kernel_size[0] - upstream_gradients.shape[2]) // 2)
+            h_padding = max(0, ((upstream_gradients.shape[3] - 1) * self.stride[1] + self.kernel_size[1] - upstream_gradients.shape[3]) // 2)
+            padding = v_padding, h_padding
+        else:
+            padding = self.padding
+
         # Compute padding for input and output:
-        v_padding = self.kernel_size[0] - 1 if self.padding[0] == 0 else self.padding[0]
-        h_padding = self.kernel_size[1] - 1 if self.padding[1] == 0 else self.padding[1]
+        v_padding = self.kernel_size[0] - 1 if padding[0] == 0 else padding[0]
+        h_padding = self.kernel_size[1] - 1 if padding[1] == 0 else padding[1]
 
         # Generate windows for upstream gradients:
         out_windows = self._get_windows(upstream_gradients, self.input_dimensions, self.kernel_size,
@@ -246,7 +282,7 @@ class Conv2d(Module):
         rot_kern = np.rot90(self.weight, 2, axes=(2, 3))
 
         # Compute gradients:
-        db = np.sum(upstream_gradients, axis=(0, 2, 3))
+        db = einsum('bchw->c', upstream_gradients, optimize=True)
         dw = einsum('bihwkl,bohw->oikl', self.windows, upstream_gradients, optimize=True)
         dx = einsum('bohwkl,oikl->bihw', out_windows, rot_kern, optimize=True)
 
