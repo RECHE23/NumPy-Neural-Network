@@ -130,7 +130,7 @@ class Linear(Module):
         """
         Get the total number of parameters in the module.
         """
-        return np.prod(self.weight.shape) + np.prod(self.bias.shape)
+        return self.weight.size + self.bias.size
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
@@ -153,7 +153,7 @@ class Linear(Module):
         input_data : np.ndarray, shape (n_samples, in_features)
             The input data to propagate through the layer.
         """
-        assert input_data.shape[1] == self.in_features, "Input size doesn't match"
+        assert input_data.shape[1] == self.in_features, f"Input size doesn't match: {input_data.shape[1]} ≠ {self.in_features}"
 
         self.output = einsum("ij,kj->ik", input_data, self.weight, optimize=True) + self.bias
 

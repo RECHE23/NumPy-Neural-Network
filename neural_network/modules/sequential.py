@@ -28,7 +28,7 @@ class Sequential(Module):
         Perform backward propagation through all sub-layers.
     """
 
-    def __init__(self, *layers: Module):
+    def __init__(self, *layers: Module, **kwargs):
         """
         Initialize a sequential neural network layer.
 
@@ -37,7 +37,7 @@ class Sequential(Module):
         layers : list of Module, optional
             The list of sub-layers in the sequential model.
         """
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.sub_layers: List[Module] = list(layers) if layers is not None else []
 

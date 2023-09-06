@@ -183,7 +183,7 @@ class Conv2d(Module):
         """
         Get the total number of parameters in the module.
         """
-        return np.prod(self.weight.shape) + np.prod(self.bias.shape)
+        return self.weight.size + self.bias.size
 
     @property
     def output_shape(self) -> Tuple[int, ...]:
@@ -258,7 +258,7 @@ class Conv2d(Module):
         Note: If padding is set to 'same', padding is automatically calculated for input gradients.
         """
         assert len(upstream_gradients.shape) == 4, "Upstream gradients must have shape (batch, channels, height, width)"
-        assert upstream_gradients.shape[1] == self.out_channels, "Upstream gradients channels don't match"
+        assert upstream_gradients.shape[1] == self.out_channels, f"Upstream gradients channels don't match: {upstream_gradients.shape[1]} ≠ {self.out_channels}"
 
         if self.padding == 'same':
             # Calculate padding for input gradients to achieve 'same' padding

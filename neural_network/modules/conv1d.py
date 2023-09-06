@@ -160,7 +160,7 @@ class Conv1d(Module):
         """
         Get the total number of parameters in the module.
         """
-        return np.prod(self.weight.shape) + np.prod(self.bias.shape)
+        return self.weight.size + self.bias.size
 
     @property
     def output_shape(self) -> Tuple[int, int, int]:

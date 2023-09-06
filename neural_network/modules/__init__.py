@@ -13,7 +13,7 @@ from .batchnorm1d import BatchNorm1d
 from .batchnorm2d import BatchNorm2d
 from .sequential import Sequential
 from .identity import Identity
-from .skip_connection import SkipConnection
+from .residual import ResidualBlock
 
 __all__ = ["Module",
            "Normalization",
@@ -55,4 +55,4 @@ __all__ = ["Module",
            "BatchNorm2d",
            "Sequential",
            "Identity",
-           "SkipConnection"]
+           "ResidualBlock"]
