@@ -5,7 +5,7 @@ from . import Module
 from neural_network.functions import pair
 
 
-class Pooling2DLayer(Module):
+class Pool2d(Module):
     """
     Abstract base class for 2D pooling layers in neural network architectures.
     Provides common methods and properties for pooling layers.
@@ -125,6 +125,11 @@ class Pooling2DLayer(Module):
         output_width = (self.input_dimensions[1] - self.kernel_size[1]) // self.stride[1] + 1
         return output_height, output_width
 
+    @property
+    def pool_windows(self):
+        assert self.input is not None, "Forward was not called before calling pool_windows!"
+        return self._get_windows(self.input)
+
     @abstractmethod
     def _forward_propagation(self, input_data: np.ndarray) -> None:
         """
@@ -178,7 +183,7 @@ class Pooling2DLayer(Module):
         return np.lib.stride_tricks.as_strided(input_data, shape=pool_windows_shape, strides=strides)
 
 
-class MaxPool2d(Pooling2DLayer):
+class MaxPool2d(Pool2d):
     """
     Max pooling layer for 2D data in neural network architectures.
 
@@ -199,17 +204,12 @@ class MaxPool2d(Pooling2DLayer):
         input_data : np.ndarray
             The input data for the max pooling layer.
         """
-        # Create a view into the input data to get the pooling windows
-        pool_windows = self._get_windows(input_data)
+        pool_windows = self.pool_windows
 
-        # Evaluate the max pooling
         self.output = np.nanmax(pool_windows, axis=(4, 5))
 
-        if self.is_training():
-            max_values = self.output.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
-            input_window = input_data[:, :, :self.output_dimensions[0] * self.stride[0], :self.output_dimensions[1] * self.stride[1]]
-            # Create a mask indicating the positions of maximum values in the pooling windows
-            self.mask = np.equal(input_window, max_values).astype(np.int8)
+        self.pool_window_indices = np.argmax(pool_windows.reshape((*pool_windows.shape[:-2], -1)), axis=4)
+        self.pool_window_indices = np.unravel_index(self.pool_window_indices.ravel(), shape=self.kernel_size)
 
     def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -222,35 +222,17 @@ class MaxPool2d(Pooling2DLayer):
         y_true : np.ndarray
             The true target values corresponding to the input data.
         """
-        assert hasattr(self, 'mask'), "No mask found. Make sure forward propagation was performed."
+        assert hasattr(self, 'pool_window_indices'), "No pool indices found. Make sure forward propagation was performed."
 
-        # Initialize retrograde array
         self.retrograde = np.zeros_like(self.input)
 
-        if self.stride[0] <= self.kernel_size[0] or self.stride[1] <= self.kernel_size[1]:  # Overlapping indices can cause bugs in memory access.
-            # Upsample the gradients and apply the mask
-            gradients = upstream_gradients.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
-            gradients = np.multiply(gradients, self.mask)
-            self.retrograde[:, :, :gradients.shape[2], :gradients.shape[3]] = gradients
-        else:
-            # Unpooling with non-overlapping strides
-            batch_size, input_channels, output_height, output_width = self.output_shape
-            for i in range(output_height):
-                for j in range(output_width):
-                    start_i, start_j = i * self.stride[0], j * self.stride[1]
-                    end_i, end_j = start_i + self.kernel_size[0], start_j + self.kernel_size[1]
+        pool_windows = self._get_windows(self.retrograde)
 
-                    # Find the indices of max values in the pooling window
-                    pooling_window = self.input[:, :, start_i:end_i, start_j:end_j].reshape(batch_size, input_channels, -1)
-                    max_indices_i, max_indices_j = np.unravel_index(np.argmax(pooling_window, axis=2), self.kernel_size)
-
-                    # Distribute gradients to the positions of max values in the input window
-                    for b in range(batch_size):
-                        for c in range(input_channels):
-                            self.retrograde[b, c, start_i:end_i, start_j:end_j][max_indices_i[b, c], max_indices_j[b, c]] = upstream_gradients[b, c, i, j]
+        for (b, c, h, w), i, j, grad in zip(np.ndindex(*self.output_shape), *self.pool_window_indices, np.nditer(upstream_gradients)):
+            pool_windows[b, c, h, w, i, j] += grad
 
 
-class AvgPool2d(Pooling2DLayer):
+class AvgPool2d(Pool2d):
     """
     Average pooling layer for 2D data in neural network architectures.
 
@@ -271,13 +253,9 @@ class AvgPool2d(Pooling2DLayer):
         input_data : np.ndarray
             The input data for the average pooling layer.
         """
-        # Create a view into the input data to get the pooling windows
-        pool_windows = self._get_windows(input_data)
+        self.output = np.nanmean(self.pool_windows, axis=(4, 5))
 
-        # Evaluate the average pooling
-        self.output = np.nanmean(pool_windows, axis=(4, 5))
-
-    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true:Optional[np.ndarray] = None) -> None:
+    def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
         Perform backward propagation for average pooling layer.
 
@@ -288,12 +266,11 @@ class AvgPool2d(Pooling2DLayer):
         y_true : np.ndarray
             The true target values corresponding to the input data.
         """
-        output_height, output_width = self.output_dimensions
-
         self.retrograde = np.zeros_like(self.input)
 
-        for i in range(output_height):
-            for j in range(output_width):
-                start_i, start_j = i * self.stride[0], j * self.stride[1]
-                end_i, end_j = start_i + self.kernel_size[0], start_j + self.kernel_size[1]
-                self.retrograde[:, :, start_i:end_i, start_j:end_j] = upstream_gradients[:, :, i, j][:, :, None, None] / (self.kernel_size[0] * self.kernel_size[1])
+        pool_windows = self._get_windows(self.retrograde)
+
+        norm = upstream_gradients / np.prod(self.kernel_size)
+
+        for pos, n in zip(np.ndindex(*self.output_shape), np.nditer(norm)):
+            pool_windows[pos] += n
