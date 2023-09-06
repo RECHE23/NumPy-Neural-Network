@@ -208,8 +208,16 @@ class MaxPool2d(Pool2d):
 
         self.output = np.nanmax(pool_windows, axis=(4, 5))
 
-        self.pool_window_indices = np.argmax(pool_windows.reshape((*pool_windows.shape[:-2], -1)), axis=4)
-        self.pool_window_indices = np.unravel_index(self.pool_window_indices.ravel(), shape=self.kernel_size)
+        if self.stride == self.kernel_size:
+            # If there is no overlapping indices in the windows, this is way faster:
+            max_values = self.output.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
+            input_window = input_data[:, :, :self.output_dimensions[0] * self.stride[0], :self.output_dimensions[1] * self.stride[1]]
+            # Create a mask indicating the positions of maximum values in the pooling windows
+            self.pool_window_indices = np.equal(input_window, max_values).astype(np.int8)
+        else:
+            # If there is overlapping indices in the windows, this provides an accurate result:
+            self.pool_window_indices = np.argmax(pool_windows.reshape((*pool_windows.shape[:-2], -1)), axis=4)
+            self.pool_window_indices = np.unravel_index(self.pool_window_indices.ravel(), shape=self.kernel_size)
 
     def _backward_propagation(self, upstream_gradients: Optional[np.ndarray], y_true: Optional[np.ndarray] = None) -> None:
         """
@@ -226,10 +234,17 @@ class MaxPool2d(Pool2d):
 
         self.retrograde = np.zeros_like(self.input)
 
-        pool_windows = self._get_windows(self.retrograde)
+        if self.stride == self.kernel_size:
+            # If there is no overlapping indices in the windows, this is way faster:
+            gradients = upstream_gradients.repeat(self.stride[0], axis=2).repeat(self.stride[1], axis=3)
+            gradients = np.multiply(gradients, self.pool_window_indices)
+            self.retrograde[:, :, :gradients.shape[2], :gradients.shape[3]] = gradients
+        else:
+            # If there is overlapping indices in the windows, this provides an accurate result:
+            pool_windows = self._get_windows(self.retrograde)
 
-        for (b, c, h, w), i, j, grad in zip(np.ndindex(*self.output_shape), *self.pool_window_indices, np.nditer(upstream_gradients)):
-            pool_windows[b, c, h, w, i, j] += grad
+            for (b, c, h, w), i, j, grad in zip(np.ndindex(*self.output_shape), *self.pool_window_indices, np.nditer(upstream_gradients)):
+                pool_windows[b, c, h, w, i, j] += grad
 
 
 class AvgPool2d(Pool2d):
@@ -272,5 +287,10 @@ class AvgPool2d(Pool2d):
 
         norm = upstream_gradients / np.prod(self.kernel_size)
 
-        for pos, n in zip(np.ndindex(*self.output_shape), np.nditer(norm)):
-            pool_windows[pos] += n
+        if self.stride == self.kernel_size:
+            # If there is no overlapping indices in the windows, this is way faster:
+            pool_windows += norm[:, :, :, :, None, None]
+        else:
+            # If there is overlapping indices in the windows, this provides an accurate result:
+            for pos in np.ndindex(*self.output_shape):
+                pool_windows[pos] += norm[pos]
