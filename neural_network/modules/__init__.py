@@ -12,6 +12,7 @@ from .dropout import Dropout
 from .batchnorm1d import BatchNorm1d
 from .batchnorm2d import BatchNorm2d
 from .sequential import Sequential
+from .identity import Identity
 
 __all__ = ["Module",
            "Normalization",
@@ -51,4 +52,5 @@ __all__ = ["Module",
            "Dropout",
            "BatchNorm1d",
            "BatchNorm2d",
-           "Sequential"]
+           "Sequential",
+           "Identity"]

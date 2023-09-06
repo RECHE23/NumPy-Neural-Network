@@ -26,7 +26,8 @@ class TestConv1dLayer(unittest.TestCase):
         custom_output_ = custom_output(self.custom_layer, self.input_data)
 
         # Compare the forward pass outputs:
-        np.testing.assert_allclose(torch_output_, custom_output_, rtol=1e-7, atol=1e-6, err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
+        np.testing.assert_allclose(torch_output_, custom_output_, rtol=1e-7, atol=1e-6,
+                                   err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
 
         self.upstream_gradients = np.random.randn(*custom_output_.shape)
 
@@ -35,7 +36,8 @@ class TestConv1dLayer(unittest.TestCase):
         custom_grad_ = custom_grad(self.custom_layer, self.input_data, self.upstream_gradients)
 
         # Compare the retrograde gradients:
-        np.testing.assert_allclose(torch_grad_, custom_grad_, rtol=1e-7, atol=1e-6, err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
+        np.testing.assert_allclose(torch_grad_, custom_grad_, rtol=1e-7, atol=1e-6,
+                                   err_msg=f"Failed for kernel_size={kernel_size}, stride={stride}")
 
     def test_different_kernel_stride(self):
         # Test different combinations of kernel_size and stride
