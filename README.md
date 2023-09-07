@@ -32,13 +32,17 @@ git clone https://github.com/RECHE23/NumPy-Neural-Network.git
 cd NumPy-Neural-Network
 ```
 
-3. Set up a virtual environment and install the required packages:
+3. Set up a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows, use "venv\Scripts\activate".
+```
+4. Install the required packages:
+```
 pip install -r requirements.txt
 pip install -r optional-requirements.txt  # If you intend to run the tests and examples.
 ```
+Please note that, while `opt_einsum` is optional, it provides a great increase in speed.
 
 ## Usage
 
@@ -56,24 +60,23 @@ X, y = make_classification()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create a neural network:
-nn = NeuralNetwork()
+nn = NeuralNetwork(
+        Linear(in_features=20, out_features=64),
+        ReLU(),
+        Linear(in_features=64, out_features=32),
+        ReLU(),
+        Linear(in_features=32, out_features=2),
+        ReLU(),
+        SoftmaxCategoricalCrossEntropy()
+     )
 
-# Add layers to the network:
-nn.add(Linear(in_features=20, out_features=64))
-nn.add(ReLU())
-nn.add(Linear(in_features=64, out_features=32))
-nn.add(ReLU())
-nn.add(Linear(in_features=32, out_features=2))
-nn.add(ReLU())
-nn.add(SoftmaxCategoricalCrossEntropy())
-
-# Train the nn:
+# Train the neural network:
 nn.fit(X_train, y_train, epochs=20, batch_size=5, shuffle=True)
 
 # Make predictions:
 y_pred = nn.predict(X_test)
 
-# Evaluate the nn:
+# Evaluate the neural network:
 score = accuracy_score(y_test, y_pred)
 print(f"Accuracy score on the test set: {score:.2%}")
 ```

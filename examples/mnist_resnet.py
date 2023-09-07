@@ -5,7 +5,6 @@ from neural_network import *
 # Load the MNIST dataset:
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
-# LeNet-5 architecture (see reference: http://d2l.ai/chapter_convolutional-modern/alexnet.html):
 net = NeuralNetwork()
 net.add(Normalization(samples=X_train))
 net.add(Reshape(output_shape=(1, 28, 28)))
