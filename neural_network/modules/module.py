@@ -52,6 +52,8 @@ class Module:
             If not provided, the default optimizer Adam with learning rate 1e-3 and
             decay 1e-4 will be used.
         """
+        assert not args and not kwargs, f"Unused arguments are being passed to base class Module:\nargs:{args}\nkwargs:{kwargs}"
+
         self.input: Optional[np.ndarray] = None
         self.output: Optional[np.ndarray] = None
         self.retrograde: Optional[np.ndarray] = None

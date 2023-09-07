@@ -46,13 +46,15 @@ class ActivationLayer(Module):
         activation_function : callable
             The activation function to be applied during forward and backward propagation. Default is "relu".
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
 
         self.activation_function_name: str
         self.activation_function: Callable
+        self.kwargs: Dict
 
         self.state = {
-            "activation_function_name": activation_function
+            "activation_function_name": activation_function,
+            "kwargs": kwargs
         }
 
     def __repr__(self) -> str:
@@ -68,7 +70,8 @@ class ActivationLayer(Module):
         Get the current state of the activation layer.
         """
         return self.__class__.__name__, {
-            "activation_function_name": self.activation_function_name
+            "activation_function_name": self.activation_function_name,
+            "kwargs": self.kwargs
         }
 
     @state.setter
@@ -79,8 +82,9 @@ class ActivationLayer(Module):
         activation_function_name = value["activation_function_name"].lower().strip()
         assert activation_function_name in activation_functions, f"Invalid activation function. Choose from {list(activation_functions.keys())}"
 
+        self.kwargs = value["kwargs"]
         self.activation_function_name: str = activation_function_name
-        self.activation_function: Callable = activation_functions[activation_function_name]
+        self.activation_function: Callable = partial(activation_functions[activation_function_name], **self.kwargs)
 
     @property
     def parameters_count(self) -> int:

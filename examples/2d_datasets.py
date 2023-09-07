@@ -31,7 +31,7 @@ net.add(Linear(33, 50, optimizer=Adam(learning_rate=1e-3)))
 net.add(ReLU())
 net.add(Linear(50, 4, optimizer=Adam(learning_rate=1e-3)))
 # net.add(OutputLayer("tanh", "mean_squared_error"))
-net.add(OutputLayer("softmax", "categorical_cross_entropy"))
+net.add(SoftmaxCategoricalCrossEntropy())
 
 print(net)
 
