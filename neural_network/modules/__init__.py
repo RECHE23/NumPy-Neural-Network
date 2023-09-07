@@ -7,7 +7,7 @@ from .conv1d import Conv1d
 from .conv2d import Conv2d
 from .output import OutputLayer, SoftmaxBinaryCrossEntropy, SoftmaxCategoricalCrossEntropy, SoftminBinaryCrossEntropy, SoftminCategoricalCrossEntropy
 from .pooling1d import Pool1d, MaxPool1d, AvgPool1d
-from .pooling2d import Pool2d, MaxPool2d, AvgPool2d
+from .pooling2d import Pool2d, MaxPool2d, GlobalMaxPool2d, AvgPool2d, GlobalAvgPool2d
 from .dropout import Dropout
 from .batchnorm1d import BatchNorm1d
 from .batchnorm2d import BatchNorm2d
@@ -49,7 +49,9 @@ __all__ = ["Module",
            "AvgPool1d",
            "Pool2d",
            "MaxPool2d",
+           "GlobalMaxPool2d",
            "AvgPool2d",
+           "GlobalAvgPool2d",
            "Dropout",
            "BatchNorm1d",
            "BatchNorm2d",

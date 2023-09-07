@@ -7,7 +7,6 @@ class TestAvgPool1dLayer(unittest.TestCase):
     def setUp(self):
         # Set up common parameters and data for the tests
         self.input_channels = 3
-        self.output_channels = 8
         self.batch_size = 10
         self.input_length = 64
         self.input_data = np.random.randn(self.batch_size, self.input_channels, self.input_length)

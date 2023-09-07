@@ -7,7 +7,6 @@ class TestMaxPool2dLayer(unittest.TestCase):
     def setUp(self):
         # Set up common parameters and data for the tests
         self.input_channels = 3
-        self.output_channels = 8
         self.batch_size = 4
         self.input_height = 32
         self.input_width = 32
