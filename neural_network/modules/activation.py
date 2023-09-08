@@ -36,6 +36,9 @@ class ActivationLayer(Module):
     _backward_propagation(upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
         Compute the retrograde gradient for the activation layer.
     """
+    activation_function_name: str
+    activation_function: Callable
+    kwargs: Dict
 
     def __init__(self, activation_function: str = "relu", *args, **kwargs):
         """
@@ -47,10 +50,6 @@ class ActivationLayer(Module):
             The activation function to be applied during forward and backward propagation. Default is "relu".
         """
         super().__init__(*args)
-
-        self.activation_function_name: str
-        self.activation_function: Callable
-        self.kwargs: Dict
 
         self.state = {
             "activation_function_name": activation_function,

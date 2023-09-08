@@ -32,6 +32,9 @@ class Dropout(Module):
     _backward_propagation(upstream_gradients: np.ndarray, y_true: np.ndarray) -> None:
         Perform the backward propagation step.
     """
+    dropout_rate: float
+    scaling: float
+    dropout_mask: np.ndarray
 
     def __init__(self, p: float = 0.5, *args, **kwargs):
         """
@@ -46,10 +49,6 @@ class Dropout(Module):
             Additional arguments to be passed to the parent class constructor.
         """
         super().__init__(*args, **kwargs)
-
-        self.dropout_rate: float
-        self.scaling: float
-        self.dropout_mask: np.ndarray
 
         self.state = {
             "dropout_rate": p

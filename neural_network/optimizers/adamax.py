@@ -49,6 +49,13 @@ class Adamax(Optimizer):
         Update the parameters using the Adamax algorithm.
 
     """
+    beta1: float
+    beta2: float
+    epsilon: float
+    first_moments: Optional[List[np.ndarray]]
+    second_moments: Optional[List[np.ndarray]]
+    time_step: int
+
     def __init__(self, beta1: float = 0.9, beta2: float = 0.999, epsilon: float = 1e-8, *args, **kwargs):
         """
         Initialize the Adamax optimizer with hyperparameters.
@@ -67,12 +74,9 @@ class Adamax(Optimizer):
         """
         super().__init__(*args, **kwargs)
 
-        self.beta1: float
-        self.beta2: float
-        self.epsilon: float
-        self.first_moments: Optional[List[np.ndarray]] = None
-        self.second_moments: Optional[List[np.ndarray]] = None
-        self.time_step: int = 0
+        self.first_moments = None
+        self.second_moments = None
+        self.time_step = 0
 
         state = Optimizer.state.fget(self)[1]
         state.update({

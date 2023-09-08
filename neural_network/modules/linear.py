@@ -52,6 +52,11 @@ class Linear(Module):
     _initialize_parameters(initialization: str) -> None:
         Initialize layer parameters using the specified initialization method.
     """
+    in_features: int
+    out_features: int
+    initialization: str
+    weight: np.ndarray
+    bias: np.ndarray
 
     def __init__(self, in_features: int, out_features: int, initialization: str = "xavier", *args, **kwargs):
         """
@@ -69,12 +74,6 @@ class Linear(Module):
             Additional arguments passed to the base class Module.
         """
         super().__init__(*args, **kwargs)
-
-        self.in_features: int
-        self.out_features: int
-        self.initialization: str
-        self.weight: np.ndarray
-        self.bias: np.ndarray
 
         self.state = {
             "in_features": in_features,

@@ -27,6 +27,7 @@ class Sequential(Module):
     _backward_propagation(upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> None:
         Perform backward propagation through all sub-layers.
     """
+    sub_layers: List[Module]
 
     def __init__(self, *layers: Module, **kwargs):
         """
@@ -39,7 +40,7 @@ class Sequential(Module):
         """
         super().__init__(**kwargs)
 
-        self.sub_layers: List[Module] = list(layers) if layers is not None else []
+        self.sub_layers = list(layers) if layers is not None else []
 
     def __str__(self):
         layer_str = "\n".join([f"\t({i}): {layer}" for i, layer in enumerate(self.sub_layers)])

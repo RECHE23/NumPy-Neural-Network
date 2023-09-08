@@ -32,6 +32,11 @@ class Optimizer:
         Update the learning rate for the next epoch based on decay and clipping.
 
     """
+    lr: float
+    lr_decay: float
+    lr_min: float
+    lr_max: float
+
     def __init__(self, lr: float = 1e-3, lr_decay: float = 0, lr_min: float = 0, lr_max: float = np.inf,
                  *args, **kwargs):
         """
@@ -51,10 +56,6 @@ class Optimizer:
             Additional arguments passed to the optimizer.
 
         """
-        self.lr: float
-        self.lr_decay: float
-        self.lr_min: float
-        self.lr_max: float
 
         state = {
             "lr": lr,

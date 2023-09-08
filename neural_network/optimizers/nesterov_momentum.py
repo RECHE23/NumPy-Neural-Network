@@ -38,6 +38,9 @@ class NesterovMomentum(Optimizer):
         Update the parameters using Nesterov Accelerated Gradient (NAG).
 
     """
+    momentum: float
+    velocity: Optional[List[np.ndarray]]
+
     def __init__(self, momentum: float = 0.9, *args, **kwargs):
         """
         Initialize the NesterovMomentum optimizer with hyperparameters.
@@ -52,8 +55,7 @@ class NesterovMomentum(Optimizer):
         """
         super().__init__(*args, **kwargs)
 
-        self.momentum: float
-        self.velocity: Optional[List[np.ndarray]] = None
+        self.velocity = None
 
         state = Optimizer.state.fget(self)[1]
         state.update({

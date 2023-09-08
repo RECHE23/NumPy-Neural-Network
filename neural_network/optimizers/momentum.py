@@ -37,6 +37,9 @@ class Momentum(Optimizer):
         Update the parameters using the momentum-based gradient descent algorithm.
 
     """
+    momentum: float
+    velocity: Optional[List[np.ndarray]]
+
     def __init__(self, momentum: float = 0.9, *args, **kwargs):
         """
         Initialize the Momentum optimizer with hyperparameters.
@@ -51,8 +54,7 @@ class Momentum(Optimizer):
         """
         super().__init__(*args, **kwargs)
 
-        self.momentum: float
-        self.velocity: Optional[List[np.ndarray]] = None
+        self.velocity = None
 
         state = Optimizer.state.fget(self)[1]
         state.update({

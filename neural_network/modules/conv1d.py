@@ -57,6 +57,14 @@ class Conv1d(Module):
     _initialize_parameters(initialization: str) -> None:
         Initialize convolutional kernels using the specified initialization method.
     """
+    in_channels: int
+    out_channels: int
+    kernel_size: int
+    stride: int
+    padding: int
+    initialization: str
+    weight: np.ndarray
+    bias: np.ndarray
 
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int,
                  stride: int = 1, padding: int = 0, initialization: str = "xavier", *args, **kwargs):
@@ -81,15 +89,6 @@ class Conv1d(Module):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-
-        self.in_channels: int
-        self.out_channels: int
-        self.kernel_size: int
-        self.stride: int
-        self.padding: int
-        self.initialization: str
-        self.weight: np.ndarray
-        self.bias: np.ndarray
 
         self.state = {
             "in_channels": in_channels,

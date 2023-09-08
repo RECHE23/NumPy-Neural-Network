@@ -57,6 +57,15 @@ class Conv2d(Module):
     windows : np.ndarray
         Memorized convolution windows from the forward propagation.
     """
+    in_channels: int
+    out_channels: int
+    kernel_size: Tuple[int, int]
+    stride: Tuple[int, int]
+    padding: Union[Tuple[int, int], str]
+    initialization: str
+    weight: np.ndarray
+    bias: np.ndarray
+    windows: Optional[np.ndarray]
 
     def __init__(self, in_channels: int, out_channels: int, kernel_size: Union[int, Tuple[int, int]],
                  stride: Union[int, Tuple[int, int]] = 1, padding: Union[int, str, Tuple[int, int]] = 0,
@@ -85,15 +94,7 @@ class Conv2d(Module):
 
         super().__init__(*args, **kwargs)
 
-        self.in_channels: int
-        self.out_channels: int
-        self.kernel_size: Tuple[int, int]
-        self.stride: Tuple[int, int]
-        self.padding: Union[Tuple[int, int], str]
-        self.initialization: str
-        self.weight: np.ndarray
-        self.bias: np.ndarray
-        self.windows: Optional[np.ndarray] = None
+        self.windows = None
 
         self.state = {
             "in_channels": in_channels,

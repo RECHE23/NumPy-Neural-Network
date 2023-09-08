@@ -56,18 +56,17 @@ class BatchNorm1d(Module):
     _backward_propagation(upstream_gradients: Optional[np.ndarray], y_true: np.ndarray) -> None
         Perform the backward propagation step.
     """
+    num_features: int
+    eps: float
+    momentum: float
+    affine: bool
+    gamma: np.ndarray
+    beta: np.ndarray
+    running_mean: np.ndarray
+    running_var: np.ndarray
 
     def __init__(self, num_features: int, eps: float = 1e-05, momentum: float = 0.1, affine=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.num_features: int
-        self.eps: float
-        self.momentum: float
-        self.affine: bool
-        self.gamma: np.ndarray
-        self.beta: np.ndarray
-        self.running_mean: np.ndarray
-        self.running_var: np.ndarray
 
         self.state = {
             "num_features": num_features,

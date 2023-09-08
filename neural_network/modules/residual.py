@@ -36,6 +36,7 @@ class ResidualBlock(Module):
     state : Tuple[str, Dict[str, Any]]
         Get or set the state of the ResidualBlock, including the inner module's state.
     """
+    inner_modules: Sequential
 
     def __init__(self, *inner_modules: Module, **kwargs):
         super().__init__(**kwargs)

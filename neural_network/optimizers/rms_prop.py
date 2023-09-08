@@ -42,6 +42,10 @@ class RMSprop(Optimizer):
         Update the parameters using RMSprop optimization.
 
     """
+    rho: float
+    epsilon: float
+    squared_gradient_accumulations: Optional[List[np.ndarray]]
+
     def __init__(self, rho: float = 0.9, epsilon: float = 1e-7, *args, **kwargs):
         """
         Initialize the RMSprop optimizer with hyperparameters.

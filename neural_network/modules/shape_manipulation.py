@@ -28,6 +28,8 @@ class Reshape(Module):
     output_shape : tuple
         Desired shape of the output data.
     """
+    input_shape: Optional[Tuple[int, ...]]
+    output_shape: Tuple[int, ...]
 
     def __init__(self, output_shape: Tuple[int, ...], *args, **kwargs):
         """
@@ -134,6 +136,9 @@ class Flatten(Module):
     end_dim : int
         The dimension to end flattening at.
     """
+    original_shape: Optional[Tuple[int, ...]]
+    start_dim: int
+    end_dim: int
 
     def __init__(self, start_dim: int = 1, end_dim: int = -1, *args, **kwargs):
         """
@@ -221,9 +226,9 @@ class Unflatten(Module):
 
     Parameters:
     -----------
-    dim : Union[int, str]
+    dim : int
         Dimension along which the tensor was flattened.
-    unflattened_size : Union[Tuple[int, ...], List[int]]
+    unflattened_size : Tuple[int, ...]
         Desired shape of the unflattened dimension.
 
     Methods:
@@ -238,16 +243,19 @@ class Unflatten(Module):
     original_shape : Tuple[int, ...] or None
         Shape of the input data before unflattening.
     """
+    original_shape: Optional[Tuple[int, ...]]
+    _dim: int
+    _unflattened_size: Tuple[int, ...]
 
-    def __init__(self, dim: Union[int, str], unflattened_size: Union[Tuple[int, ...], List[int]], *args, **kwargs):
+    def __init__(self, dim: int, unflattened_size: Tuple[int, ...], *args, **kwargs):
         """
         Initialize the Unflatten with the desired output shape.
 
         Parameters:
         -----------
-        dim : Union[int, str]
+        dim : int
             Dimension along which the tensor was flattened.
-        unflattened_size : Union[Tuple[int, ...], List[int]]
+        unflattened_size : Tuple[int, ...]
             Desired shape of the unflattened dimension.
         *args, **kwargs:
             Additional arguments to pass to the base class.

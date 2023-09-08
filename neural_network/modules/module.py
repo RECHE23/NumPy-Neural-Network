@@ -40,6 +40,13 @@ class Module:
         Perform backward propagation through the module.
 
     """
+    input: Optional[np.ndarray]
+    output: Optional[np.ndarray]
+    retrograde: Optional[np.ndarray]
+    upstream_gradients: Optional[np.ndarray]
+    n_samples: Optional[int]
+    _optimizer_instance: Optional[Optimizer]
+    _is_training: bool
 
     def __init__(self, optimizer: Optional[Optimizer] = None, *args, **kwargs):
         """

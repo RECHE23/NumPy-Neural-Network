@@ -43,6 +43,10 @@ class OutputLayer(Module):
     output_shape : tuple of int
         The shape of the output from the layer.
     """
+    activation_function_name: str
+    loss_function_name: str
+    activation_function: Callable
+    loss_function: Callable
 
     def __init__(self, activation_function: str = "tanh", loss_function: str = "mean_squared_error", *args, **kwargs):
         """
@@ -58,11 +62,6 @@ class OutputLayer(Module):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-
-        self.activation_function_name: str
-        self.loss_function_name: str
-        self.activation_function: Callable
-        self.loss_function: Callable
 
         self.state = {
             "activation_function_name": activation_function,

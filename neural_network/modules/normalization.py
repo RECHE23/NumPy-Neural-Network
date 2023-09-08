@@ -42,6 +42,9 @@ class Normalization(Module):
     _evaluate_norm(samples: np.ndarray) -> None:
         Compute the normalization parameter based on the provided samples.
     """
+    metric: str
+    dtype: str
+    norm: float
 
     def __init__(self, metric: str = 'minmax', dtype: str = 'float32', samples: Optional[np.ndarray] = None, *args, **kwargs):
         """
@@ -59,10 +62,6 @@ class Normalization(Module):
             Additional arguments to pass to the base class.
         """
         super().__init__(*args, **kwargs)
-
-        self.metric: str
-        self.dtype: str
-        self.norm: float
 
         self.state = {
             "metric": metric,

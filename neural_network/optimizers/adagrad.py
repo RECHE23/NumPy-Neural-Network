@@ -37,6 +37,9 @@ class Adagrad(Optimizer):
         Update the parameters using the Adagrad algorithm.
 
     """
+    epsilon: float
+    sum_sq_gradients: Optional[List[np.ndarray]]
+
     def __init__(self, epsilon: float = 1e-7, *args, **kwargs):
         """
         Initialize the Adagrad optimizer with hyperparameters.
@@ -51,8 +54,7 @@ class Adagrad(Optimizer):
         """
         super().__init__(*args, **kwargs)
 
-        self.epsilon: float
-        self.sum_sq_gradients: Optional[List[np.ndarray]] = None
+        self.sum_sq_gradients = None
 
         state = Optimizer.state.fget(self)[1]
         state.update({

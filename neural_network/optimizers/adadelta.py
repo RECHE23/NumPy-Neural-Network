@@ -43,6 +43,11 @@ class Adadelta(Optimizer):
         Update the parameters using the Adadelta algorithm.
 
     """
+    rho: float
+    epsilon: float
+    avg_sq_gradients: Optional[List[np.ndarray]]
+    delta: Optional[List[np.ndarray]]
+
     def __init__(self, rho: float = 0.9, epsilon: float = 1e-7, *args, **kwargs):
         """
         Initialize the Adadelta optimizer with hyperparameters.
@@ -59,10 +64,8 @@ class Adadelta(Optimizer):
         """
         super().__init__(*args, **kwargs)
 
-        self.rho: float
-        self.epsilon: float
-        self.avg_sq_gradients: Optional[List[np.ndarray]] = None
-        self.delta: Optional[List[np.ndarray]] = None
+        self.avg_sq_gradients = None
+        self.delta = None
 
         state = Optimizer.state.fget(self)[1]
         state.update({
