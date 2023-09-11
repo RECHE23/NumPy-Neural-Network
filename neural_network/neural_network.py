@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, Iterator, List, Callable, Optional, Dict, Any
+from typing import Tuple, Iterator, List, Callable, Optional, Dict, Any, Union
 from .tools import trace
 from .functions import convert_targets
 from .callbacks import *
@@ -183,7 +183,7 @@ class NeuralNetwork:
         return error_grad
 
     @trace()
-    def predict(self, samples: np.ndarray, to: str = None) -> np.ndarray:
+    def predict(self, samples: np.ndarray, batch_size: int = 64, to: str = None) -> np.ndarray:
         """
         Make predictions using the neural network.
 
@@ -191,6 +191,8 @@ class NeuralNetwork:
         -----------
         samples : np.ndarray
             Input samples for prediction.
+        batch_size : int, optional
+            Batch size for training. Default is 64.
         to : str or None, optional
             Target format to convert predictions to. Default is None.
 
@@ -203,7 +205,16 @@ class NeuralNetwork:
         assert isinstance(self.layers[-1], OutputLayer), "An output layer has to be added before using fit and predict."
         assert samples.shape[1:] == self.layers[0].input_shape[1:], "Input sample shape does not match the network's input layer shape"
 
-        return convert_targets(self.forward(samples), to=to)
+        predictions = np.zeros((samples.shape[0], *self.layers[-1].output_shape[1:]))
+
+        batch_size = min(batch_size, samples.shape[0])
+
+        for batch_info, batch_samples in self._batch_iterator(samples, batch_size):
+            first_index = (batch_info[0] - 1) * batch_size
+            last_index = (batch_info[0] - 1) * batch_size + batch_samples.shape[0]
+            predictions[first_index:last_index] = self.forward(batch_samples)
+
+        return convert_targets(predictions, to=to)
 
     @trace()
     def fit(self, samples: np.ndarray, targets: np.ndarray, epochs: int = 100, batch_size: int = 1,
@@ -243,7 +254,7 @@ class NeuralNetwork:
             # Call on epoch begin callbacks:
             self.call_callbacks(epoch_info, None, samples, targets, status="epoch_begin")
 
-            for batch_info, batch_samples, batch_targets in self._batch_iterator(samples, targets, batch_size, shuffle):
+            for batch_info, batch_samples, batch_targets in self._batch_iterator(samples, batch_size, targets, shuffle):
 
                 # Call on batch begin callbacks:
                 self.call_callbacks(epoch_info, batch_info, batch_samples, batch_targets, status="batch_begin")
@@ -361,8 +372,8 @@ class NeuralNetwork:
         assert self.state["class_name"] == self.__class__.__name__
 
     @staticmethod
-    def _batch_iterator(samples: np.ndarray, targets: np.ndarray, batch_size: int, shuffle: bool = False) \
-            -> Iterator[Tuple[Tuple[int, int], np.ndarray, np.ndarray]]:
+    def _batch_iterator(samples: np.ndarray, batch_size: int, targets: Optional[np.ndarray] = None, shuffle: bool = False) \
+            -> Iterator[Union[Tuple[Tuple[int, int], np.ndarray, np.ndarray], Tuple[Tuple[int, int], np.ndarray]]]:
         """
         Generate batches of samples and targets.
 
@@ -370,10 +381,10 @@ class NeuralNetwork:
         -----------
         samples : np.ndarray
             Input samples for training.
-        targets : np.ndarray
-            Target targets for training.
         batch_size : int
             Batch size.
+        targets : np.ndarray, optional
+            Target targets for training.
         shuffle : bool, optional
             Whether to shuffle the data before each epoch. Default is False.
 
@@ -383,8 +394,8 @@ class NeuralNetwork:
             A tuple containing the current batch number and the total number of batches.
         batch_samples : np.ndarray
             Batch of input samples.
-        batch_targets : np.ndarray
-            Batch of target labels.
+        batch_targets : np.ndarray, optional
+            Batch of target labels if targets are provided.
         """
         assert batch_size <= samples.shape[0], "Batch size cannot be larger than the number of samples"
 
@@ -404,5 +415,9 @@ class NeuralNetwork:
             else:
                 excerpt = slice(start_idx, end_idx)
 
-            # Yield batch information, samples, and targets:
-            yield (batch_index + 1, total_batches), samples[excerpt], targets[excerpt]
+            if targets is not None:
+                # Yield batch information, samples, and targets:
+                yield (batch_index + 1, total_batches), samples[excerpt], targets[excerpt]
+            else:
+                # Yield batch information and samples:
+                yield (batch_index + 1, total_batches), samples[excerpt]
