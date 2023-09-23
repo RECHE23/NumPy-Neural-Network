@@ -25,7 +25,7 @@ def softmax(x: np.ndarray, axis=-1, prime: bool = False) -> np.ndarray:
         Result of applying softmax activation or its derivative.
 
     """
-    e = np.exp(x - np.max(x, axis=axis)[:, np.newaxis])
+    e = np.exp(x - np.max(x, axis=axis, keepdims=True))
     s = e / np.sum(e, axis=axis, keepdims=True)
 
     if prime:
@@ -52,7 +52,7 @@ def softmin(x: np.ndarray, axis=-1, prime: bool = False) -> np.ndarray:
         Result of applying softmin activation or its derivative.
 
     """
-    e = np.exp(-x - np.max(-x, axis=axis)[:, np.newaxis])
+    e = np.exp(-x - np.max(-x, axis=axis, keepdims=True))
     s = e / np.sum(e, axis=axis, keepdims=True)
 
     if prime:
