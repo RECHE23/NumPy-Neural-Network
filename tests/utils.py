@@ -22,21 +22,21 @@ def grad_check_loss(f, y_true, y_pred, eps=1e-7):
 
 
 def jacobian_check(f, x, eps=1e-7):
-    x_flat = x.flatten()
-    grad_matrix = np.zeros((x.size, x_flat.size))
+    if x.ndim == 1:
+        x = x[None, :]
 
-    for i in range(x_flat.size):
-        x_eps_plus = x_flat.copy()
-        x_eps_plus[i] += eps
-        f_plus = f(x_eps_plus)
+    y_values = f(x)
 
-        x_eps_minus = x_flat.copy()
-        x_eps_minus[i] -= eps
-        f_minus = f(x_eps_minus)
+    num_samples, num_y_dimensions = y_values.shape
+    num_x_dimensions = x.shape[1]
 
-        grad_matrix[:, i] = (f_plus - f_minus) / (2 * eps)
+    jacobian_matrix = np.empty((num_samples, num_y_dimensions, num_x_dimensions))
 
-    return grad_matrix.reshape(x.shape + (x.size,))
+    for i in range(num_x_dimensions):
+        x_perturbed = x + eps * np.eye(num_x_dimensions)[i]
+        jacobian_matrix[:, :, i] = (f(x_perturbed) - y_values) / eps
+
+    return jacobian_matrix
 
 
 def make_random_targets(N, K):

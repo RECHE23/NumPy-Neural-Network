@@ -8,7 +8,7 @@ except ImportError:
 
 
 @trace()
-def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
+def softmax(x: np.ndarray, axis=-1, prime: bool = False) -> np.ndarray:
     """
     Softmax activation function.
 
@@ -25,8 +25,8 @@ def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
         Result of applying softmax activation or its derivative.
 
     """
-    e = np.exp(x - np.max(x))
-    s = e / np.sum(e, axis=-1, keepdims=True)
+    e = np.exp(x - np.max(x, axis=axis)[:, np.newaxis])
+    s = e / np.sum(e, axis=axis, keepdims=True)
 
     if prime:
         return einsum('ij,jk->ijk', s, np.eye(s.shape[-1]), optimize=True) - einsum('ij,ik->ijk', s, s, optimize=True)
@@ -35,7 +35,7 @@ def softmax(x: np.ndarray, prime: bool = False) -> np.ndarray:
 
 
 @trace()
-def softmin(x: np.ndarray, prime: bool = False) -> np.ndarray:
+def softmin(x: np.ndarray, axis=-1, prime: bool = False) -> np.ndarray:
     """
     Softmin activation function.
 
@@ -52,11 +52,11 @@ def softmin(x: np.ndarray, prime: bool = False) -> np.ndarray:
         Result of applying softmin activation or its derivative.
 
     """
-    e = np.exp(-x - np.max(-x))
-    s = e / np.sum(e, axis=-1, keepdims=True)
+    e = np.exp(-x - np.max(-x, axis=axis)[:, np.newaxis])
+    s = e / np.sum(e, axis=axis, keepdims=True)
 
     if prime:
-        return einsum('ij,jk->ijk', s, np.eye(s.shape[-1]), optimize=True) - einsum('ij,ik->ijk', s, s, optimize=True)
+        return -einsum('ij,jk->ijk', s, np.eye(s.shape[-1]), optimize=True) + einsum('ij,ik->ijk', s, s, optimize=True)
 
     return s
 
